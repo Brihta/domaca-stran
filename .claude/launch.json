@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "group-maker",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3456", "/Users/ninokokalj/Documents/Shared_documents/GitHub/group_maker"],
+      "port": 3456
+    }
+  ]
+}

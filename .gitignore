@@ -1,0 +1,10 @@
+# Osebni podatki učencev — nikoli v repozitorij
+classes.json
+Ucenci*.csv
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/worktrees/
+.claude/settings.local.json

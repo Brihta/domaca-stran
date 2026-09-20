@@ -622,6 +622,10 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
+      <a href="zaslon.html" class="btn-ghost" style="padding:7px 12px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;color:#6366f1;" title="Odpri razredni zaslon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Razredni zaslon
+      </a>
       <button id="btn-dark-mode" class="btn-ghost" style="padding:7px;border-radius:10px;display:flex;align-items:center;" aria-label="Preklopi temni način">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
@@ -688,9 +692,9 @@
           <select id="preloaded-class" class="input-field flex-1" style="padding:8px 12px;font-size:13px;font-family:'Inter',-apple-system,sans-serif;">
             <option value="">Izberi razred…</option>
             <option value="1. A">1. A</option>
+            <option value="1. B">1. B</option>
             <option value="2. A">2. A</option>
             <option value="3. A">3. A</option>
-            <option value="3. B">3. B</option>
             <option value="4. A">4. A</option>
             <option value="4. B">4. B</option>
             <option value="5. A">5. A</option>
@@ -699,10 +703,10 @@
             <option value="6. B">6. B</option>
             <option value="7. A">7. A</option>
             <option value="7. B">7. B</option>
-            <option value="7. C">7. C</option>
             <option value="8. A">8. A</option>
+            <option value="8. B">8. B</option>
+            <option value="8. C">8. C</option>
             <option value="9. A">9. A</option>
-            <option value="9. B">9. B</option>
           </select>
           <input id="preloaded-password" type="password" placeholder="Geslo…" class="input-field" style="padding:8px 12px;font-size:13px;width:140px;">
           <button id="btn-load-preloaded" class="btn-primary" style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:5px;">
@@ -928,6 +932,7 @@
 </div>
 
 <!-- ===== SCRIPT ===== -->
+<script src="js/razredi.js"></script>
 <script>
   // ---- State ----
   let students = [];
@@ -1746,7 +1751,6 @@
   }
 
   // ---- Preloaded Encrypted Class Data ----
-  const ENCRYPTED_CLASSES = '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';
 
   function decryptData(base64, password) {
     try {

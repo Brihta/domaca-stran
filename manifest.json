@@ -1,11 +1,11 @@
 {
-  "name": "Skupinsko delo",
-  "short_name": "Skupinsko delo",
-  "description": "Orodje za razdelitev učencev v skupine",
+  "name": "Domača stran — OŠ Šempeter",
+  "short_name": "Domača stran",
+  "description": "Razredni zaslon in razporejevalnik skupin za OŠ Šempeter v Savinjski dolini",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f8fafc",
-  "theme_color": "#6366f1",
+  "theme_color": "#EFE337",
   "lang": "sl",
   "icons": [
     {
