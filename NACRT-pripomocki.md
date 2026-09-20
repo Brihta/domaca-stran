@@ -323,3 +323,47 @@ preizkusiti s prstom, ne le z miško.
 2. **Nabor simbolov dela** — je zgornjih osem pravi, kaj manjka?
 3. **Kje naj se ustavim?** Predlagam potrditev faz 0–2, ostalo po ogledu.
 4. **Anketa brez zaledja (ročno tapkanje)** — je to sprejemljivo?
+
+---
+
+## 9. Razredna pustolovščina (Classroom Quest)
+
+Učenec izbere svojo pot; točke ga vodijo skozi šest nivojev.
+Pragovi so za vse poti enaki: **0 · 10 · 25 · 50 · 100 · 150**.
+
+### Devet poti
+Vodni zmaj · Ognjeni feniks · Škratji bojevnik · Alkimist · Varuh narave ·
+Senčni tat · Vitez · Lokostrelec · Čarovnik
+
+Vsaka ima šest slovenskih nazivov nivojev in svojo barvo, ki obarva kartico,
+napredno črto in okvir ob slavju.
+
+### Slike
+Priloženih je bilo devet plakatov, na vsakem šest nivojev v vrsti — ne 54 ločenih
+datotek, kot predpostavlja izvirni poziv. Razrezal sem jih v
+`assets/junaki/<pot>/nivo_1..6.jpg` (54 slik, 1,7 MB).
+
+Umeritev je bila za vsak plakat svoja: nekateri imajo naslov panela znotraj okvirja,
+drugi nad njim, tretji so prostostoječi liki z napisi zgoraj in spodaj. Prvi izrezi
+so zajeli besedilo, zato sem jih pri petih poteh popravil.
+**Posamezno sliko lahko kadarkoli zamenjaš** — dovolj je, da prepišeš datoteko.
+
+### Kaj zna
+- Mreža kartic za prisotne učence: junak, nivo, naziv, točke, napredna črta
+- Učenec brez poti ima kartico „Izberi junaka" z izbirnikom vseh devetih poti
+- Gumbi **+1 / +5 / +10 / −** pri vsaki kartici, `⤾` zamenja junaka
+- „Ponastavi točke" za cel razred
+- Točke so shranjene **po razredu in imenu**, zato se razredi ne mešajo
+
+### Slavje ob napredovanju
+Ob prehodu praga se kartica „popne in zažari" (`transform: scale` + `drop-shadow`),
+čez zaslon pa se odpre slavje z velikim junakom, imenom učenca in novim nazivom.
+Zraven gre kratka fanfara. Samodejno izgine po ~4 s ali ob kliku.
+Ob `prefers-reduced-motion` so animacije izklopljene.
+
+### Hrošč, ki ga je bilo vredno najti
+`container-type: size` na oknih prevzema (dodan prej za skaliranje vsebine) je
+povzročil, da so se **okna izrisovala prosojno** — belo ozadje se je videlo kot
+poltransparentno. Sprva sem to pripisal časovnici posnetkov; ni bilo to.
+Zamenjal sem ga z višino okna, ki jo JS zapiše v `--okno-h`, vsebina pa se meri
+po njej. Enak učinek, brez napake pri izrisu.

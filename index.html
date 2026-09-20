@@ -36,6 +36,9 @@
         <button class="ploscica" data-odpri="urnik">
           <span class="i"></span><span class="lbl">Urnik</span><span class="sub">predmeti po urah</span>
         </button>
+        <button class="ploscica" data-odpri="quest">
+          <span class="i"></span><span class="lbl">Pustolovščina</span><span class="sub">točke in junaki</span>
+        </button>
       </div>
     </div>
 
@@ -163,6 +166,32 @@
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
+    <!-- ---------- PREVZEM: PUSTOLOVŠČINA ---------- -->
+    <section class="prevzem" id="prevzem-quest">
+      <div class="prevzem-glava">
+        <h2>Pustolovščina</h2>
+        <span class="znacka" id="q-znacka"></span>
+        <div class="desno">
+          <button class="gumb gumb-t" id="q-ponastavi">Ponastavi točke</button>
+          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+        </div>
+      </div>
+      <div class="q-mreza" id="q-mreza"></div>
+
+      <!-- izbira junaka -->
+      <div class="q-izbira" id="q-izbira">
+        <div class="q-izbira-box">
+          <div class="q-izbira-glava">
+            <h3>Izberi junaka — <span id="q-izbira-ime"></span></h3>
+            <button class="gumb gumb-t" id="q-izbira-zapri">✕</button>
+          </div>
+          <div class="q-izbira-mreza" id="q-izbira-mreza"></div>
+        </div>
+      </div>
+
+      <div class="prevzem-rocaj" aria-hidden="true"></div>
+    </section>
   </main>
 
   <!-- ========================= GLAVA ========================= -->
@@ -238,6 +267,7 @@
         <button data-dodaj="anketa">Anketa</button>
         <button data-prevzem="urnik">Urnik</button>
         <button data-prevzem="miselni">Miselni vzorec</button>
+        <button data-prevzem="quest">Pustolovščina</button>
         <button id="meni-razporejevalnik">Napredni razporejevalnik…</button>
       </div>
     </div>
@@ -313,6 +343,8 @@
   </div>
 </aside>
 
+<div class="q-slavje" id="q-slavje" aria-live="polite"></div>
+
 <div class="obvestilo" id="obvestilo" role="status" aria-live="polite"></div>
 
 <script src="js/razredi.js"></script>
@@ -320,6 +352,7 @@
 <script src="js/skupine.js"></script>
 <script src="js/pripomocki.js"></script>
 <script src="js/orodja.js"></script>
+<script src="js/pustolovscina.js"></script>
 <script src="js/zagon.js"></script>
 </body>
 </html>

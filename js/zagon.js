@@ -21,14 +21,14 @@ function napolniIkone() {
     g.querySelector('.ico').innerHTML = ikona(g.dataset.trak));
 
   const meniIkone = { kocka:'kocka', besedilo:'besedilo', slika:'slika', zreb:'zreb',
-                      anketa:'anketa', urnik:'urnik', miselni:'miselni' };
+                      anketa:'anketa', urnik:'urnik', miselni:'miselni', quest:'quest' };
   $$('.vec-meni button').forEach(b => {
     const k = b.dataset.dodaj || b.dataset.prevzem;
     b.insertAdjacentHTML('afterbegin', ikona(meniIkone[k] || 'skupine'));
   });
 
   const ploscicaIkone = { skupine:'skupine', zreb:'zreb', semafor:'semafor',
-                          besedilo:'besedilo', urnik:'urnik' };
+                          besedilo:'besedilo', urnik:'urnik', quest:'quest' };
   $$('.ploscica').forEach(p => {
     const k = p.dataset.odpri || p.dataset.dodaj;
     p.querySelector('.i').innerHTML = ikona(ploscicaIkone[k] || 'besedilo');
@@ -120,7 +120,7 @@ function poveziPlosco() {
   $('#razred').addEventListener('change', e => {
     if (!e.target.value) return;
     if (!Razredi.nalozi(e.target.value)) { obvesti('Tega razreda ni v podatkih.'); return; }
-    izrisiPrisotnost(); izrisiPozdrav(); Zreb.izrisStanja();
+    izrisiPrisotnost(); izrisiPozdrav(); Zreb.izrisStanja(); Pustolovscina.izris();
     obvesti(`Naložen ${Stanje.razred} — ${Stanje.seznam.length} učencev`);
   });
 
@@ -129,7 +129,7 @@ function poveziPlosco() {
     if (!z) return;
     const id = z.dataset.id;
     Stanje.odsotni.has(id) ? Stanje.odsotni.delete(id) : Stanje.odsotni.add(id);
-    shraniStanje(); izrisiPrisotnost(); izrisiPozdrav(); Zreb.izrisStanja();
+    shraniStanje(); izrisiPrisotnost(); izrisiPozdrav(); Zreb.izrisStanja(); Pustolovscina.izris();
   });
 
   $$('#velikosti .zeton').forEach(z => z.addEventListener('click', () => {
@@ -246,6 +246,13 @@ function poveziOrodja() {
   // urnik
   $('#urnik-pocisti').addEventListener('click', () => Urnik.pocisti());
 
+  // pustolovščina
+  $('#q-ponastavi').addEventListener('click', () => Pustolovscina.ponastaviVse());
+  $('#q-izbira-zapri').addEventListener('click', () => Pustolovscina.zapriIzbiro());
+  $('#q-izbira').addEventListener('click', e => {
+    if (e.target.id === 'q-izbira') Pustolovscina.zapriIzbiro();
+  });
+
   // miselni vzorec
   $('#miselni-dodaj').addEventListener('click', () => Miselni.dodaj('Nova ideja', Miselni.vozlisca.length === 0));
   $('#miselni-povezi').addEventListener('click', () => Miselni.zacniPovezovanje());
@@ -297,6 +304,7 @@ function zagon() {
   Skupine.izris();
   Urnik.izris();
   Miselni.izris();
+  Pustolovscina.izris();
 
   uporabiOzadje(Stanje.ozadje);
   Platno.obnoviVse();
