@@ -248,6 +248,7 @@ function poveziOrodja() {
 
   // pustolovščina
   $('#q-ponastavi').addEventListener('click', () => Pustolovscina.ponastaviVse());
+  $('#q-dodeli').addEventListener('click', () => Pustolovscina.odpriDodelitev());
   $('#q-izbira-zapri').addEventListener('click', () => Pustolovscina.zapriIzbiro());
   $('#q-izbira').addEventListener('click', e => {
     if (e.target.id === 'q-izbira') Pustolovscina.zapriIzbiro();
@@ -304,6 +305,7 @@ function zagon() {
   Skupine.izris();
   Urnik.izris();
   Miselni.izris();
+  Pustolovscina.preseli();
   Pustolovscina.izris();
 
   uporabiOzadje(Stanje.ozadje);

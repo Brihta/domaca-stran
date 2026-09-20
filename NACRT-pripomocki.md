@@ -328,8 +328,9 @@ preizkusiti s prstom, ne le z miško.
 
 ## 9. Razredna pustolovščina (Classroom Quest)
 
-Učenec izbere svojo pot; točke ga vodijo skozi šest nivojev.
-Pragovi so za vse poti enaki: **0 · 10 · 25 · 50 · 100 · 150**.
+Učenec izbere svojo pot; **ena točka je en nivo**, največ šest.
+(Prvotno je bilo 0/10/25/50/100/150; ob prehodu se stari napredek samodejno pretvori
+— 100 točk je postalo nivo 5, ne nivo 1.)
 
 ### Devet poti
 Vodni zmaj · Ognjeni feniks · Škratji bojevnik · Alkimist · Varuh narave ·
@@ -351,12 +352,17 @@ so zajeli besedilo, zato sem jih pri petih poteh popravil.
 ### Kaj zna
 - Mreža kartic za prisotne učence: junak, nivo, naziv, točke, napredna črta
 - Učenec brez poti ima kartico „Izberi junaka" z izbirnikom vseh devetih poti
-- Gumbi **+1 / +5 / +10 / −** pri vsaki kartici, `⤾` zamenja junaka
-- „Ponastavi točke" za cel razred
+- Na kartici so **− , +1 in ⤾** (zamenjaj junaka); gumba se sama onemogočita
+  na nivoju 1 oziroma 6
+- Šest stopničk namesto črte — nivo se vidi na prvi pogled
+- Prikazani so **samo učenci, ki junaka že imajo**; ostali kartic ne zasedajo
+- **„Dodeli junaka (N)"** v glavi odpre seznam tistih brez junaka —
+  brez tega gumba junaka po skritju praznih kartic ne bi bilo mogoče nikomur dati
+- „Ponastavi" vrne cel razred na nivo 1
 - Točke so shranjene **po razredu in imenu**, zato se razredi ne mešajo
 
 ### Slavje ob napredovanju
-Ob prehodu praga se kartica „popne in zažari" (`transform: scale` + `drop-shadow`),
+Ob prehodu nivoja se kartica „popne in zažari" (`transform: scale` + `drop-shadow`),
 čez zaslon pa se odpre slavje z velikim junakom, imenom učenca in novim nazivom.
 Zraven gre kratka fanfara. Samodejno izgine po ~4 s ali ob kliku.
 Ob `prefers-reduced-motion` so animacije izklopljene.

@@ -4,8 +4,8 @@
    ===================================================================== */
 'use strict';
 
-/** Pragovi so enaki za vse poti. */
-const PRAGOVI = [0, 10, 25, 50, 100, 150];
+/** Ena točka = en nivo. Šest je največ. */
+const NAJVEC_NIVO = 6;
 
 const POTI = {
   zmaj: {
@@ -51,29 +51,35 @@ const POTI = {
 
 const slikaPoti = (pot, nivo) => `assets/junaki/${pot}/nivo_${nivo}.jpg`;
 
-/** Nivo (1–6) iz točk. */
+/** Nivo je kar število točk, omejeno na 1–6. */
 function nivoIzTock(tocke) {
-  let n = 1;
-  for (let i = 0; i < PRAGOVI.length; i++) if (tocke >= PRAGOVI[i]) n = i + 1;
-  return n;
+  return Math.min(NAJVEC_NIVO, Math.max(1, Math.round(tocke)));
 }
-/** Koliko do naslednjega nivoja in kolikšen delež je že prehojen. */
-function napredek(tocke) {
-  const n = nivoIzTock(tocke);
-  if (n >= PRAGOVI.length) return { nivo: n, delez: 100, doNaslednjega: 0, naslednjiPrag: null };
-  const od = PRAGOVI[n - 1], do_ = PRAGOVI[n];
-  return {
-    nivo: n,
-    delez: Math.round(((tocke - od) / (do_ - od)) * 100),
-    doNaslednjega: do_ - tocke,
-    naslednjiPrag: do_,
-  };
+
+/**
+ * Staro štetje (pragovi 0/10/25/50/100/150) pretvorimo v nove nivoje,
+ * da učenci ne izgubijo napredka ob prehodu.
+ */
+const STARI_PRAGOVI = [0, 10, 25, 50, 100, 150];
+function pretvoriStaro(tocke) {
+  let n = 1;
+  for (let i = 0; i < STARI_PRAGOVI.length; i++) if (tocke >= STARI_PRAGOVI[i]) n = i + 1;
+  return n;
 }
 
 const Pustolovscina = {
   /** { "7. A": { "Ana": { pot:'zmaj', tocke:35 } } } */
   podatki: Shramba.beri('pustolovscina', {}),
   izbiramZa: null,          // ime učenca, ki mu izbiramo pot
+
+  /** Enkratna selitev s starega štetja na "1 točka = 1 nivo". */
+  preseli() {
+    if (Shramba.beri('pustolovscinaRazlicica', 1) >= 2) return;
+    Object.values(this.podatki).forEach(razred =>
+      Object.values(razred).forEach(z => { z.tocke = pretvoriStaro(z.tocke); }));
+    Shramba.pisi('pustolovscinaRazlicica', 2);
+    this.shrani();
+  },
 
   shrani() { Shramba.pisi('pustolovscina', this.podatki); },
 
@@ -94,7 +100,7 @@ const Pustolovscina = {
   dodaj(ime, koliko) {
     const z = this.zapis(ime);
     const prejNivo = nivoIzTock(z.tocke);
-    z.tocke = Math.max(0, z.tocke + koliko);
+    z.tocke = Math.min(NAJVEC_NIVO, Math.max(1, z.tocke + koliko));
     const zdajNivo = nivoIzTock(z.tocke);
     this.shrani();
     this.izris();
@@ -113,7 +119,9 @@ const Pustolovscina = {
   },
 
   izberiPot(ime, pot) {
-    this.zapis(ime).pot = pot;
+    const z = this.zapis(ime);
+    z.pot = pot;
+    if (!z.tocke) z.tocke = 1;          // izbran junak začne na nivoju 1
     this.shrani();
     this.izbiramZa = null;
     this.izris();
@@ -121,15 +129,14 @@ const Pustolovscina = {
   },
 
   ponastavi(ime) {
-    const z = this.zapis(ime);
-    z.tocke = 0;
+    this.zapis(ime).tocke = 1;
     this.shrani(); this.izris();
   },
 
   ponastaviVse() {
     const r = Stanje.razred;
     if (!r) return;
-    Object.values(this.podatki[r] || {}).forEach(z => z.tocke = 0);
+    Object.values(this.podatki[r] || {}).forEach(z => z.tocke = 1);
     this.shrani(); this.izris();
     obvesti('Točke celega razreda ponastavljene.');
   },
@@ -180,51 +187,54 @@ const Pustolovscina = {
     if (!Stanje.razred || !Stanje.seznam.length) {
       mreza.innerHTML = `<p class="namig">Najprej odkleni in izberi razred v „Razred".</p>`;
       $('#q-znacka').textContent = '';
+      $('#q-dodeli').classList.add('skrit');
       return;
     }
 
+    // Na zaslonu so samo tisti, ki junaka že imajo — prazne kartice ne zasedajo prostora.
     const ucenci = aktivni();
-    mreza.innerHTML = ucenci.map(u => this._kartica(u.ime)).join('');
+    const zJunakom = ucenci.filter(u => this.zapis(u.ime).pot);
+    const brezJunaka = ucenci.length - zJunakom.length;
+
+    mreza.innerHTML = zJunakom.length
+      ? zJunakom.map(u => this._kartica(u.ime)).join('')
+      : `<p class="namig">Nihče še nima junaka. Klikni „Dodeli junaka" zgoraj.</p>`;
     this._poveziKartice();
 
-    const skupaj = ucenci.reduce((s, u) => s + this.zapis(u.ime).tocke, 0);
-    $('#q-znacka').textContent = `${Stanje.razred} · ${ucenci.length} učencev · ${skupaj} točk skupaj`;
+    // Brez te poti junaka ne bi bilo mogoče nikomur dodeliti.
+    const g = $('#q-dodeli');
+    g.classList.toggle('skrit', brezJunaka === 0);
+    g.textContent = `Dodeli junaka (${brezJunaka})`;
+
+    $('#q-znacka').textContent =
+      `${Stanje.razred} · ${zJunakom.length} junakov` +
+      (brezJunaka ? ` · ${brezJunaka} brez` : '');
   },
 
   _kartica(ime) {
     const z = this.zapis(ime);
-    if (!z.pot) {
-      return `
-        <div class="q-kartica brez" data-ime="${ubezi(ime)}">
-          <button class="q-izberi" data-izberi="${ubezi(ime)}">
-            <span class="q-vprasaj">?</span>
-            <span>Izberi junaka</span>
-          </button>
-          <div class="q-ime">${ubezi(ime)}</div>
-        </div>`;
-    }
-
     const p = POTI[z.pot];
-    const n = napredek(z.tocke);
-    const maks = n.nivo >= 6;
+    const nivo = nivoIzTock(z.tocke);
+    const maks = nivo >= NAJVEC_NIVO;
+
+    const stopnice = Array.from({ length: NAJVEC_NIVO }, (_, i) =>
+      `<i class="${i < nivo ? 'on' : ''}"></i>`).join('');
+
     return `
       <div class="q-kartica" data-ime="${ubezi(ime)}" style="--pb:${p.barva}">
         <div class="q-slika-ovoj">
-          <img class="q-slika" src="${slikaPoti(z.pot, n.nivo)}" alt="${ubezi(p.nivoji[n.nivo-1])}" loading="lazy">
-          <span class="q-nivo">${n.nivo}</span>
+          <img class="q-slika" src="${slikaPoti(z.pot, nivo)}"
+               alt="${ubezi(p.nivoji[nivo - 1])}" loading="lazy">
+          <span class="q-nivo">${nivo}</span>
         </div>
         <div class="q-ime">${ubezi(ime)}</div>
-        <div class="q-naziv">${ubezi(p.nivoji[n.nivo - 1])}</div>
-        <div class="q-crta"><div class="q-polnilo" style="width:${n.delez}%"></div></div>
-        <div class="q-tocke">
-          <b>${z.tocke}</b>
-          <span>${maks ? 'najvišji nivo' : `še ${n.doNaslednjega} do nivoja ${n.nivo + 1}`}</span>
-        </div>
+        <div class="q-naziv">${ubezi(p.nivoji[nivo - 1])}</div>
+        <div class="q-stopnice">${stopnice}</div>
         <div class="q-gumbi">
-          <button class="q-pt" data-tocke="1"  data-ime="${ubezi(ime)}">+1</button>
-          <button class="q-pt" data-tocke="5"  data-ime="${ubezi(ime)}">+5</button>
-          <button class="q-pt" data-tocke="10" data-ime="${ubezi(ime)}">+10</button>
-          <button class="q-pt manj" data-tocke="-1" data-ime="${ubezi(ime)}" aria-label="Odštej točko">−</button>
+          <button class="q-pt manj" data-tocke="-1" data-ime="${ubezi(ime)}"
+                  ${nivo <= 1 ? 'disabled' : ''} aria-label="Nivo nazaj">−</button>
+          <button class="q-pt plus" data-tocke="1" data-ime="${ubezi(ime)}"
+                  ${maks ? 'disabled' : ''} aria-label="Nivo naprej">+1</button>
           <button class="q-pt menjaj" data-izberi="${ubezi(ime)}" aria-label="Zamenjaj junaka">⤾</button>
         </div>
       </div>`;
@@ -237,10 +247,24 @@ const Pustolovscina = {
       b.addEventListener('click', () => this.odpriIzbiro(b.dataset.izberi)));
   },
 
+  /** Seznam tistih brez junaka — edina pot do dodelitve, odkar so prazne kartice skrite. */
+  odpriDodelitev() {
+    const brez = aktivni().filter(u => !this.zapis(u.ime).pot);
+    if (!brez.length) { obvesti('Vsi prisotni že imajo junaka.'); return; }
+    $('#q-izbira-ime').textContent = '';
+    $('#q-izbira-naslov').textContent = 'Kdo dobi junaka?';
+    $('#q-izbira-mreza').innerHTML = brez.map(u =>
+      `<button class="q-ucenec" data-ucenec="${ubezi(u.ime)}">${ubezi(u.ime)}</button>`).join('');
+    $$('#q-izbira-mreza .q-ucenec').forEach(b =>
+      b.addEventListener('click', () => this.odpriIzbiro(b.dataset.ucenec)));
+    $('#q-izbira').classList.add('vidno');
+  },
+
   /* ---------------- izbira poti ---------------- */
   odpriIzbiro(ime) {
     this.izbiramZa = ime;
     const trenutna = this.zapis(ime).pot;
+    $('#q-izbira-naslov').textContent = 'Izberi junaka —';
     $('#q-izbira-ime').textContent = ime;
     $('#q-izbira-mreza').innerHTML = Object.entries(POTI).map(([k, p]) => `
       <button class="q-pot${k === trenutna ? ' on' : ''}" data-pot="${k}" style="--pb:${p.barva}">
