@@ -651,6 +651,13 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   overflow:hidden; background:var(--kartica-2);
   display:flex; align-items:center; justify-content:center;
 }
+/* Lik brez ozadja: nežna podlaga v barvi poti, da ne lebdi v praznem. */
+.q-slika-ovoj.brez-ozadja {
+  background:
+    radial-gradient(ellipse at 50% 78%, color-mix(in srgb, var(--pb) 22%, transparent), transparent 62%),
+    linear-gradient(180deg, #fff, color-mix(in srgb, var(--pb) 10%, #fff));
+}
+.q-slika-ovoj.brez-ozadja .q-slika { padding:5px; object-position:center bottom; }
 .q-slika {
   width:100%; height:100%; display:block;
   object-fit:contain; object-position:top center;
@@ -738,6 +745,12 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .q-pot.on    { border-color:var(--pb); box-shadow:0 0 0 3px color-mix(in srgb, var(--pb) 35%, transparent); }
 .q-pot img   { width:100%; aspect-ratio:1/2; object-fit:contain; object-position:top center;
                display:block; background:var(--kartica-2); }
+.q-pot img.brez-ozadja {
+  padding:5px; object-position:center bottom;
+  background:
+    radial-gradient(ellipse at 50% 78%, color-mix(in srgb, var(--pb) 22%, transparent), transparent 62%),
+    linear-gradient(180deg, #fff, color-mix(in srgb, var(--pb) 10%, #fff));
+}
 .q-pot-ime   { font-size:11.5px; font-weight:800; color:var(--text); padding:7px 5px; line-height:1.2; }
 
 /* ---------- slavje ob napredovanju ---------- */
@@ -771,6 +784,15 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 @keyframes q-zari {
   from { box-shadow:0 0 0 6px rgba(255,214,102,.18), 0 0 46px rgba(255,214,102,.40); }
   to   { box-shadow:0 0 0 10px rgba(255,214,102,.34), 0 0 96px rgba(255,214,102,.85); }
+}
+.q-slavje-slika.brez-ozadja {
+  border:none; border-radius:0; background:none;
+  box-shadow:none; filter:drop-shadow(0 0 34px rgba(255,214,102,.75));
+  animation:q-zari-lik 1.5s ease-in-out infinite alternate;
+}
+@keyframes q-zari-lik {
+  from { filter:drop-shadow(0 0 20px rgba(255,214,102,.45)); }
+  to   { filter:drop-shadow(0 0 54px rgba(255,214,102,.95)); }
 }
 .q-slavje-ime   { font-size:clamp(26px,4vw,46px); font-weight:800; margin-top:20px; letter-spacing:-.02em; }
 .q-slavje-naziv { font-size:clamp(17px,2.4vw,27px); font-weight:800; color:#FFD666; margin-top:4px; }

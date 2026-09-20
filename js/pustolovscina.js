@@ -9,20 +9,24 @@ const NAJVEC_NIVO = 6;
 
 const POTI = {
   zmaj: {
+    brezOzadja: true,
     ime: 'Vodni zmaj', barva: '#2E9CC9',
     nivoji: ['Mladič globin', 'Potočni mladiček', 'Vajenec toka',
              'Pevec plimovanja', 'Vladar voda', 'Nebeški leviatan'],
   },
   feniks: {
+    brezOzadja: true,
     ime: 'Ognjeni feniks', barva: '#E0700A',
     nivoji: ['Iskrica iz jajca', 'Mladi plamen', 'Vajenec ognja',
              'Plameno srce', 'Gospodar žara', 'Veliki ognjeni ptič'],
   },
   skrat: {
+    brezOzadja: true,
     ime: 'Škratji bojevnik', barva: '#8B5A2B',
     nivoji: ['Novinec', 'Vajenec', 'Vojak', 'Veteran', 'Prvak', 'Veliki mojster'],
   },
   alkimist: {
+    brezOzadja: true,
     ime: 'Alkimist', barva: '#7A4FBF',
     nivoji: ['Novinec', 'Pomočnik', 'Izvajalec', 'Poznavalec', 'Mojster', 'Veliki mojster'],
   },
@@ -49,7 +53,9 @@ const POTI = {
   },
 };
 
-const slikaPoti = (pot, nivo) => `assets/junaki/${pot}/nivo_${nivo}.jpg`;
+/* Poti z izrezanimi liki imajo prozoren PNG, ostale celotno sliko v JPEG. */
+const slikaPoti = (pot, nivo) =>
+  `assets/junaki/${pot}/nivo_${nivo}.` + (POTI[pot]?.brezOzadja ? 'png' : 'jpg');
 
 /** Nivo je kar število točk, omejeno na 1–6. */
 function nivoIzTock(tocke) {
@@ -148,7 +154,7 @@ const Pustolovscina = {
     o.innerHTML = `
       <div class="q-slavje-box" style="--pb:${p.barva}">
         <div class="q-slavje-nivo">Nivo ${nivo}</div>
-        <img class="q-slavje-slika" src="${slikaPoti(pot, nivo)}" alt="">
+        <img class="q-slavje-slika${p.brezOzadja ? " brez-ozadja" : ""}" src="${slikaPoti(pot, nivo)}" alt="">
         <div class="q-slavje-ime">${ubezi(ime)}</div>
         <div class="q-slavje-naziv">${ubezi(p.nivoji[nivo - 1])}</div>
         <div class="q-slavje-pot">${ubezi(p.ime)}</div>
@@ -216,13 +222,14 @@ const Pustolovscina = {
     const p = POTI[z.pot];
     const nivo = nivoIzTock(z.tocke);
     const maks = nivo >= NAJVEC_NIVO;
+    const JE_BREZ = p.brezOzadja ? ' brez-ozadja' : '';
 
     const stopnice = Array.from({ length: NAJVEC_NIVO }, (_, i) =>
       `<i class="${i < nivo ? 'on' : ''}"></i>`).join('');
 
     return `
       <div class="q-kartica" data-ime="${ubezi(ime)}" style="--pb:${p.barva}">
-        <div class="q-slika-ovoj">
+        <div class="q-slika-ovoj${JE_BREZ}">
           <img class="q-slika" src="${slikaPoti(z.pot, nivo)}"
                alt="${ubezi(p.nivoji[nivo - 1])}" loading="lazy">
           <span class="q-nivo">${nivo}</span>
@@ -268,7 +275,7 @@ const Pustolovscina = {
     $('#q-izbira-ime').textContent = ime;
     $('#q-izbira-mreza').innerHTML = Object.entries(POTI).map(([k, p]) => `
       <button class="q-pot${k === trenutna ? ' on' : ''}" data-pot="${k}" style="--pb:${p.barva}">
-        <img src="${slikaPoti(k, 6)}" alt="" loading="lazy">
+        <img class="${p.brezOzadja ? "brez-ozadja" : ""}" src="${slikaPoti(k, 6)}" alt="" loading="lazy">
         <span class="q-pot-ime">${ubezi(p.ime)}</span>
       </button>`).join('');
 

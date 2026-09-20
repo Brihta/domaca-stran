@@ -389,3 +389,23 @@ Zdaj ima okence `aspect-ratio: 1/2` in `object-fit: contain`, zato je lik **vedn
 ne glede na to, kako visoka je izvorna slika. Enako velja za izbirnik poti in za slavje.
 Kartice so ožje (104 px), ker so visoke — v vrsto jih gre osem do devet,
 razred s 17 junaki gre na dve vrsti.
+
+### Liki brez ozadja
+
+Štiri poti imajo izrezane like s prozornim ozadjem (`nivo_N.png`):
+**zmaj, feniks, skrat, alkimist**. Izluščeni so iz lista, ki ga je pripravil učitelj
+(`ChatGPT Image … .png`, 1698×926 z alfa kanalom).
+
+Preostalih pet poti (**narava, tat, vitez, lokostrelka, carovnik**) ima še vedno
+celotne slike z ozadjem (`nivo_N.jpg`). Videz je zato mešan.
+
+V kodi to ureja zastavica `brezOzadja: true` pri poti; `slikaPoti()` glede nanjo
+vrne `.png` ali `.jpg`. Ko bodo na voljo izrezi še za ostale poti, je dovolj
+odložiti datoteke in dodati zastavico — drugih sprememb ni.
+
+Izrezan lik dobi nežno podlago v barvi poti, da ne lebdi v praznem,
+ob slavju pa žari brez okvirja (`drop-shadow` namesto `box-shadow`).
+
+**Opomba o velikosti:** okence je visok portret (1/2), izrezi pa so širši
+(~0,74), zato lik ne zapolni vse višine. Ko bo izrezov devet od devetih,
+se splača razmerje okenca enkrat uskladiti z njimi.
