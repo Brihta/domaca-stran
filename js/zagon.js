@@ -179,6 +179,7 @@ function poveziDok() {
   }));
 
   $$('[data-zapri-prevzem]').forEach(b => b.addEventListener('click', () => Prevzem.zapri()));
+  $$('[data-ponastavi-okvir]').forEach(b => b.addEventListener('click', () => Prevzem.ponastaviGeo()));
 
   $$('.ploscica').forEach(p => p.addEventListener('click', () => {
     if (p.dataset.odpri) {

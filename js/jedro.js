@@ -270,6 +270,62 @@ const Razredi = {
 };
 
 /* ------------------------------------------------------------------ *
+ * VLEČENJE IN VELIKOST — skupno za lebdeče pripomočke in prevzeme
+ * ------------------------------------------------------------------ */
+const Vleci = {
+  /** geo je objekt z x/y; ob koncu pokličemo obKoncu(). */
+  premik(rocaj, el, geo, obKoncu, prezri = '') {
+    let zx = 0, zy = 0, sx = 0, sy = 0, vlecem = false;
+    rocaj.addEventListener('pointerdown', e => {
+      if (prezri && e.target.closest(prezri)) return;
+      vlecem = true;
+      try { rocaj.setPointerCapture(e.pointerId); } catch (_) {}
+      zx = e.clientX; zy = e.clientY; sx = geo.x; sy = geo.y;
+    });
+    rocaj.addEventListener('pointermove', e => {
+      if (!vlecem) return;
+      const p = $('#platno');
+      geo.x = Math.min(Math.max(0, sx + e.clientX - zx), p.clientWidth  - 60);
+      geo.y = Math.min(Math.max(0, sy + e.clientY - zy), p.clientHeight - 40);
+      el.style.left = geo.x + 'px'; el.style.top = geo.y + 'px';
+    });
+    const konec = e => {
+      if (!vlecem) return;
+      vlecem = false;
+      try { rocaj.releasePointerCapture(e.pointerId); } catch (_) {}
+      obKoncu?.();
+    };
+    rocaj.addEventListener('pointerup', konec);
+    rocaj.addEventListener('pointercancel', konec);
+  },
+
+  /** geo je objekt z w/h. */
+  velikost(rocaj, el, geo, obKoncu, najmanjW = 180, najmanjH = 120, obSpremembi) {
+    let zx = 0, zy = 0, sw = 0, sh = 0, vlecem = false;
+    rocaj.addEventListener('pointerdown', e => {
+      vlecem = true; e.stopPropagation();
+      try { rocaj.setPointerCapture(e.pointerId); } catch (_) {}
+      zx = e.clientX; zy = e.clientY; sw = geo.w; sh = geo.h;
+    });
+    rocaj.addEventListener('pointermove', e => {
+      if (!vlecem) return;
+      geo.w = Math.max(najmanjW, sw + e.clientX - zx);
+      geo.h = Math.max(najmanjH, sh + e.clientY - zy);
+      el.style.width = geo.w + 'px'; el.style.height = geo.h + 'px';
+      obSpremembi?.();
+    });
+    const konec = e => {
+      if (!vlecem) return;
+      vlecem = false;
+      try { rocaj.releasePointerCapture(e.pointerId); } catch (_) {}
+      obKoncu?.();
+    };
+    rocaj.addEventListener('pointerup', konec);
+    rocaj.addEventListener('pointercancel', konec);
+  },
+};
+
+/* ------------------------------------------------------------------ *
  * OGRODJE LEBDEČIH PRIPOMOČKOV (platno)
  * ------------------------------------------------------------------ */
 const Platno = {
@@ -347,52 +403,12 @@ const Platno = {
   },
 
   _omogociVlecenje(el, zapis) {
-    const rocaj = el.querySelector('.pw-glava');
-    let zx = 0, zy = 0, sx = 0, sy = 0, vlecem = false;
-    rocaj.addEventListener('pointerdown', e => {
-      if (e.target.closest('.pw-gumb')) return;
-      vlecem = true; rocaj.setPointerCapture(e.pointerId);
-      zx = e.clientX; zy = e.clientY; sx = zapis.x; sy = zapis.y;
-    });
-    rocaj.addEventListener('pointermove', e => {
-      if (!vlecem) return;
-      const p = $('#platno');
-      zapis.x = Math.min(Math.max(0, sx + e.clientX - zx), p.clientWidth  - 60);
-      zapis.y = Math.min(Math.max(0, sy + e.clientY - zy), p.clientHeight - 40);
-      el.style.left = zapis.x + 'px'; el.style.top = zapis.y + 'px';
-    });
-    const konec = e => {
-      if (!vlecem) return;
-      vlecem = false;
-      try { rocaj.releasePointerCapture(e.pointerId); } catch (_) {}
-      shraniStanje();
-    };
-    rocaj.addEventListener('pointerup', konec);
-    rocaj.addEventListener('pointercancel', konec);
+    Vleci.premik(el.querySelector('.pw-glava'), el, zapis, () => shraniStanje(), '.pw-gumb');
   },
 
   _omogociVelikost(el, zapis) {
-    const rocaj = el.querySelector('.pw-rocaj');
-    let zx = 0, zy = 0, sw = 0, sh = 0, vlecem = false;
-    rocaj.addEventListener('pointerdown', e => {
-      vlecem = true; e.stopPropagation(); rocaj.setPointerCapture(e.pointerId);
-      zx = e.clientX; zy = e.clientY; sw = zapis.w; sh = zapis.h;
-    });
-    rocaj.addEventListener('pointermove', e => {
-      if (!vlecem) return;
-      zapis.w = Math.max(180, sw + e.clientX - zx);
-      zapis.h = Math.max(120, sh + e.clientY - zy);
-      el.style.width = zapis.w + 'px'; el.style.height = zapis.h + 'px';
-      this.tipi[zapis.tip].obVelikosti?.(zapis);
-    });
-    const konec = e => {
-      if (!vlecem) return;
-      vlecem = false;
-      try { rocaj.releasePointerCapture(e.pointerId); } catch (_) {}
-      shraniStanje();
-    };
-    rocaj.addEventListener('pointerup', konec);
-    rocaj.addEventListener('pointercancel', konec);
+    Vleci.velikost(el.querySelector('.pw-rocaj'), el, zapis, () => shraniStanje(),
+                   180, 120, () => this.tipi[zapis.tip].obVelikosti?.(zapis));
   },
 
   odstrani(id) {
@@ -442,20 +458,65 @@ const Trak = {
  * ------------------------------------------------------------------ */
 const Prevzem = {
   trenutni: null,
+  geo: Shramba.beri('prevzemGeo', {}),   // { skupine:{x,y,w,h}, semafor:{...}, … }
+  pripravljeni: new Set(),
+
+  /** Velik, na sredini, a tako da pusti glavo zgoraj in dok spodaj. */
+  privzetaGeo() {
+    const p = $('#platno');
+    const w = Math.min(1120, p.clientWidth  - 36);
+    const h = Math.min(660,  p.clientHeight - 130);
+    return { x: Math.max(18, (p.clientWidth - w) / 2), y: 18, w, h };
+  },
+
+  shraniGeo() { Shramba.pisi('prevzemGeo', this.geo); },
+
   odpri(ime) {
     $$('.prevzem').forEach(p => p.classList.remove('odprt'));
     const el = document.getElementById('prevzem-' + ime);
     if (!el) return;
+
+    if (!this.geo[ime]) this.geo[ime] = this.privzetaGeo();
+    this._uporabiGeo(el, this.geo[ime]);
+    if (!this.pripravljeni.has(ime)) { this._omogoci(el, ime); this.pripravljeni.add(ime); }
+
     el.classList.add('odprt');
     this.trenutni = ime;
     $$('.dok-gumb[data-prevzem]').forEach(g => g.classList.toggle('on', g.dataset.prevzem === ime));
   },
+
+  _uporabiGeo(el, g) {
+    const p = $('#platno');
+    // po spremembi velikosti okna lahko okvir pade izven zaslona — potegnimo ga nazaj
+    g.w = Math.min(g.w, p.clientWidth  - 24);
+    g.h = Math.min(g.h, p.clientHeight - 24);
+    g.x = Math.min(Math.max(0, g.x), Math.max(0, p.clientWidth  - 120));
+    g.y = Math.min(Math.max(0, g.y), Math.max(0, p.clientHeight - 80));
+    el.style.cssText = `left:${g.x}px; top:${g.y}px; width:${g.w}px; height:${g.h}px`;
+  },
+
+  _omogoci(el, ime) {
+    const g = this.geo[ime];
+    Vleci.premik(el.querySelector('.prevzem-glava'), el, g, () => this.shraniGeo(),
+                 'button, .zetoni, select, input');
+    const rocaj = el.querySelector('.prevzem-rocaj');
+    if (rocaj) Vleci.velikost(rocaj, el, g, () => this.shraniGeo(), 320, 240);
+  },
+
   zapri() {
     $$('.prevzem').forEach(p => p.classList.remove('odprt'));
     this.trenutni = null;
     $$('.dok-gumb[data-prevzem]').forEach(g => g.classList.remove('on'));
   },
   preklopi(ime) { this.trenutni === ime ? this.zapri() : this.odpri(ime); },
+
+  /** Nazaj na privzeto velikost — če uporabnik okvir "zgubi". */
+  ponastaviGeo() {
+    if (!this.trenutni) return;
+    this.geo[this.trenutni] = this.privzetaGeo();
+    this._uporabiGeo(document.getElementById('prevzem-' + this.trenutni), this.geo[this.trenutni]);
+    this.shraniGeo();
+  },
 };
 
 /* ------------------------------------------------------------------ *

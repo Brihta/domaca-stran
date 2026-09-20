@@ -42,7 +42,8 @@ Noben model sam ne pokrije obojega.
 
 - **Trak** — semafor, simbol dela, časovnik. Majhni, vedno vidni, en klik.
 - **Platno** — besedilo, slika, kocka, anketa. Lebdijo, premakljivi.
-- **Prevzem** — skupine, miselni vzorec, urnik. Prekrijejo platno, `Esc` nazaj.
+- **Prevzem** — skupine, miselni vzorec, urnik. Lebdeča okna: premakljiva in
+  raztegljiva kot pripomočki na platnu, `Esc` zapre. Velikost se shrani za vsako orodje posebej.
 
 To je moje priporočilo. Če hočeš čisto Classroomscreen (vse na platnu, brez traku),
 je to manj dela pri lupini, a semafor je potem nekaj, kar je treba vsakič postaviti.
@@ -247,6 +248,23 @@ Brez zaledja, kot dogovorjeno.
 **Miselni vzorec.** Vozlišča z besedilom, vlečenje, povezave. „Poveži" označi izbrano
 vozlišče, klik na drugo potegne črto; ponovni klik na isto povezavo jo odstrani.
 Brisanje vozlišča počisti tudi njegove povezave.
+
+### Prevzemi so postali okna
+
+Sprva so semafor, simbol in skupine zavzeli cel zaslon in jih ni bilo mogoče raztegniti.
+Zdaj imajo vsi prevzemi enako obnašanje kot besedilo:
+
+- **premik** — vlečenje za naslovno vrstico (gumbi in žetoni v njej ostanejo klikljivi),
+- **velikost** — ročaj v desnem spodnjem kotu,
+- **⤢** v glavi vrne privzeto velikost, če okvir zgubiš,
+- geometrija se shrani **za vsako orodje posebej** in preživi osvežitev.
+
+Vsebina se meri po oknu, ne po zaslonu (`container-type:size` + `cqh`): pri majhnem
+oknu se semafor in simbol skrčita, namesto da bi ušla čez rob. Kjer je vsebine preveč
+(skupine, urnik), ta drsi.
+
+Vlečenje in raztegovanje sta zdaj en sam skupni del kode (`Vleci`), ki ga uporabljata
+platno in prevzemi — prej je bilo podvojeno.
 
 ### Popravljeno med izvedbo
 - **Dok je prekrival dno prevzema** — dodan spodnji odmik 104 px.
