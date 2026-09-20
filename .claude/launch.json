@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "group-maker",
+      "name": "domaca-stran",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-l", "3456", "/Users/ninokokalj/Documents/Shared_documents/GitHub/group_maker"],
-      "port": 3456
+      "runtimeArgs": ["serve", "-l", "3458", "/Users/ninokokalj/Documents/Shared_documents/GitHub/group_maker"],
+      "port": 3458
     }
   ]
 }

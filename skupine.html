@@ -1,0 +1,2090 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skupinsko delo</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+
+  <style>
+    :root {
+      --bg:          #f3f4ff;
+      --surface:     #ffffff;
+      --surface2:    #f5f5ff;
+      --surface3:    #eeeeff;
+      --border:      rgba(99,102,241,0.1);
+      --border-md:   rgba(99,102,241,0.2);
+      --text:        #1e1b4b;
+      --muted:       #8b8fa8;
+      --muted2:      #6b7280;
+      --accent:      #6366f1;
+      --accent2:     #8b5cf6;
+      --accent-dim:  rgba(99,102,241,0.1);
+      --accent-glow: rgba(99,102,241,0.3);
+      --success:     #10b981;
+      --danger:      #ef4444;
+      --warning:     #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #fdf4ff 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+
+    /* ---- Animations ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
+      70%  { box-shadow: 0 0 0 8px transparent; }
+      100% { box-shadow: 0 0 0 0 transparent; }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .anim-fade-up { animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) forwards; }
+    .anim-pop     { animation: popIn 0.4s cubic-bezier(.16,1,.3,1) forwards; }
+    .anim-slide   { animation: slideDown 0.35s cubic-bezier(.16,1,.3,1) forwards; }
+    .toast-in     { animation: toastIn 0.35s cubic-bezier(.16,1,.3,1) forwards; }
+
+    /* ---- Card / Surface ---- */
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(99,102,241,0.12);
+      border-radius: 20px;
+      box-shadow: 0 1px 3px rgba(99,102,241,0.04), 0 4px 24px rgba(99,102,241,0.08);
+    }
+    .card-inner {
+      background: var(--surface2);
+      border: none;
+      border-radius: 14px;
+    }
+
+    /* ---- Inputs ---- */
+    .input-field {
+      background: var(--surface2);
+      border: 1.5px solid rgba(99,102,241,0.2);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      transition: all 0.2s ease;
+    }
+    .input-field::placeholder { color: var(--muted); }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+      background: var(--surface);
+    }
+
+    /* ---- Buttons ---- */
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #ffffff;
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 4px 16px rgba(99,102,241,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--accent);
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 600;
+      border: 1.5px solid var(--border-md);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-secondary:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(99,102,241,0.15);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--muted2);
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-ghost:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--border-md); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.1);
+      color: var(--danger);
+      border: 1.5px solid rgba(239,68,68,0.2);
+      border-radius: 12px;
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.35); }
+
+    /* ---- Student Tag ---- */
+    .student-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px 6px 12px;
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 99px;
+      color: #4f46e5;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      animation: popIn 0.3s cubic-bezier(.16,1,.3,1) forwards;
+      transition: all 0.15s ease;
+    }
+    .student-tag:hover {
+      background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+      border-color: rgba(99,102,241,0.35);
+    }
+    .student-tag button {
+      display: flex; align-items: center;
+      opacity: 0.45; transition: all 0.15s ease;
+      background: none; border: none; cursor: pointer;
+      color: var(--accent);
+      padding: 0;
+    }
+    .student-tag button:hover { opacity: 1; }
+
+    /* ---- Section icon badge ---- */
+    .icon-badge {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ---- Group Cards ---- */
+    .group-card {
+      background: var(--surface);
+      border: none;
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) both;
+      transition: all 0.25s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 12px rgba(0,0,0,0.05);
+    }
+    .group-card:hover {
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    .group-card-header {
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .group-member {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s ease;
+    }
+    .group-member:last-child { border-bottom: none; }
+    .group-member:hover { background: var(--surface2); }
+    .member-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ---- Fullscreen presentation view ---- */
+    #present-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--bg);
+      padding: 24px 32px 32px;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #present-overlay.active { display: flex; }
+    #present-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; flex-shrink: 0;
+    }
+    #present-grid {
+      flex: 1;
+      display: grid;
+      gap: 16px;
+      overflow-y: auto;
+      align-content: start;
+      padding-bottom: 16px;
+    }
+    .present-card {
+      background: #fff;
+      border-radius: 20px;
+      border: 2px solid transparent;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .present-card-title {
+      padding: 14px 20px 12px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+    .present-names {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px 16px 16px;
+      gap: 8px;
+    }
+    .present-name {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 700;
+      background: rgba(0,0,0,0.03);
+      border-radius: 10px;
+      padding: 8px 14px;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---- Modal ---- */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+    .modal-box {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border: none;
+      border-radius: 20px;
+      padding: 32px;
+      animation: popIn 0.35s cubic-bezier(.16,1,.3,1) forwards;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.16);
+    }
+
+    /* ---- Header gradient line ---- */
+    .header-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #6366f1 30%, #8b5cf6 60%, #ec4899 85%, transparent 100%);
+      opacity: 0.6;
+    }
+
+    /* ---- Logo glow ---- */
+    .logo-text {
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ---- Count badge ---- */
+    .count-badge {
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+      color: var(--accent);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      letter-spacing: -0.01em;
+    }
+
+    /* ---- Select ---- */
+    select.input-field {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    select.input-field option { background: #ffffff; color: #1d1d1f; }
+
+    /* ---- Stepper ---- */
+    .stepper-btn {
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface);
+      border: 1.5px solid var(--border-md);
+      border-radius: 10px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .stepper-btn:hover { color: #fff; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-color: transparent; box-shadow: 0 2px 8px rgba(99,102,241,0.35); }
+
+    /* ---- Preset pill ---- */
+    .preset-pill {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid rgba(99,102,241,0.25);
+      color: var(--accent);
+      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.08));
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', -apple-system, sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .preset-pill:hover {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ---- Generate button shimmer ---- */
+    .btn-generate-shimmer {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%) !important;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4) !important;
+      font-size: 16px !important;
+    }
+    .btn-generate-shimmer:hover {
+      box-shadow: 0 6px 28px rgba(99,102,241,0.55) !important;
+      transform: translateY(-2px) !important;
+    }
+    .btn-generate-shimmer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.25) 50%, transparent 60%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s ease infinite;
+    }
+
+    /* ---- Lists panel ---- */
+    .lists-panel {
+      background: var(--surface2);
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    /* ---- Toast ---- */
+    .toast-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 13px; font-weight: 500;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+      border: none;
+      animation: toastIn 0.35s cubic-bezier(.16,1,.3,1) forwards;
+      font-family: 'Inter', -apple-system, sans-serif;
+      letter-spacing: -0.01em;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+    .toast-success { background: rgba(16,185,129,0.12); color: #065f46; border: 1px solid rgba(16,185,129,0.25); }
+    .toast-error   { background: rgba(239,68,68,0.12); color: #991b1b; border: 1px solid rgba(239,68,68,0.25); }
+    .toast-info    { background: rgba(255,255,255,0.92); color: var(--text); border: 1px solid rgba(99,102,241,0.15); }
+
+    /* ---- Dark Mode ---- */
+    html.dark {
+      --bg:          #0f0e1a;
+      --surface:     #1a1830;
+      --surface2:    #221f38;
+      --surface3:    #2d2a48;
+      --border:      rgba(139,92,246,0.15);
+      --border-md:   rgba(139,92,246,0.25);
+      --text:        #ede9fe;
+      --muted:       #7c7a9e;
+      --muted2:      #9490b8;
+      --accent-dim:  rgba(99,102,241,0.18);
+    }
+    html.dark body { background: linear-gradient(135deg, #0f0e1a 0%, #130f24 50%, #180d20 100%); }
+    html.dark .card { box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 4px 24px rgba(0,0,0,0.6); }
+    html.dark .modal-box { background: rgba(26,24,48,0.97); }
+    html.dark .toast-info { background: rgba(26,24,48,0.95); color: var(--text); }
+    html.dark header { background: rgba(15,14,26,0.85) !important; }
+    html.dark .present-card { background: #1a1830; }
+    html.dark .present-name { background: rgba(99,102,241,0.12); color: #ede9fe; }
+    html.dark select.input-field option { background: #1a1830; color: #ede9fe; }
+    html.dark .logo-text {
+      background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 50%, #f9a8d4 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    html.dark #present-overlay { background: #0f0e1a; }
+    html.dark .group-card { background: var(--surface); }
+    html.dark .btn-secondary { background: rgba(99,102,241,0.1); }
+    html.dark .btn-ghost { background: rgba(99,102,241,0.06); }
+    html.dark .student-tag { color: #a5b4fc; }
+
+    /* ---- Absent Student ---- */
+    .student-tag.absent {
+      background: rgba(0,0,0,0.04);
+      color: var(--muted);
+      text-decoration: line-through;
+      opacity: 0.55;
+    }
+    html.dark .student-tag.absent { background: rgba(255,255,255,0.05); }
+    .student-tag.absent button { color: var(--muted); }
+    .student-tag .toggle-absent-name { cursor: pointer; }
+
+    /* ---- Drag and Drop (pointer events; works on touch + mouse) ---- */
+    .group-member { cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+    .group-member:active { cursor: grabbing; }
+    .group-member.dragging { opacity: 0.3; background: var(--accent-dim); }
+    .group-card.drag-over { box-shadow: 0 0 0 2px var(--accent), 0 4px 24px var(--accent-glow); }
+    .drag-handle { pointer-events: none; flex-shrink: 0; }
+    .touch-drag-clone {
+      position: fixed; pointer-events: none; z-index: 1000;
+      background: var(--surface); padding: 8px 14px; border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25); font-size: 13px;
+      font-weight: 600; color: var(--text);
+      border: 1.5px solid var(--accent);
+      transform: translate(-50%, -120%);
+      letter-spacing: -0.01em;
+    }
+
+    /* ---- Per-group color stripe ---- */
+    .group-card { position: relative; }
+    .group-card-stripe {
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      border-top-left-radius: 16px; border-top-right-radius: 16px;
+      pointer-events: none;
+    }
+
+    /* ---- Group title edit ---- */
+    .group-title-input {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      background: var(--surface); border: 1.5px solid var(--accent);
+      border-radius: 6px; padding: 1px 6px; outline: none;
+      font-family: inherit; letter-spacing: .01em;
+      min-width: 80px; max-width: 160px;
+    }
+    .group-title-edit-btn {
+      background: transparent; border: none; cursor: pointer; padding: 2px;
+      color: var(--muted); opacity: 0.4; transition: opacity 0.15s;
+      display: flex; align-items: center; border-radius: 4px;
+    }
+    .group-card:hover .group-title-edit-btn { opacity: 1; }
+    .group-title-edit-btn:hover { color: var(--accent); background: var(--accent-dim); opacity: 1; }
+    .group-title-text { cursor: text; }
+
+    /* ---- Group lock ---- */
+    .group-lock-btn {
+      background: transparent; border: none; cursor: pointer; padding: 4px;
+      display: flex; align-items: center; color: var(--muted);
+      border-radius: 6px; transition: all 0.15s;
+    }
+    .group-lock-btn:hover { color: var(--accent); background: var(--accent-dim); }
+    .group-card.locked .group-lock-btn { color: var(--accent); opacity: 1; }
+    .group-card.locked { box-shadow: 0 0 0 2px var(--accent-glow), 0 2px 12px rgba(0,0,0,0.05); }
+    .group-card.locked .group-member { cursor: not-allowed; }
+
+    /* ---- Student name edit input ---- */
+    .student-name-input {
+      background: var(--surface); border: 1.5px solid var(--accent);
+      border-radius: 99px; padding: 5px 12px;
+      font-size: 13px; font-weight: 600; color: var(--text);
+      outline: none; font-family: inherit;
+      min-width: 70px; max-width: 220px;
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    /* ---- Activity timer ---- */
+    @keyframes timerPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.05); }
+    }
+    #timer-bar {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border-md);
+      border-radius: 14px; padding: 4px 6px;
+    }
+    .timer-preset {
+      font-size: 12px; font-weight: 600; padding: 4px 10px;
+      border-radius: 10px; border: none; background: var(--accent-dim);
+      color: var(--accent); cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .timer-preset:hover { background: rgba(99,102,241,0.22); }
+    .timer-preset.active { background: var(--accent); color: #fff; }
+    .timer-display {
+      font-family: 'Inter', monospace; font-weight: 800;
+      font-size: 22px; letter-spacing: -0.04em;
+      color: var(--text); min-width: 70px; text-align: center;
+      padding: 0 6px;
+    }
+    .timer-display.warning { color: var(--warning); }
+    .timer-display.danger  { color: var(--danger); animation: timerPulse 1s infinite; }
+    .timer-control-btn {
+      background: var(--accent-dim); border: none; cursor: pointer; padding: 6px;
+      color: var(--accent); display: flex; align-items: center;
+      border-radius: 8px; transition: all 0.15s;
+    }
+    .timer-control-btn:hover { background: rgba(99,102,241,0.22); }
+
+    /* ---- Never-together pair tag ---- */
+    .never-pair-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 8px 5px 12px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 99px;
+      color: var(--danger);
+      font-size: 12px; font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .never-pair-tag .arrow { opacity: 0.6; font-weight: 400; }
+    .never-pair-tag button {
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; opacity: 0.45;
+      color: var(--danger); padding: 0; transition: opacity 0.15s;
+    }
+    .never-pair-tag button:hover { opacity: 1; }
+
+    /* ---- Dark-mode presentation fixes ---- */
+    html.dark #present-header .present-title-text { color: var(--text) !important; }
+
+    /* Section stagger */
+    main > section:nth-child(1) { animation-delay: 0.05s; }
+    main > section:nth-child(2) { animation-delay: 0.15s; }
+    main > section:nth-child(3) { animation-delay: 0.25s; }
+  </style>
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none" style="max-width:320px;"></div>
+
+<!-- ===== HEADER ===== -->
+<header style="background: rgba(238,242,255,0.82); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); position: sticky; top: 0; z-index: 30; border-bottom: 1px solid rgba(99,102,241,0.12);">
+  <div class="header-line"></div>
+  <div class="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div style="width:38px;height:38px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="19" cy="11" r="3"/><path d="M22 21v-1a3 3 0 0 0-3-3"/></svg>
+      </div>
+      <div>
+        <h1 id="app-title" class="logo-text" style="font-size:22px;line-height:1.1;">Skupinsko delo</h1>
+        <p id="subtitle" style="font-size:12px;color:var(--muted);margin-top:2px;font-weight:400;letter-spacing:-0.01em;">Ustvarite skupine učencev v sekundi</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a href="index.html" class="btn-ghost" style="padding:7px 12px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;color:#6366f1;" title="Nazaj na domačo stran">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Domača stran
+      </a>
+      <button id="btn-dark-mode" class="btn-ghost" style="padding:7px;border-radius:10px;display:flex;align-items:center;" aria-label="Preklopi temni način">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <span id="student-count-badge" class="count-badge">0 učencev</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN ===== -->
+<main class="max-w-3xl mx-auto px-5 py-7 flex flex-col gap-5">
+
+  <!-- ── ROSTER CARD ── -->
+  <section class="card anim-fade-up" style="padding:28px;">
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <div class="icon-badge" style="background:var(--accent-dim);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h2 style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.02em;">Seznam učencev</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-list-menu" class="btn-ghost" style="padding:7px 10px;font-size:13px;display:flex;align-items:center;gap:5px;" aria-label="Upravljaj sezname">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Seznami
+        </button>
+        <button id="btn-clear-all" class="btn-ghost" style="padding:7px 10px;font-size:13px;color:var(--muted);">Počisti vse</button>
+      </div>
+    </div>
+
+    <!-- Add input row -->
+    <div class="flex gap-2 mb-4">
+      <input id="name-input" type="text" placeholder="Vpišite ime učenca in pritisnite Enter…" class="input-field flex-1" style="padding:11px 14px;font-size:14px;">
+      <button id="btn-add" class="btn-primary" style="padding:11px 18px;font-size:14px;display:flex;align-items:center;gap:6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Dodaj
+      </button>
+    </div>
+
+    <!-- Collapsible options -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;">
+      <button id="btn-bulk-toggle" class="btn-ghost" style="padding:6px 10px;font-size:13px;display:flex;align-items:center;gap:5px;" aria-expanded="false">
+        <svg id="bulk-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="transition:transform 0.2s;" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        Prilepi več imen
+      </button>
+      <button id="btn-preloaded-toggle" class="btn-ghost" style="padding:6px 10px;font-size:13px;display:flex;align-items:center;gap:5px;" aria-expanded="false">
+        <svg id="preloaded-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="transition:transform 0.2s;" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        Naloži razred
+      </button>
+      <button id="btn-never-toggle" class="btn-ghost" style="padding:6px 10px;font-size:13px;display:flex;align-items:center;gap:5px;" aria-expanded="false">
+        <svg id="never-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="transition:transform 0.2s;" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        Nezdružljivi pari
+      </button>
+    </div>
+
+    <div id="bulk-section" class="hidden anim-slide" style="margin-top:8px;margin-bottom:8px;">
+      <textarea id="bulk-input" rows="4" placeholder="Eno ime v vrstici ali ločeno z vejico…" class="input-field w-full" style="padding:12px 14px;font-size:14px;resize:none;line-height:1.5;"></textarea>
+      <button id="btn-bulk-add" class="btn-secondary" style="margin-top:8px;padding:9px 16px;font-size:13px;">Dodaj vsa imena</button>
+    </div>
+
+    <!-- Preloaded Classes Panel -->
+    <div id="preloaded-panel" class="hidden anim-slide" style="margin-top:8px;margin-bottom:8px;">
+      <div class="lists-panel">
+        <div class="flex gap-2 mb-2">
+          <select id="preloaded-class" class="input-field flex-1" style="padding:8px 12px;font-size:13px;font-family:'Inter',-apple-system,sans-serif;">
+            <option value="">Izberi razred…</option>
+            <option value="1. A">1. A</option>
+            <option value="1. B">1. B</option>
+            <option value="2. A">2. A</option>
+            <option value="3. A">3. A</option>
+            <option value="4. A">4. A</option>
+            <option value="4. B">4. B</option>
+            <option value="5. A">5. A</option>
+            <option value="5. B">5. B</option>
+            <option value="6. A">6. A</option>
+            <option value="6. B">6. B</option>
+            <option value="7. A">7. A</option>
+            <option value="7. B">7. B</option>
+            <option value="8. A">8. A</option>
+            <option value="8. B">8. B</option>
+            <option value="8. C">8. C</option>
+            <option value="9. A">9. A</option>
+          </select>
+          <input id="preloaded-password" type="password" placeholder="Geslo…" class="input-field" style="padding:8px 12px;font-size:13px;width:140px;">
+          <button id="btn-load-preloaded" class="btn-primary" style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Naloži
+          </button>
+        </div>
+        <p style="font-size:11px;color:var(--muted);font-style:italic;">Za nalaganje seznama učencev potrebujete geslo.</p>
+      </div>
+    </div>
+
+    <!-- Never-together Panel -->
+    <div id="never-panel" class="hidden anim-slide" style="margin-top:8px;margin-bottom:8px;">
+      <div class="lists-panel">
+        <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Pari, ki ne smejo biti v isti skupini</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <select id="never-select-1" class="input-field" style="padding:8px 12px;font-size:13px;flex:1;min-width:120px;font-family:'Inter',-apple-system,sans-serif;"></select>
+          <span style="color:var(--muted);font-weight:600;">↔</span>
+          <select id="never-select-2" class="input-field" style="padding:8px 12px;font-size:13px;flex:1;min-width:120px;font-family:'Inter',-apple-system,sans-serif;"></select>
+          <button id="btn-add-never" class="btn-primary" style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Dodaj
+          </button>
+        </div>
+        <div id="never-pairs-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:24px;"></div>
+      </div>
+    </div>
+
+    <!-- Lists Panel -->
+    <div id="list-menu" class="hidden lists-panel mb-5 anim-slide">
+      <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Shranjeni seznami</p>
+      <div class="flex gap-2 mb-3">
+        <input id="list-name-input" type="text" placeholder="Ime seznama (npr. 3. ura)" class="input-field flex-1" style="padding:8px 12px;font-size:13px;">
+        <button id="btn-save-list" class="btn-primary" style="padding:8px 14px;font-size:13px;">Shrani</button>
+      </div>
+      <div id="saved-lists-container" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+
+    <!-- Divider -->
+    <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+
+    <!-- Student tags -->
+    <div id="student-tags" style="display:flex;flex-wrap:wrap;gap:7px;min-height:38px;">
+      <p id="empty-msg" style="font-size:13px;color:var(--muted);font-style:italic;padding-top:8px;">Še ni učencev — začnite tipkati zgoraj!</p>
+    </div>
+  </section>
+
+  <!-- ── SETTINGS CARD ── -->
+  <section class="card anim-fade-up" style="padding:28px;">
+    <div class="flex items-center gap-3 mb-5">
+      <div class="icon-badge" style="background:rgba(255,149,0,0.1);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M12 2a10 10 0 0 1 10 10"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14M2 12a10 10 0 0 0 10 10"/></svg>
+      </div>
+      <h2 style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.02em;">Nastavitve skupin</h2>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 mb-5" style="grid-template-columns:1fr 1fr;">
+      <div>
+        <label for="group-mode" style="display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Način</label>
+        <select id="group-mode" class="input-field w-full" style="padding:10px 36px 10px 12px;font-size:14px;font-family:'Inter',-apple-system,sans-serif;">
+          <option value="size">Po velikosti skupin</option>
+          <option value="count">Po številu skupin</option>
+        </select>
+      </div>
+      <div>
+        <label id="group-value-label" style="display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Učenci v skupini</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="btn-dec" class="stepper-btn" aria-label="Zmanjšaj vrednost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <input id="group-value" type="number" value="2" min="2" max="50" class="input-field" style="flex:1;padding:9px;text-align:center;font-size:16px;font-weight:600;">
+          <button id="btn-inc" class="stepper-btn" aria-label="Povečaj vrednost">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:20px;">
+      <span style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:2px;">Hitro</span>
+      <button class="preset-pill" data-mode="size"  data-val="2">Pari</button>
+      <button class="preset-pill" data-mode="size"  data-val="3">Trojke</button>
+      <button class="preset-pill" data-mode="size"  data-val="4">Skupine po 4</button>
+      <button class="preset-pill" data-mode="size"  data-val="5">Skupine po 5</button>
+      <button class="preset-pill" data-mode="count" data-val="2">2 ekipi</button>
+    </div>
+
+    <!-- Naming theme -->
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Imena skupin</label>
+      <select id="group-theme" class="input-field w-full" style="padding:10px 36px 10px 12px;font-size:14px;font-family:'Inter',-apple-system,sans-serif;">
+        <option value="stevilke">🔢 Številke (Skupina 1, 2, 3…)</option>
+        <option value="barve">🎨 Barve (Rdeča, Modra, Zelena…)</option>
+        <option value="zivali">🦁 Živali (Levi, Tigri, Medvedi…)</option>
+        <option value="znanstveniki">🔬 Znani znanstveniki (Einstein, Curie, Tesla…)</option>
+        <option value="planeti">🪐 Planeti (Merkur, Venera, Mars…)</option>
+        <option value="vesolje">✨ Vesolje (Kometi, Supernove, Meglice…)</option>
+        <option value="vreme">🌈 Vreme (Mavrice, Strele, Snežinke…)</option>
+        <option value="gozd">🦊 Gozdne živali (Lisičke, Medvedki, Sove…)</option>
+        <option value="mitska">🐉 Mitološka bitja (Zmaji, Samorogi, Feniksi…)</option>
+        <option value="sadje">🍓 Sadje (Jagode, Borovnice, Limone…)</option>
+        <option value="dragulji">💎 Dragulji (Diamanti, Rubini, Smaragdi…)</option>
+        <option value="elementi">🔥 Elementi (Ogenj, Voda, Zemlja, Zrak…)</option>
+        <option value="poklici">🔭 Pustolovci (Raziskovalci, Detektivi, Izumitelji…)</option>
+        <option value="geometrija">📐 Geometrija (Kvadrati, Krogi, Trikotniki…)</option>
+      </select>
+    </div>
+
+    <button id="btn-generate" class="btn-primary btn-generate-shimmer w-full" style="padding:15px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.01em;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+      Ustvari skupine
+    </button>
+  </section>
+
+  <!-- ── RESULTS ── -->
+  <section id="results-section" class="hidden anim-fade-up">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="icon-badge" style="background:rgba(52,199,89,0.1);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <h2 style="font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.02em;">Vaše skupine</h2>
+        <span id="group-count-pill" class="count-badge" style="font-size:11px;"></span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="btn-present" class="btn-primary" style="padding:8px 16px;font-size:13px;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Prikaži otrokom
+        </button>
+        <button id="btn-reshuffle" class="btn-secondary" style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.11"/></svg>
+          Premešaj
+        </button>
+        <button id="btn-undo" class="btn-secondary hidden" style="padding:8px 14px;font-size:13px;display:flex;align-items:center;gap:6px;" aria-label="Razveljavi (Ctrl/Cmd+Z)" title="Razveljavi (Ctrl/Cmd+Z)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7L3 9"/></svg>
+          Razveljavi
+        </button>
+      </div>
+    </div>
+
+    <div id="groups-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;"></div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button id="btn-save-groups" class="btn-secondary" style="padding:9px 16px;font-size:13px;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Shrani skupine
+      </button>
+      <button id="btn-view-saved-groups" class="btn-ghost" style="padding:9px 16px;font-size:13px;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        Oglej shranjeno
+      </button>
+      <button id="btn-export-csv" class="btn-ghost" style="padding:9px 16px;font-size:13px;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Izvozi CSV
+      </button>
+    </div>
+  </section>
+
+  <div style="height:32px;"></div>
+</main>
+
+<!-- ===== FULLSCREEN PRESENTATION ===== -->
+<div id="present-overlay">
+  <div id="present-header">
+    <div class="present-title-text" style="font-family:'Inter',-apple-system,sans-serif;font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;letter-spacing:-0.03em;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      V kateri skupini sem?
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div id="timer-bar" aria-label="Časovnik">
+        <button class="timer-preset" data-min="1">1m</button>
+        <button class="timer-preset" data-min="3">3m</button>
+        <button class="timer-preset" data-min="5">5m</button>
+        <button class="timer-preset" data-min="10">10m</button>
+        <span id="timer-display" class="timer-display">00:00</span>
+        <button id="timer-toggle" class="timer-control-btn" aria-label="Začni/premor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>
+        </button>
+        <button id="timer-reset" class="timer-control-btn" aria-label="Ponastavi časovnik">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+      </div>
+      <button id="btn-reshuffle-present" style="padding:8px 14px;font-size:13px;font-weight:600;border-radius:12px;background:rgba(99,102,241,0.1);color:#6366f1;border:none;cursor:pointer;font-family:'Inter',-apple-system,sans-serif;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.11"/></svg>
+        Premešaj
+      </button>
+      <button id="btn-close-present" style="padding:8px 16px;font-size:13px;font-weight:600;border-radius:12px;background:#6366f1;color:#fff;border:none;cursor:pointer;font-family:'Inter',-apple-system,sans-serif;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Zapri
+      </button>
+    </div>
+  </div>
+  <div id="present-grid"></div>
+</div>
+
+<!-- ===== SAVED GROUPS MODAL ===== -->
+<div id="saved-groups-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:540px;width:100%;margin:16px;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h3 style="font-size:17px;font-weight:700;color:var(--text);">Shranjene skupine</h3>
+      <button id="close-groups-modal" class="btn-ghost" style="padding:6px;border-radius:8px;" aria-label="Zapri">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="saved-groups-list" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+
+<!-- ===== CLEAR CONFIRM MODAL ===== -->
+<div id="confirm-overlay" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:360px;width:100%;margin:16px;">
+    <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,59,48,0.1);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2.2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </div>
+    <h3 style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Počistiti vse učence?</h3>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:22px;line-height:1.5;">S tem boste trajno odstranili vse učence s seznama. Tega dejanja ni mogoče razveljaviti.</p>
+    <div style="display:flex;gap:10px;">
+      <button id="confirm-cancel" class="btn-secondary flex-1" style="padding:11px;">Prekliči</button>
+      <button id="confirm-delete" class="btn-danger flex-1" style="padding:11px;">Počisti vse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCRIPT ===== -->
+<script src="js/razredi.js"></script>
+<script>
+  // ---- State ----
+  let students = [];
+  let generatedGroups = [];
+  let savedLists = {};
+  let savedGroupProjects = {};
+  let absentStudents = new Set();
+  let pairingHistory = {};
+  let lockedGroupContents = []; // [[name1, name2, ...], ...] — locked group rosters
+  let customGroupNames = {};    // { 0: "Plavalci", 1: "Tekači" } — keyed by group index
+  let neverTogether = [];       // [[id1, id2], ...]
+  let undoStack = [];           // stack of generatedGroups snapshots for undo
+
+  // ---- Persistence ----
+  function saveToStorage() {
+    localStorage.setItem('gm_students', JSON.stringify(students));
+    localStorage.setItem('gm_lists', JSON.stringify(savedLists));
+    localStorage.setItem('gm_groups', JSON.stringify(savedGroupProjects));
+    localStorage.setItem('gm_absent', JSON.stringify([...absentStudents]));
+    localStorage.setItem('gm_history', JSON.stringify(pairingHistory));
+    localStorage.setItem('gm_locked', JSON.stringify(lockedGroupContents));
+    localStorage.setItem('gm_customnames', JSON.stringify(customGroupNames));
+    localStorage.setItem('gm_never', JSON.stringify(neverTogether));
+  }
+  function loadFromStorage() {
+    try { students           = JSON.parse(localStorage.getItem('gm_students')) || []; } catch(e) { students = []; }
+    try { savedLists         = JSON.parse(localStorage.getItem('gm_lists'))    || {}; } catch(e) { savedLists = {}; }
+    try { savedGroupProjects = JSON.parse(localStorage.getItem('gm_groups'))   || {}; } catch(e) { savedGroupProjects = {}; }
+    try { absentStudents     = new Set(JSON.parse(localStorage.getItem('gm_absent')) || []); } catch(e) { absentStudents = new Set(); }
+    try { pairingHistory     = JSON.parse(localStorage.getItem('gm_history'))  || {}; } catch(e) { pairingHistory = {}; }
+    try { lockedGroupContents = JSON.parse(localStorage.getItem('gm_locked'))  || []; } catch(e) { lockedGroupContents = []; }
+    try { customGroupNames    = JSON.parse(localStorage.getItem('gm_customnames')) || {}; } catch(e) { customGroupNames = {}; }
+    try { neverTogether       = JSON.parse(localStorage.getItem('gm_never'))   || []; } catch(e) { neverTogether = []; }
+  }
+
+  function generateUUID() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  // ---- Dark Mode ----
+  function initDarkMode() {
+    const isDark = localStorage.getItem('gm_dark') === 'true';
+    if (isDark) document.documentElement.classList.add('dark');
+    updateDarkIcon(isDark);
+  }
+  function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('gm_dark', isDark);
+    updateDarkIcon(isDark);
+  }
+  function updateDarkIcon(isDark) {
+    const btn = document.getElementById('btn-dark-mode');
+    if (!btn) return;
+    btn.innerHTML = isDark
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    btn.setAttribute('aria-label', isDark ? 'Preklopi svetli način' : 'Preklopi temni način');
+  }
+
+  // ---- Toast ----
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('toast');
+    const div = document.createElement('div');
+    div.className = `toast-item toast-${type}`;
+    const icon = type === 'success'
+      ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`
+      : type === 'error'
+      ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    div.innerHTML = icon + escHtml(msg);
+    container.appendChild(div);
+    setTimeout(() => { div.style.opacity = '0'; div.style.transform = 'translateX(10px)'; div.style.transition = 'all 0.3s'; setTimeout(() => div.remove(), 320); }, 2600);
+  }
+
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---- Absent Students ----
+  function toggleAbsent(id) {
+    if (absentStudents.has(id)) absentStudents.delete(id);
+    else absentStudents.add(id);
+    saveToStorage();
+    renderStudents();
+  }
+
+  // ---- Render Students ----
+  function renderStudents() {
+    const container = document.getElementById('student-tags');
+    const badge = document.getElementById('student-count-badge');
+    const total = students.length;
+    const absentCount = students.filter(s => absentStudents.has(s.id)).length;
+    const activeCount = total - absentCount;
+
+    if (total === 0) {
+      badge.textContent = '0 učencev';
+    } else if (absentCount > 0) {
+      badge.textContent = `${activeCount} / ${total} učencev`;
+    } else {
+      badge.textContent = total === 1 ? '1 učenec/učenka' : `${total} učencev`;
+    }
+
+    if (total === 0) {
+      container.innerHTML = `<p id="empty-msg" style="font-size:13px;color:var(--muted);font-style:italic;padding-top:8px;">Še ni učencev — začnite tipkati zgoraj!</p>`;
+      return;
+    }
+
+    const existingEls = new Map([...container.children].filter(el => el.dataset.sid).map(el => [el.dataset.sid, el]));
+    const currentIds = new Set(students.map(s => s.id));
+
+    existingEls.forEach((el, id) => { if (!currentIds.has(id)) el.remove(); });
+    const em = container.querySelector('#empty-msg');
+    if (em) em.remove();
+
+    students.forEach(s => {
+      const isAbsent = absentStudents.has(s.id);
+      const tooltip = isAbsent ? 'Odsoten/odsotna – klikni za vrnitev' : 'Klikni za označitev kot odsoten/a';
+      if (existingEls.has(s.id)) {
+        const el = existingEls.get(s.id);
+        el.classList.toggle('absent', isAbsent);
+        el.title = tooltip;
+      } else {
+        const tag = document.createElement('div');
+        tag.dataset.sid = s.id;
+        tag.className = 'student-tag' + (isAbsent ? ' absent' : '');
+        tag.title = tooltip;
+        tag.innerHTML = `<span class="toggle-absent-name" data-id="${s.id}">${escHtml(s.name)}</span><button class="remove-student" data-id="${s.id}" aria-label="Odstrani ${escHtml(s.name)}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+        container.appendChild(tag);
+      }
+    });
+  }
+
+  // ---- Add/Remove Students ----
+  function addStudent(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (students.length >= 999) { showToast('Največ 999 učencev!', 'error'); return; }
+    students.push({ id: generateUUID(), name: trimmed });
+    saveToStorage();
+    renderStudents();
+  }
+
+  function removeStudent(id) {
+    students = students.filter(s => s.id !== id);
+    absentStudents.delete(id);
+    neverTogether = neverTogether.filter(([a, b]) => a !== id && b !== id);
+    saveToStorage();
+    renderStudents();
+    renderNeverPairs();
+  }
+
+  function clearAllStudents() {
+    students = [];
+    absentStudents.clear();
+    neverTogether = [];
+    lockedGroupContents = [];
+    customGroupNames = {};
+    saveToStorage();
+    renderStudents();
+    renderNeverPairs();
+    document.getElementById('confirm-overlay').classList.add('hidden');
+    showToast('Vsi učenci so bili odstranjeni', 'success');
+  }
+
+  // ---- Saved Lists ----
+  function saveStudentList(listName) {
+    if (!listName.trim()) { showToast('Vnesite ime seznama', 'error'); return; }
+    if (students.length === 0) { showToast('Najprej dodajte učence', 'error'); return; }
+    const listId = generateUUID();
+    savedLists[listId] = { name: listName.trim(), students: students.map(s => s.name) };
+    saveToStorage();
+    document.getElementById('list-name-input').value = '';
+    showToast(`Shranjeno: "${listName}"`, 'success');
+    renderSavedLists();
+  }
+
+  function renderSavedLists() {
+    const container = document.getElementById('saved-lists-container');
+    const lists = Object.entries(savedLists);
+    if (lists.length === 0) {
+      container.innerHTML = `<p style="font-size:13px;color:var(--muted);font-style:italic;">Še ni shranjenih seznamov</p>`;
+      return;
+    }
+    container.innerHTML = lists.map(([id, list]) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);">
+        <div>
+          <p style="font-size:13px;font-weight:600;color:var(--text);">${escHtml(list.name)}</p>
+          <p style="font-size:11px;color:var(--muted);">${list.students.length} učencev</p>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="load-list preset-pill" data-list-id="${id}" style="color:var(--accent);background:var(--accent-dim);">Naloži</button>
+          <button class="delete-list btn-ghost" data-list-id="${id}" style="padding:5px 8px;font-size:11px;color:var(--muted);" aria-label="Izbriši seznam ${escHtml(list.name)}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function loadStudentList(listId) {
+    const list = savedLists[listId];
+    if (!list) return;
+    students = list.students.map(name => ({ id: generateUUID(), name }));
+    absentStudents.clear();
+    neverTogether = [];
+    lockedGroupContents = [];
+    saveToStorage();
+    renderStudents();
+    renderNeverPairs();
+    showToast(`Naloženo: "${list.name}"`, 'success');
+    document.getElementById('list-menu').classList.add('hidden');
+  }
+
+  function deleteStudentList(listId) {
+    delete savedLists[listId];
+    saveToStorage();
+    renderSavedLists();
+    showToast('Seznam izbrisan', 'success');
+  }
+
+  // ---- Pairing History ----
+  function pairKey(a, b) { return [a, b].sort().join('|||'); }
+
+  function recordPairingHistory(groups) {
+    groups.forEach(group => {
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          const key = pairKey(group[i], group[j]);
+          pairingHistory[key] = (pairingHistory[key] || 0) + 1;
+        }
+      }
+    });
+    saveToStorage();
+  }
+
+  function groupHasRepeatedPairs(group) {
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        if ((pairingHistory[pairKey(group[i], group[j])] || 0) > 1) return true;
+      }
+    }
+    return false;
+  }
+
+  // ---- Group Generation ----
+  function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  function pushUndoSnapshot() {
+    if (!generatedGroups.length) return;
+    undoStack.push(JSON.parse(JSON.stringify(generatedGroups)));
+    if (undoStack.length > 20) undoStack.shift();
+  }
+
+  function pruneStaleLocks() {
+    // Drop locked groups that reference unknown or absent students
+    const activeNames = new Set(students.filter(s => !absentStudents.has(s.id)).map(s => s.name));
+    lockedGroupContents = lockedGroupContents.filter(lg => lg.length > 0 && lg.every(n => activeNames.has(n)));
+  }
+
+  function applyNeverTogether(groups) {
+    if (!neverTogether.length || groups.length < 2) return groups;
+    const idToName = new Map(students.map(s => [s.id, s.name]));
+    const pairsByName = neverTogether
+      .map(([a, b]) => [idToName.get(a), idToName.get(b)])
+      .filter(([a, b]) => a && b);
+    if (!pairsByName.length) return groups;
+
+    for (let attempt = 0; attempt < 60; attempt++) {
+      let violation = false;
+      for (const [n1, n2] of pairsByName) {
+        const idx = groups.findIndex(g => g.includes(n1) && g.includes(n2));
+        if (idx === -1) continue;
+        violation = true;
+        // Find a swap target: a group not containing either name
+        let targetIdx = -1;
+        const order = shuffleArray(groups.map((_, i) => i).filter(i => i !== idx));
+        for (const i of order) {
+          if (!groups[i].includes(n1) && !groups[i].includes(n2)) { targetIdx = i; break; }
+        }
+        if (targetIdx === -1) {
+          // fall back to any other group
+          targetIdx = order[0];
+          if (targetIdx === undefined) break;
+        }
+        const memberPos = groups[idx].indexOf(n2);
+        const swapPos = Math.floor(Math.random() * groups[targetIdx].length);
+        [groups[idx][memberPos], groups[targetIdx][swapPos]] =
+          [groups[targetIdx][swapPos], groups[idx][memberPos]];
+      }
+      if (!violation) return groups;
+    }
+    return groups;
+  }
+
+  function generateGroups() {
+    pruneStaleLocks();
+    const activeStudents = students.filter(s => !absentStudents.has(s.id));
+    if (activeStudents.length < 2) { showToast('Dodajte vsaj 2 aktivna učenca', 'error'); return; }
+
+    pushUndoSnapshot();
+
+    // Names already locked into existing groups
+    const lockedNames = new Set();
+    lockedGroupContents.forEach(lg => lg.forEach(n => lockedNames.add(n)));
+
+    const poolNames = activeStudents.map(s => s.name).filter(n => !lockedNames.has(n));
+
+    const mode = document.getElementById('group-mode').value;
+    const val  = parseInt(document.getElementById('group-value').value) || 2;
+    let newGroups = [];
+
+    if (poolNames.length > 0) {
+      const shuffled = shuffleArray(poolNames);
+      if (mode === 'size') {
+        const size = Math.max(2, Math.min(val, shuffled.length));
+        const numGroups = Math.max(1, Math.round(shuffled.length / size));
+        for (let i = 0; i < numGroups; i++) newGroups.push([]);
+        shuffled.forEach((name, i) => newGroups[i % numGroups].push(name));
+      } else {
+        const n = Math.max(2, Math.min(val, shuffled.length));
+        for (let i = 0; i < n; i++) newGroups.push([]);
+        shuffled.forEach((name, i) => newGroups[i % n].push(name));
+      }
+      newGroups = applyNeverTogether(newGroups);
+    }
+
+    // Locked groups stay; new (re-shuffled) groups appended after them
+    generatedGroups = [...lockedGroupContents.map(g => [...g]), ...newGroups];
+
+    recordPairingHistory(generatedGroups);
+    updateUndoButton();
+    renderGroups();
+  }
+
+  // ---- Lock groups ----
+  function groupSignature(group) { return [...group].sort().join('|'); }
+
+  function isGroupLocked(idx) {
+    const g = generatedGroups[idx];
+    if (!g) return false;
+    const sig = groupSignature(g);
+    return lockedGroupContents.some(lg => groupSignature(lg) === sig);
+  }
+
+  function toggleGroupLock(idx) {
+    const g = generatedGroups[idx];
+    if (!g) return;
+    const sig = groupSignature(g);
+    const existing = lockedGroupContents.findIndex(lg => groupSignature(lg) === sig);
+    if (existing >= 0) {
+      lockedGroupContents.splice(existing, 1);
+      showToast('Skupina odklenjena', 'success');
+    } else {
+      lockedGroupContents.push([...g]);
+      showToast('Skupina zaklenjena – ostaja pri Premešaj', 'success');
+    }
+    saveToStorage();
+    renderGroups();
+  }
+
+  // ---- Undo ----
+  function undoLastAction() {
+    if (!undoStack.length) return;
+    generatedGroups = undoStack.pop();
+    updateUndoButton();
+    renderGroups();
+    showToast('Razveljavljeno', 'success');
+  }
+
+  function updateUndoButton() {
+    const btn = document.getElementById('btn-undo');
+    if (!btn) return;
+    if (undoStack.length) btn.classList.remove('hidden');
+    else btn.classList.add('hidden');
+  }
+
+  // ---- Never-Together pairs ----
+  function refreshNeverPairSelects() {
+    const sel1 = document.getElementById('never-select-1');
+    const sel2 = document.getElementById('never-select-2');
+    if (!sel1 || !sel2) return;
+    const opts = '<option value="">— izberi —</option>' +
+      students.map(s => `<option value="${s.id}">${escHtml(s.name)}</option>`).join('');
+    sel1.innerHTML = opts;
+    sel2.innerHTML = opts;
+  }
+
+  function renderNeverPairs() {
+    refreshNeverPairSelects();
+    const list = document.getElementById('never-pairs-list');
+    if (!list) return;
+    if (!neverTogether.length) {
+      list.innerHTML = '<p style="font-size:12px;color:var(--muted);font-style:italic;">Še ni nezdružljivih parov.</p>';
+      return;
+    }
+    const idToName = new Map(students.map(s => [s.id, s.name]));
+    list.innerHTML = neverTogether.map(([a, b], i) => {
+      const na = idToName.get(a) || '?';
+      const nb = idToName.get(b) || '?';
+      return `<div class="never-pair-tag">
+        <span>${escHtml(na)}</span>
+        <span class="arrow">↔</span>
+        <span>${escHtml(nb)}</span>
+        <button class="remove-never" data-idx="${i}" aria-label="Odstrani par">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  function addNeverPair() {
+    const id1 = document.getElementById('never-select-1').value;
+    const id2 = document.getElementById('never-select-2').value;
+    if (!id1 || !id2) { showToast('Izberi oba učenca', 'error'); return; }
+    if (id1 === id2)  { showToast('Izberi dva različna učenca', 'error'); return; }
+    const exists = neverTogether.some(([a, b]) => (a === id1 && b === id2) || (a === id2 && b === id1));
+    if (exists) { showToast('Par že obstaja', 'error'); return; }
+    neverTogether.push([id1, id2]);
+    saveToStorage();
+    renderNeverPairs();
+    document.getElementById('never-select-1').value = '';
+    document.getElementById('never-select-2').value = '';
+  }
+
+  function removeNeverPair(idx) {
+    neverTogether.splice(idx, 1);
+    saveToStorage();
+    renderNeverPairs();
+  }
+
+  // ---- Group Naming Themes ----
+  const THEMES = {
+    stevilke:      { names: (i) => `Skupina ${i+1}`, emoji: '🔢' },
+    barve:         { names: ['Rdeča','Modra','Zelena','Rumena','Vijolična','Oranžna','Roza','Turkizna','Zlata','Srebrna','Bordojska','Indigova','Koralna','Mentolna','Bež','Lila'], emoji: '🎨' },
+    zivali:        { names: ['Levi','Tigri','Medvedi','Orli','Delfini','Volkovi','Gepardi','Sokoli','Morski psi','Jaguarji','Panterji','Risi','Sloni','Pingvini','Kamele','Konji'], emoji: '🦁' },
+    znanstveniki:  { names: ['Einstein','Curie','Tesla','Newton','Darwin','Galilei','Hawking','Pasteur','Faraday','Bohr','Feynman','Turing','Kopernik','Mendel','Nobel','Lovelace'], emoji: '🔬' },
+    planeti:       { names: ['Merkurji','Venere','Marsi','Jupitri','Saturni','Urani','Neptuni','Plutoni','Asteroidi','Kometi','Lune','Sonca','Zvezde','Galaksije','Orbite','Meglice'], emoji: '🪐' },
+    vesolje:       { names: ['Kometi','Supernove','Meglice','Črne luknje','Zvezde','Galaksije','Meteorji','Pulzarji','Kvazarji','Nevtroni','Ozvezdja','Sateliti','Rakete','Sonde','Plazme','Orbite'], emoji: '✨' },
+    vreme:         { names: ['Mavrice','Snežinke','Strele','Sončki','Oblački','Tornadi','Kapljice','Severni siji','Viharji','Megle','Vetrovi','Rosnice','Plohe','Toče','Tajfuni','Sapice'], emoji: '🌈' },
+    gozd:          { names: ['Lisičke','Medvedki','Modre sove','Hitre veverice','Ježki','Srnice','Merjasci','Risi','Bobri','Vidre','Jazbeci','Kune','Polhi','Jeleni','Zajci','Golobi'], emoji: '🦊' },
+    mitska:        { names: ['Zmaji','Samorogi','Feniksi','Vilini','Škrati','Pegazi','Tritoni','Grifoni','Kentavri','Sirene','Baziliski','Himere','Čarovniki','Goliati','Nimfe','Titani'], emoji: '🐉' },
+    sadje:         { names: ['Jagode','Borovnice','Limone','Jabolka','Banane','Kivi','Maline','Breskve','Mango','Granatna jabolka','Češnje','Lubenice','Hruške','Pomaranče','Fige','Grozdje'], emoji: '🍓' },
+    dragulji:      { names: ['Diamanti','Rubini','Smaragdi','Safirji','Biseri','Jantarji','Ametisti','Topazi','Opali','Turmalini','Akvamarini','Kristali','Granati','Oniksi','Peridoti','Citrini'], emoji: '💎' },
+    elementi:      { names: ['Ogenj','Voda','Zemlja','Zrak','Kovina','Les','Grom','Led','Pesek','Magma','Dim','Para','Prah','Kristal','Megla','Plamen'], emoji: '🔥' },
+    poklici:       { names: ['Raziskovalci','Detektivi','Arheologi','Izumitelji','Kapitani','Eko-stražarji','Astronavti','Pustolovci','Pionirji','Modri možje','Navigatorji','Strategi','Graditelji','Vizionarji','Mojstri','Junaki'], emoji: '🔭' },
+    geometrija:    { names: ['Kvadrati','Krogi','Trikotniki','Heksagoni','Rombi','Spirale','Piramide','Elipse','Trapezi','Pentagoni','Valji','Stožci','Kocke','Prizme','Zvezde','Loki'], emoji: '📐' },
+  };
+
+  function getGroupName(index) {
+    if (customGroupNames[index] !== undefined && customGroupNames[index] !== '') {
+      return customGroupNames[index];
+    }
+    const themeKey = document.getElementById('group-theme').value;
+    const theme = THEMES[themeKey];
+    if (!theme) return `Skupina ${index + 1}`;
+    if (typeof theme.names === 'function') return theme.names(index);
+    return theme.names[index] || `Skupina ${index + 1}`;
+  }
+
+  function getGroupEmoji() {
+    const themeKey = document.getElementById('group-theme').value;
+    return THEMES[themeKey]?.emoji || '🔢';
+  }
+
+  const GROUP_COLORS = [
+    { bg: 'rgba(99,102,241,0.08)',  dot: '#6366f1', border: 'rgba(99,102,241,0.2)'  },
+    { bg: 'rgba(16,185,129,0.08)',  dot: '#10b981', border: 'rgba(16,185,129,0.2)'  },
+    { bg: 'rgba(245,158,11,0.08)',  dot: '#f59e0b', border: 'rgba(245,158,11,0.2)'  },
+    { bg: 'rgba(239,68,68,0.08)',   dot: '#ef4444', border: 'rgba(239,68,68,0.2)'   },
+    { bg: 'rgba(14,165,233,0.08)',  dot: '#0ea5e9', border: 'rgba(14,165,233,0.2)'  },
+    { bg: 'rgba(249,115,22,0.08)',  dot: '#f97316', border: 'rgba(249,115,22,0.2)'  },
+    { bg: 'rgba(168,85,247,0.08)',  dot: '#a855f7', border: 'rgba(168,85,247,0.2)'  },
+    { bg: 'rgba(236,72,153,0.08)',  dot: '#ec4899', border: 'rgba(236,72,153,0.2)'  },
+  ];
+
+  // ---- Drag and Drop (Pointer events: works on touch + mouse) ----
+  const DRAG_THRESHOLD = 6; // px before the drag actually starts
+  let dragData = null;
+
+  function clearDragVisuals() {
+    document.querySelectorAll('.group-card.drag-over').forEach(el => el.classList.remove('drag-over'));
+    document.querySelectorAll('.group-member.dragging').forEach(el => el.classList.remove('dragging'));
+  }
+
+  function initGroupDragDrop() {
+    const grid = document.getElementById('groups-grid');
+
+    grid.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      // Ignore clicks on interactive child controls
+      if (e.target.closest('.group-lock-btn, .group-title-edit-btn, .group-title-text')) return;
+      const member = e.target.closest('.group-member');
+      if (!member) return;
+      const groupIdx  = parseInt(member.dataset.groupIdx);
+      const memberIdx = parseInt(member.dataset.memberIdx);
+      if (Number.isNaN(groupIdx) || Number.isNaN(memberIdx)) return;
+      const card = member.closest('.group-card');
+      if (card && card.classList.contains('locked')) return;
+      dragData = {
+        startX: e.clientX, startY: e.clientY,
+        member, groupIdx, memberIdx,
+        name: generatedGroups[groupIdx][memberIdx],
+        clone: null, dragging: false,
+        pointerId: e.pointerId
+      };
+    });
+
+    document.addEventListener('pointermove', e => {
+      if (!dragData) return;
+      const dx = e.clientX - dragData.startX;
+      const dy = e.clientY - dragData.startY;
+
+      if (!dragData.dragging) {
+        if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+        dragData.dragging = true;
+        dragData.member.classList.add('dragging');
+        try { dragData.member.setPointerCapture(dragData.pointerId); } catch (err) { /* no-op */ }
+        const clone = document.createElement('div');
+        clone.className = 'touch-drag-clone';
+        clone.textContent = dragData.name;
+        document.body.appendChild(clone);
+        dragData.clone = clone;
+      }
+
+      if (dragData.dragging) {
+        e.preventDefault();
+        dragData.clone.style.left = e.clientX + 'px';
+        dragData.clone.style.top  = e.clientY + 'px';
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const card = target?.closest('.group-card');
+        document.querySelectorAll('.group-card.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if (card && !card.classList.contains('locked')) card.classList.add('drag-over');
+      }
+    }, { passive: false });
+
+    const finishDrag = (e) => {
+      if (!dragData) return;
+      const data = dragData;
+      dragData = null;
+
+      if (data.clone) data.clone.remove();
+      clearDragVisuals();
+
+      if (!data.dragging) return;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const card = target?.closest('.group-card');
+      if (!card || card.classList.contains('locked')) return;
+      const targetIdx = parseInt(card.dataset.groupIdx);
+      if (Number.isNaN(targetIdx) || targetIdx === data.groupIdx) return;
+
+      pushUndoSnapshot();
+      const [moved] = generatedGroups[data.groupIdx].splice(data.memberIdx, 1);
+      generatedGroups[targetIdx].push(moved);
+      generatedGroups = generatedGroups.filter(g => g.length > 0);
+
+      // Re-sync locks: if the affected groups had been locked, the lock signature changed → update or drop
+      lockedGroupContents = lockedGroupContents.filter(lg => {
+        const sig = groupSignature(lg);
+        return generatedGroups.some(g => groupSignature(g) === sig);
+      });
+
+      saveToStorage();
+      updateUndoButton();
+      renderGroups();
+      showToast(`${moved} premaknjen/a`, 'success');
+    };
+
+    document.addEventListener('pointerup', finishDrag);
+    document.addEventListener('pointercancel', () => {
+      if (dragData?.clone) dragData.clone.remove();
+      clearDragVisuals();
+      dragData = null;
+    });
+  }
+
+  // ---- Render Groups ----
+  const LOCK_OPEN_SVG  = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+  const LOCK_CLOSED_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  const PENCIL_SVG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+
+  function renderGroups() {
+    const section = document.getElementById('results-section');
+    const grid    = document.getElementById('groups-grid');
+    const pill    = document.getElementById('group-count-pill');
+    section.classList.remove('hidden');
+    pill.textContent = `${generatedGroups.length} skupin`;
+    grid.innerHTML = '';
+
+    generatedGroups.forEach((group, i) => {
+      const c = GROUP_COLORS[i % GROUP_COLORS.length];
+      const hasRepeat = groupHasRepeatedPairs(group);
+      const locked = isGroupLocked(i);
+      const card = document.createElement('div');
+      card.className = 'group-card' + (locked ? ' locked' : '');
+      card.dataset.groupIdx = i;
+      card.style.animationDelay = `${i * 0.06}s`;
+      card.innerHTML = `
+        <div class="group-card-stripe" style="background:linear-gradient(90deg, ${c.dot}, ${c.dot} 60%, transparent);"></div>
+        <div class="group-card-header" style="background:${c.bg};">
+          <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+            <div style="width:8px;height:8px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0;"></div>
+            <span class="group-title-text" data-group-idx="${i}" title="Klikni za preimenovanje" style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(getGroupName(i))}</span>
+            <button class="group-title-edit-btn" data-edit-group="${i}" aria-label="Uredi ime skupine" title="Uredi ime skupine">${PENCIL_SVG}</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            ${hasRepeat ? `<span title="Nekateri pari so se v tej skupini že srečali" style="font-size:12px;line-height:1;cursor:default;">🔄</span>` : ''}
+            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:${c.bg};border:1px solid ${c.border};color:${c.dot};">${group.length}</span>
+            <button class="group-lock-btn" data-lock-group="${i}" aria-label="${locked ? 'Odkleni skupino' : 'Zakleni skupino'}" title="${locked ? 'Odkleni skupino' : 'Zakleni skupino (Premešaj jo bo preskočil)'}">
+              ${locked ? LOCK_CLOSED_SVG : LOCK_OPEN_SVG}
+            </button>
+          </div>
+        </div>
+        <div class="group-members">
+          ${group.map((name, j) => `
+            <div class="group-member" data-group-idx="${i}" data-member-idx="${j}">
+              <div class="member-dot" style="background:${c.dot};flex-shrink:0;"></div>
+              <span style="font-size:13px;flex:1;">${escHtml(name)}</span>
+              <svg class="drag-handle" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--muted);opacity:0.3;" aria-hidden="true"><circle cx="9" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ---- Inline edit: group title ----
+  function startEditGroupName(idx) {
+    const card = document.querySelector(`.group-card[data-group-idx="${idx}"]`);
+    if (!card) return;
+    const titleSpan = card.querySelector('.group-title-text');
+    if (!titleSpan) return;
+    const current = customGroupNames[idx] !== undefined ? customGroupNames[idx] : getGroupName(idx);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = current;
+    input.className = 'group-title-input';
+    input.maxLength = 30;
+    input.setAttribute('aria-label', 'Ime skupine');
+
+    let finished = false;
+    const finish = (save) => {
+      if (finished) return;
+      finished = true;
+      if (save) {
+        const v = input.value.trim();
+        if (!v) delete customGroupNames[idx];
+        else customGroupNames[idx] = v;
+        saveToStorage();
+      }
+      renderGroups();
+    };
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter')      { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape'){ e.preventDefault(); finish(false); }
+    });
+    input.addEventListener('blur', () => finish(true));
+
+    titleSpan.replaceWith(input);
+    input.focus();
+    input.select();
+  }
+
+  // ---- Inline edit: student name ----
+  function startEditStudentName(id) {
+    const tag = document.querySelector(`.student-tag[data-sid="${id}"]`);
+    if (!tag) return;
+    const span = tag.querySelector('.toggle-absent-name');
+    const student = students.find(s => s.id === id);
+    if (!span || !student) return;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'student-name-input';
+    input.value = student.name;
+    input.maxLength = 50;
+    input.setAttribute('aria-label', 'Ime učenca');
+
+    let finished = false;
+    const finish = (save) => {
+      if (finished) return;
+      finished = true;
+      if (save) {
+        const v = input.value.trim();
+        if (v && v !== student.name) {
+          if (students.some(s => s.id !== id && s.name.toLowerCase() === v.toLowerCase())) {
+            showToast('Učenec s tem imenom že obstaja', 'error');
+            renderStudents();
+            return;
+          }
+          student.name = v;
+          saveToStorage();
+        }
+      }
+      renderStudents();
+    };
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter')      { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape'){ e.preventDefault(); finish(false); }
+    });
+    input.addEventListener('blur', () => finish(true));
+
+    span.replaceWith(input);
+    input.focus();
+    input.select();
+  }
+
+  // ---- CSV Export ----
+  function exportCSV() {
+    if (!generatedGroups.length) return;
+    const rows = [['Skupina', 'Učenec']];
+    generatedGroups.forEach((group, i) => {
+      group.forEach(name => rows.push([getGroupName(i), name]));
+    });
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'skupine.csv'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV izvožen', 'success');
+  }
+
+  // ---- Presentation ----
+  function renderPresentation() {
+    const grid = document.getElementById('present-grid');
+    const n = generatedGroups.length;
+    const cols = n <= 2 ? n : n <= 4 ? 2 : n <= 9 ? 3 : 4;
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.innerHTML = '';
+    generatedGroups.forEach((group, i) => {
+      const c = GROUP_COLORS[i % GROUP_COLORS.length];
+      const maxMembers = Math.max(...generatedGroups.map(g => g.length));
+      const nameFontSize = maxMembers <= 4 ? 18 : maxMembers <= 7 ? 16 : maxMembers <= 10 ? 14 : 13;
+      const titleFontSize = nameFontSize + 5;
+      const dotSize = nameFontSize - 5;
+      const card = document.createElement('div');
+      card.className = 'present-card';
+      card.style.cssText = `border-color:${c.border};`;
+      card.innerHTML = `
+        <div class="present-card-title" style="background:${c.bg};font-size:${titleFontSize}px;color:${c.dot};">
+          <span>${escHtml(getGroupName(i))}</span>
+          <span style="font-size:${titleFontSize - 5}px;font-weight:700;background:var(--surface);border:2px solid ${c.border};border-radius:99px;padding:2px 10px;color:${c.dot};">${group.length}</span>
+        </div>
+        <div class="present-names">
+          ${group.map(name => `
+            <div class="present-name" style="font-size:${nameFontSize}px;color:var(--text);">
+              <div style="width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:${c.dot};flex-shrink:0;"></div>
+              ${escHtml(name)}
+            </div>
+          `).join('')}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ---- Saved Group Projects ----
+  function saveGroupsAsProject(name) {
+    if (!name.trim()) { showToast('Vnesite ime projekta', 'error'); return; }
+    if (!generatedGroups.length) { showToast('Najprej ustvarite skupine', 'error'); return; }
+    const id = generateUUID();
+    savedGroupProjects[id] = { id, name: name.trim(), timestamp: new Date().toISOString(), groups: generatedGroups };
+    saveToStorage();
+    showToast(`Shranjeno: "${name}"`, 'success');
+  }
+
+  function renderSavedGroups() {
+    const list = document.getElementById('saved-groups-list');
+    const projects = Object.values(savedGroupProjects).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    if (!projects.length) {
+      list.innerHTML = `<p style="font-size:14px;color:var(--muted);font-style:italic;padding:8px 0;">Še ni shranjenih skupin</p>`;
+      return;
+    }
+    list.innerHTML = projects.map(proj => `
+      <div style="padding:14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);">
+        <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:10px;">
+          <div>
+            <h4 style="font-size:14px;font-weight:600;color:var(--text);">${escHtml(proj.name)}</h4>
+            <p style="font-size:12px;color:var(--muted);margin-top:2px;">${proj.groups.length} skupin · ${proj.groups.reduce((s,g)=>s+g.length,0)} učencev · ${new Date(proj.timestamp).toLocaleDateString('sl-SI')}</p>
+          </div>
+          <button class="delete-project btn-ghost" data-project-id="${proj.id}" style="padding:5px 8px;color:var(--muted);" aria-label="Izbriši projekt ${escHtml(proj.name)}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </button>
+        </div>
+        <button class="load-project" data-project-id="${proj.id}" style="width:100%;padding:8px;font-size:13px;font-weight:600;border-radius:8px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(99,102,241,0.25);cursor:pointer;font-family:'Inter',-apple-system,sans-serif;transition:all .15s;" onmouseover="this.style.background='rgba(99,102,241,0.18)'" onmouseout="this.style.background='var(--accent-dim)'">Oglej skupine</button>
+      </div>
+    `).join('');
+  }
+
+  function loadGroupProject(id) {
+    const proj = savedGroupProjects[id];
+    if (!proj) return;
+    generatedGroups = proj.groups;
+    renderGroups();
+    document.getElementById('saved-groups-modal').classList.add('hidden');
+    showToast(`Naloženo: "${proj.name}"`, 'success');
+  }
+
+  function deleteGroupProject(id) {
+    delete savedGroupProjects[id];
+    saveToStorage();
+    renderSavedGroups();
+    showToast('Projekt izbrisan', 'success');
+  }
+
+  // ---- Preloaded Encrypted Class Data ----
+
+  function decryptData(base64, password) {
+    try {
+      const data = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      const key = new TextEncoder().encode(password);
+      const result = new Uint8Array(data.length);
+      for (let i = 0; i < data.length; i++) result[i] = data[i] ^ key[i % key.length];
+      return JSON.parse(new TextDecoder().decode(result));
+    } catch (e) { return null; }
+  }
+
+  function loadPreloadedClass() {
+    const cls = document.getElementById('preloaded-class').value;
+    const pwd = document.getElementById('preloaded-password').value;
+    if (!cls) { showToast('Izberite razred', 'error'); return; }
+    if (!pwd) { showToast('Vnesite geslo', 'error'); return; }
+    const data = decryptData(ENCRYPTED_CLASSES, pwd);
+    if (!data) { showToast('Napačno geslo!', 'error'); return; }
+    if (!data[cls]) { showToast(`Razred ${cls} ni na voljo v podatkih.`, 'error'); return; }
+    students = data[cls].map(name => ({ id: generateUUID(), name }));
+    absentStudents.clear();
+    neverTogether = [];
+    lockedGroupContents = [];
+    saveToStorage();
+    renderStudents();
+    renderNeverPairs();
+    document.getElementById('preloaded-password').value = '';
+    showToast(`Naložen razred ${cls} (${data[cls].length} učencev)`, 'success');
+  }
+
+  // ---- Activity Timer ----
+  const timerState = { duration: 0, remaining: 0, intervalId: null, running: false };
+
+  function formatTime(s) {
+    const m = Math.floor(Math.max(0, s) / 60);
+    const sec = Math.max(0, s) % 60;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  }
+
+  function updateTimerDisplay() {
+    const el = document.getElementById('timer-display');
+    if (!el) return;
+    el.textContent = formatTime(timerState.remaining);
+    el.classList.remove('warning', 'danger');
+    if (timerState.duration > 0 && timerState.remaining > 0) {
+      if (timerState.remaining <= 10)      el.classList.add('danger');
+      else if (timerState.remaining <= 30) el.classList.add('warning');
+    }
+  }
+
+  function updateTimerToggleIcon() {
+    const btn = document.getElementById('timer-toggle');
+    if (!btn) return;
+    btn.innerHTML = timerState.running
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20"/></svg>';
+    btn.setAttribute('aria-label', timerState.running ? 'Premor' : 'Začni');
+  }
+
+  function setTimerPreset(minutes) {
+    timerState.duration  = minutes * 60;
+    timerState.remaining = timerState.duration;
+    if (timerState.intervalId) { clearInterval(timerState.intervalId); timerState.intervalId = null; }
+    timerState.running = false;
+    document.querySelectorAll('.timer-preset').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.min) === minutes);
+    });
+    updateTimerDisplay();
+    updateTimerToggleIcon();
+  }
+
+  function toggleTimer() {
+    if (timerState.duration <= 0) {
+      showToast('Najprej izberi čas', 'error');
+      return;
+    }
+    if (timerState.running) {
+      timerState.running = false;
+      if (timerState.intervalId) { clearInterval(timerState.intervalId); timerState.intervalId = null; }
+    } else {
+      if (timerState.remaining <= 0) timerState.remaining = timerState.duration;
+      timerState.running = true;
+      timerState.intervalId = setInterval(() => {
+        timerState.remaining--;
+        updateTimerDisplay();
+        if (timerState.remaining <= 0) {
+          clearInterval(timerState.intervalId);
+          timerState.intervalId = null;
+          timerState.running = false;
+          updateTimerToggleIcon();
+          onTimerEnd();
+        }
+      }, 1000);
+    }
+    updateTimerToggleIcon();
+  }
+
+  function resetTimer() {
+    if (timerState.intervalId) { clearInterval(timerState.intervalId); timerState.intervalId = null; }
+    timerState.running = false;
+    timerState.remaining = timerState.duration;
+    updateTimerDisplay();
+    updateTimerToggleIcon();
+  }
+
+  function onTimerEnd() {
+    showToast('⏰ Čas je potekel!', 'success');
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [880, 880, 1100].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const t0 = ctx.currentTime + i * 0.4;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.18, t0 + 0.04);
+        gain.gain.linearRampToValueAtTime(0, t0 + 0.32);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.34);
+      });
+    } catch (e) { /* audio unavailable */ }
+  }
+
+  // ---- PWA Service Worker ----
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // ---- Init ----
+  initDarkMode();
+  loadFromStorage();
+  renderStudents();
+  renderSavedLists();
+  renderNeverPairs();
+  initGroupDragDrop();
+  updateTimerDisplay();
+  updateTimerToggleIcon();
+
+  // ---- Events ----
+  document.getElementById('btn-dark-mode').addEventListener('click', toggleDarkMode);
+
+  document.getElementById('btn-load-preloaded').addEventListener('click', loadPreloadedClass);
+  document.getElementById('preloaded-password').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); loadPreloadedClass(); } });
+
+  document.getElementById('btn-list-menu').addEventListener('click', () => {
+    const m = document.getElementById('list-menu');
+    m.classList.toggle('hidden');
+    if (!m.classList.contains('hidden')) renderSavedLists();
+  });
+  document.getElementById('btn-save-list').addEventListener('click', () => saveStudentList(document.getElementById('list-name-input').value));
+  document.getElementById('list-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveStudentList(e.target.value); } });
+  document.getElementById('saved-lists-container').addEventListener('click', e => {
+    const l = e.target.closest('.load-list');
+    const d = e.target.closest('.delete-list');
+    if (l) loadStudentList(l.dataset.listId);
+    if (d) deleteStudentList(d.dataset.listId);
+  });
+
+  document.getElementById('btn-add').addEventListener('click', () => {
+    const inp = document.getElementById('name-input');
+    addStudent(inp.value); inp.value = ''; inp.focus();
+  });
+  document.getElementById('name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addStudent(e.target.value); e.target.value = ''; }
+  });
+
+  document.getElementById('btn-bulk-toggle').addEventListener('click', () => {
+    const s = document.getElementById('bulk-section');
+    s.classList.toggle('hidden');
+    const open = !s.classList.contains('hidden');
+    document.getElementById('bulk-chevron').style.transform = open ? 'rotate(90deg)' : '';
+    document.getElementById('btn-bulk-toggle').setAttribute('aria-expanded', open);
+  });
+  document.getElementById('btn-preloaded-toggle').addEventListener('click', () => {
+    const p = document.getElementById('preloaded-panel');
+    p.classList.toggle('hidden');
+    const open = !p.classList.contains('hidden');
+    document.getElementById('preloaded-chevron').style.transform = open ? 'rotate(90deg)' : '';
+    document.getElementById('btn-preloaded-toggle').setAttribute('aria-expanded', open);
+  });
+
+  document.getElementById('btn-bulk-add').addEventListener('click', () => {
+    const raw = document.getElementById('bulk-input').value;
+    const existingNames = new Set(students.map(s => s.name.toLowerCase()));
+    const seenInPaste = new Set();
+    const names = raw.split(/[,\n]+/).map(n => n.trim()).filter(Boolean);
+    if (!names.length) return;
+    let added = 0, dupes = 0;
+    for (const name of names) {
+      const lower = name.toLowerCase();
+      if (existingNames.has(lower) || seenInPaste.has(lower)) { dupes++; continue; }
+      if (students.length >= 999) { showToast('Največ 999 učencev!', 'error'); break; }
+      students.push({ id: generateUUID(), name });
+      existingNames.add(lower);
+      seenInPaste.add(lower);
+      added++;
+    }
+    saveToStorage();
+    renderStudents();
+    document.getElementById('bulk-input').value = '';
+    document.getElementById('bulk-section').classList.add('hidden');
+    document.getElementById('bulk-chevron').style.transform = '';
+    document.getElementById('btn-bulk-toggle').setAttribute('aria-expanded', 'false');
+    const msg = dupes > 0 ? `Dodano ${added} učencev (${dupes} podvojenih preskočeno)` : `Dodano ${added} učencev`;
+    showToast(msg, 'success');
+  });
+
+  let studentClickTimer = null;
+  document.getElementById('student-tags').addEventListener('click', e => {
+    const removeBtn = e.target.closest('.remove-student');
+    if (removeBtn) { removeStudent(removeBtn.dataset.id); return; }
+    const nameSpan = e.target.closest('.toggle-absent-name');
+    if (!nameSpan) return;
+    const id = nameSpan.dataset.id;
+    if (studentClickTimer) clearTimeout(studentClickTimer);
+    studentClickTimer = setTimeout(() => {
+      studentClickTimer = null;
+      toggleAbsent(id);
+    }, 230);
+  });
+  document.getElementById('student-tags').addEventListener('dblclick', e => {
+    const nameSpan = e.target.closest('.toggle-absent-name');
+    if (!nameSpan) return;
+    if (studentClickTimer) { clearTimeout(studentClickTimer); studentClickTimer = null; }
+    e.preventDefault();
+    startEditStudentName(nameSpan.dataset.id);
+  });
+
+  // Group cards: lock + edit name buttons (event delegation)
+  document.getElementById('groups-grid').addEventListener('click', e => {
+    const lockBtn = e.target.closest('.group-lock-btn');
+    if (lockBtn) { e.stopPropagation(); toggleGroupLock(parseInt(lockBtn.dataset.lockGroup)); return; }
+    const editBtn = e.target.closest('.group-title-edit-btn');
+    if (editBtn) { e.stopPropagation(); startEditGroupName(parseInt(editBtn.dataset.editGroup)); return; }
+    const titleText = e.target.closest('.group-title-text');
+    if (titleText) { e.stopPropagation(); startEditGroupName(parseInt(titleText.dataset.groupIdx)); return; }
+  });
+
+  // Never-together panel
+  document.getElementById('btn-never-toggle').addEventListener('click', () => {
+    const p = document.getElementById('never-panel');
+    p.classList.toggle('hidden');
+    const open = !p.classList.contains('hidden');
+    document.getElementById('never-chevron').style.transform = open ? 'rotate(90deg)' : '';
+    document.getElementById('btn-never-toggle').setAttribute('aria-expanded', open);
+    if (open) renderNeverPairs();
+  });
+  document.getElementById('btn-add-never').addEventListener('click', addNeverPair);
+  document.getElementById('never-pairs-list').addEventListener('click', e => {
+    const btn = e.target.closest('.remove-never');
+    if (btn) removeNeverPair(parseInt(btn.dataset.idx));
+  });
+
+  // Undo
+  document.getElementById('btn-undo').addEventListener('click', undoLastAction);
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+      if (e.target.matches('input, textarea, [contenteditable]')) return;
+      e.preventDefault();
+      undoLastAction();
+    }
+  });
+
+  // Timer controls (presentation overlay)
+  document.querySelectorAll('.timer-preset').forEach(btn => {
+    btn.addEventListener('click', () => setTimerPreset(parseInt(btn.dataset.min)));
+  });
+  document.getElementById('timer-toggle').addEventListener('click', toggleTimer);
+  document.getElementById('timer-reset').addEventListener('click', resetTimer);
+
+  document.getElementById('btn-clear-all').addEventListener('click', () => {
+    if (!students.length) return;
+    document.getElementById('confirm-overlay').classList.remove('hidden');
+  });
+  document.getElementById('confirm-cancel').addEventListener('click', () => document.getElementById('confirm-overlay').classList.add('hidden'));
+  document.getElementById('confirm-delete').addEventListener('click', clearAllStudents);
+  document.getElementById('confirm-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
+
+  document.getElementById('group-mode').addEventListener('change', e => {
+    document.getElementById('group-value-label').textContent = e.target.value === 'size' ? 'Učenci v skupini' : 'Število skupin';
+  });
+  document.getElementById('btn-dec').addEventListener('click', () => {
+    const i = document.getElementById('group-value');
+    i.value = Math.max(2, parseInt(i.value) - 1);
+  });
+  document.getElementById('btn-inc').addEventListener('click', () => {
+    const i = document.getElementById('group-value');
+    i.value = Math.min(50, parseInt(i.value) + 1);
+  });
+
+  document.querySelectorAll('.preset-pill[data-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('group-mode').value = btn.dataset.mode;
+      document.getElementById('group-value').value = btn.dataset.val;
+      document.getElementById('group-value-label').textContent = btn.dataset.mode === 'size' ? 'Učenci v skupini' : 'Število skupin';
+    });
+  });
+
+  document.getElementById('btn-generate').addEventListener('click', generateGroups);
+  document.getElementById('btn-reshuffle').addEventListener('click', generateGroups);
+
+  document.getElementById('btn-present').addEventListener('click', () => {
+    renderPresentation();
+    document.getElementById('present-overlay').classList.add('active');
+  });
+  document.getElementById('btn-close-present').addEventListener('click', () => {
+    document.getElementById('present-overlay').classList.remove('active');
+  });
+  document.getElementById('btn-reshuffle-present').addEventListener('click', () => {
+    generateGroups();
+    renderPresentation();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('present-overlay').classList.remove('active');
+  });
+
+  document.getElementById('btn-save-groups').addEventListener('click', () => {
+    const name = prompt('Ime za to razporeditev skupin:');
+    if (name) saveGroupsAsProject(name);
+  });
+  document.getElementById('btn-view-saved-groups').addEventListener('click', () => {
+    renderSavedGroups();
+    document.getElementById('saved-groups-modal').classList.remove('hidden');
+  });
+  document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+  document.getElementById('close-groups-modal').addEventListener('click', () => document.getElementById('saved-groups-modal').classList.add('hidden'));
+  document.getElementById('saved-groups-modal').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
+  document.getElementById('saved-groups-list').addEventListener('click', e => {
+    const l = e.target.closest('.load-project');
+    const d = e.target.closest('.delete-project');
+    if (l) loadGroupProject(l.dataset.projectId);
+    if (d) deleteGroupProject(d.dataset.projectId);
+  });
+</script>
+</body>
+</html>

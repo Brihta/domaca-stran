@@ -1,8 +1,10 @@
-const CACHE = 'zaslon-v6';
+const CACHE = 'zaslon-v10';
+
+/** Lupina aplikacije. */
 const ASSETS = [
   './',
   './index.html',
-  './zaslon.html',
+  './skupine.html',
   './manifest.json',
   './icon.svg',
   './assets/logo-os-sempeter.png',
@@ -11,6 +13,7 @@ const ASSETS = [
   './js/jedro.js',
   './js/skupine.js',
   './js/pripomocki.js',
+  './js/orodja.js',
   './js/zagon.js',
 ];
 
@@ -27,7 +30,34 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
-  );
+  if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+  const tuja = url.origin !== self.location.origin;
+
+  /* Slike in pisave se ne spreminjajo — najprej predpomnilnik.
+     Koda aplikacije (html/css/js) pa se: tam gre najprej na mrežo,
+     sicer vsak popravek obvisi, dokler nekdo ne poveča CACHE. */
+  const nespremenljivo = tuja || /\.(svg|png|jpg|jpeg|webp|ico|woff2?)$/i.test(url.pathname);
+
+  e.respondWith(nespremenljivo ? najprejPredpomnilnik(e.request) : najprejMreza(e.request));
 });
+
+async function najprejPredpomnilnik(zahteva) {
+  const zadetek = await caches.match(zahteva);
+  if (zadetek) return zadetek;
+  const odziv = await fetch(zahteva);
+  if (odziv.ok) (await caches.open(CACHE)).put(zahteva, odziv.clone());
+  return odziv;
+}
+
+async function najprejMreza(zahteva) {
+  try {
+    const odziv = await fetch(zahteva);
+    if (odziv.ok) (await caches.open(CACHE)).put(zahteva, odziv.clone());
+    return odziv;
+  } catch (e) {
+    // brez povezave: karkoli imamo shranjenega, sicer začetna stran
+    return (await caches.match(zahteva)) || (await caches.match('./')) || Response.error();
+  }
+}

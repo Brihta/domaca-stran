@@ -20,13 +20,15 @@ function napolniIkone() {
   $$('.dok-gumb[data-trak]').forEach(g =>
     g.querySelector('.ico').innerHTML = ikona(g.dataset.trak));
 
-  const meniIkone = { kocka:'kocka', besedilo:'besedilo', slika:'slika', zreb:'zreb' };
+  const meniIkone = { kocka:'kocka', besedilo:'besedilo', slika:'slika', zreb:'zreb',
+                      anketa:'anketa', urnik:'urnik', miselni:'miselni' };
   $$('.vec-meni button').forEach(b => {
     const k = b.dataset.dodaj || b.dataset.prevzem;
     b.insertAdjacentHTML('afterbegin', ikona(meniIkone[k] || 'skupine'));
   });
 
-  const ploscicaIkone = { skupine:'skupine', zreb:'zreb', semafor:'semafor', besedilo:'besedilo' };
+  const ploscicaIkone = { skupine:'skupine', zreb:'zreb', semafor:'semafor',
+                          besedilo:'besedilo', urnik:'urnik' };
   $$('.ploscica').forEach(p => {
     const k = p.dataset.odpri || p.dataset.dodaj;
     p.querySelector('.i').innerHTML = ikona(ploscicaIkone[k] || 'besedilo');
@@ -198,7 +200,7 @@ function poveziDok() {
   $$('#vec-meni [data-prevzem]').forEach(b => b.addEventListener('click', () => {
     Prevzem.odpri(b.dataset.prevzem); zapriMeni();
   }));
-  $('#meni-razporejevalnik').addEventListener('click', () => { location.href = 'index.html'; });
+  $('#meni-razporejevalnik').addEventListener('click', () => { location.href = 'skupine.html'; });
 }
 function zapriMeni() { $('#vec-meni').classList.remove('odprt'); }
 
@@ -236,6 +238,22 @@ function poveziSkupineInZreb() {
   $$('#zreb-koliko .zeton').forEach(z => z.addEventListener('click', () => {
     Zreb.koliko = +z.dataset.n; Zreb.izrisStanja();
   }));
+}
+
+
+function poveziOrodja() {
+  // urnik
+  $('#urnik-pocisti').addEventListener('click', () => Urnik.pocisti());
+
+  // miselni vzorec
+  $('#miselni-dodaj').addEventListener('click', () => Miselni.dodaj('Nova ideja', Miselni.vozlisca.length === 0));
+  $('#miselni-povezi').addEventListener('click', () => Miselni.zacniPovezovanje());
+  $('#miselni-pocisti').addEventListener('click', () => Miselni.pocisti());
+  // klik na prazno polje razveljavi izbiro
+  $('#miselni-polje').addEventListener('pointerdown', e => {
+    if (e.target.id !== 'miselni-polje' && e.target.id !== 'miselni-crte') return;
+    Miselni.izbran = null; Miselni.povezujem = null; Miselni.izris();
+  });
 }
 
 function poveziTipke() {
@@ -276,6 +294,8 @@ function zagon() {
   Trak.osvezi();
   Zreb.izrisStanja();
   Skupine.izris();
+  Urnik.izris();
+  Miselni.izris();
 
   uporabiOzadje(Stanje.ozadje);
   Platno.obnoviVse();
@@ -284,10 +304,11 @@ function zagon() {
   poveziDok();
   poveziTrak();
   poveziSkupineInZreb();
+  poveziOrodja();
   poveziTipke();
 
   osveziGlavo();
-  setInterval(osveziGlavo, 15000);
+  setInterval(() => { osveziGlavo(); Urnik.oznaciTrenutno(); }, 15000);
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

@@ -1,6 +1,6 @@
 /* =====================================================================
    Šifrirani seznami učencev — OŠ Šempeter v Savinjski dolini, 2026/27
-   Skupna datoteka za index.html in zaslon.html (ena sama kopija).
+   Skupna datoteka za index.html in skupine.html (ena sama kopija).
 
    OPOZORILO: XOR s ponovljenim geslom je ZAKRIVANJE, ne šifriranje.
    Ta datoteka ne sodi v javni repozitorij brez premisleka —

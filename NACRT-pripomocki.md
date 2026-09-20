@@ -1,6 +1,6 @@
 # Načrt: pripomočki na razrednem zaslonu
 
-**Status: faze 0–2 izvedene in preverjene. Nič commitano.**
+**Status: vse faze (0–5) izvedene in preverjene.**
 Potrjeno: kombinirani model · ročna anketa zadošča · brez mikrofona.
 Navezuje se na `NACRT-zaslon.md` (lupina zaslona).
 
@@ -157,9 +157,9 @@ Razvrščeno po **vrednosti na enoto dela**, ne po tvojem seznamu:
 | **0** | Lupina: trak + platno + dok | ✅ izvedeno |
 | **1** | Semafor · Simboli dela · Kocka · Besedilo | ✅ izvedeno |
 | **2** | Ozadje · Žreb · Slika | ✅ izvedeno |
-| **3** | Urnik | ⬜ naslednje |
-| **4** | Anketa (ročna) | ⬜ |
-| **5** | Miselni vzorec | ⬜ |
+| **3** | Urnik | ✅ izvedeno |
+| **4** | Anketa (ročna) | ✅ izvedeno |
+| **5** | Miselni vzorec | ✅ izvedeno |
 
 ### Nove datoteke
 
@@ -170,8 +170,21 @@ js/razredi.js        · šifrirani seznami (izluščeno — ena kopija za obe st
 js/jedro.js          · stanje, shramba, zvonec, ikone, ogrodje platna
 js/skupine.js        · razporejevalnik (logika prenesena iz index.html)
 js/pripomocki.js     · semafor, simboli, časovnik, žreb, besedilo, kocka, slika
+js/orodja.js         · urnik, anketa, miselni vzorec
 js/zagon.js          · povezave
 ```
+
+### Domača stran je zdaj res domača stran
+
+Vlogi datotek sta zamenjani, da `./` odpre zaslon in ne razporejevalnika:
+
+| Prej | Zdaj |
+|---|---|
+| `index.html` = razporejevalnik | `index.html` = **razredni zaslon** |
+| `zaslon.html` = zaslon | `skupine.html` = razporejevalnik |
+
+Obe strani se povezujeta: zaslon → „Napredni razporejevalnik…", razporejevalnik → „Domača stran".
+Zgodovina datotek je ohranjena (`git mv`).
 
 `index.html` deluje nespremenjeno in ima zdaj povezavo „Razredni zaslon".
 `sw.js` je posodobljen na `zaslon-v2` z vsemi novimi datotekami.
@@ -219,10 +232,32 @@ Barva besedila nad ozadjem se samodejno preklopi med belo in temno, da ostane be
 Na dotik je kromiranje pripomočkov **vedno vidno** (`@media (pointer:coarse)`),
 ker na interaktivni tabli ni prehoda z miško.
 
+### Faze 3–5 — kaj je nastalo
+
+**Urnik.** Devet vrstic iz šolskega zvonca (Predura + 1.–8. ura) × pet dni.
+Vpišeš le predmet iz spustnega seznama s slovenskimi kraticami
+(`SLJ MAT TJA TJN LUM GUM SPO DRU NAR NIT GOS TIT ZGO GEO BIO KEM FIZ ŠPO DKE RU OPB ISP DOD DOP RaP`).
+Vsak predmet ima svojo barvo, da se urnik bere na pogled. Trenutni dan in ura sta označena;
+med odmorom je označen dan, ne pa ura — ker takrat pouka ni.
+
+**Anketa (ročna).** Vprašanje in do šest odgovorov, oboje urejaš na mestu.
+Klik kamorkoli po vrstici prišteje (hitro med uro), majhen − odšteje, `0` ponastavi štetje.
+Brez zaledja, kot dogovorjeno.
+
+**Miselni vzorec.** Vozlišča z besedilom, vlečenje, povezave. „Poveži" označi izbrano
+vozlišče, klik na drugo potegne črto; ponovni klik na isto povezavo jo odstrani.
+Brisanje vozlišča počisti tudi njegove povezave.
+
+### Popravljeno med izvedbo
+- **Dok je prekrival dno prevzema** — dodan spodnji odmik 104 px.
+- **Novi pripomočki so se zlagali na kup** — zdaj se razporejajo kaskadno.
+- **`sw.js` vrnjen na strategijo „najprej mreža"** za kodo, „najprej predpomnilnik" za slike.
+  To odpravi past, opisano spodaj.
+
 ### Past, ki jo je vredno poznati
-Service worker predpomni CSS in JS. Med razvojem popravki **ne pridejo skozi**,
-dokler ne odregistriraš SW in počistiš predpomnilnika. Ob vsaki spremembi
-datotek je treba dvigniti različico v `sw.js` (`zaslon-v2` → `v3`).
+Service worker predpomni CSS in JS. S staro strategijo popravki **niso prišli skozi**,
+dokler nisi odregistriral SW in počistil predpomnilnika. Zdaj gre koda najprej na mrežo,
+zato to odpade — a različico v `sw.js` je ob spremembi datotek vseeno vredno dvigniti.
 
 Vsaka faza je svoj commit in aplikacija po vsaki deluje. Lahko se ustaviš kjerkoli.
 

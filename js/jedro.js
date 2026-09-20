@@ -21,6 +21,7 @@ const IKONE = {
   ozadje:   '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 14l4-4 4 4"/><path d="M14 12l3-3 4 4"/>',
   anketa:   '<path d="M5 20V10"/><path d="M12 20V4"/><path d="M19 20v-7"/>',
   urnik:    '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/>',
+  miselni:  '<circle cx="12" cy="5" r="2.6"/><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="18" r="2.6"/><path d="M12 7.6 6.6 15.8"/><path d="M12 7.6l5.4 8.2"/><path d="M7.6 18h8.8"/>',
   vec:      '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   nastavi:  '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
   zapri:    '<path d="M18 6 6 18M6 6l12 12"/>',
@@ -286,8 +287,9 @@ const Platno = {
     const zapis = {
       id: polozaj?.id ?? novId(),
       tip,
-      x: polozaj?.x ?? Math.max(16, (platno.clientWidth  - sirina) / 2 + (Math.random() * 90 - 45)),
-      y: polozaj?.y ?? Math.max(16, (platno.clientHeight - visina) / 2 + (Math.random() * 70 - 35)),
+      // kaskada: vsak naslednji nekoliko zamaknjen, da se ne zlagajo na kup
+      x: polozaj?.x ?? this._prostX(platno, sirina),
+      y: polozaj?.y ?? this._prostY(platno, visina),
       w: sirina, h: visina,
       podatki,
     };
@@ -297,6 +299,17 @@ const Platno = {
     shraniStanje();
     this._posodobiNamig();
     return zapis;
+  },
+
+  _prostX(platno, sirina) {
+    const n = Stanje.platno.length;
+    const zac = Math.max(16, (platno.clientWidth - sirina) / 2 - 130);
+    return Math.min(zac + (n % 5) * 46, Math.max(16, platno.clientWidth - sirina - 16));
+  },
+  _prostY(platno, visina) {
+    const n = Stanje.platno.length;
+    const zac = Math.max(96, (platno.clientHeight - visina) / 2 - 70);
+    return Math.min(zac + (n % 5) * 38, Math.max(96, platno.clientHeight - visina - 96));
   },
 
   _ustvari(zapis) {
