@@ -373,3 +373,14 @@ povzročil, da so se **okna izrisovala prosojno** — belo ozadje se je videlo k
 poltransparentno. Sprva sem to pripisal časovnici posnetkov; ni bilo to.
 Zamenjal sem ga z višino okna, ki jo JS zapiše v `--okno-h`, vsebina pa se meri
 po njej. Enak učinek, brez napake pri izrisu.
+
+### Okence za lika je visok portret
+
+Prva kompaktna različica je imela skoraj kvadratno okence (104 px) z `object-fit: cover`
+in `object-position: top center` — pokazala je le glavo. Izvorne slike so namreč
+**visoki portreti** (razmerja 0,44–0,57, torej do 1:2,2).
+
+Zdaj ima okence `aspect-ratio: 1/2` in `object-fit: contain`, zato je lik **vedno cel**,
+ne glede na to, kako visoka je izvorna slika. Enako velja za izbirnik poti in za slavje.
+Kartice so ožje (104 px), ker so visoke — v vrsto jih gre osem do devet,
+razred s 17 junaki gre na dve vrsti.
