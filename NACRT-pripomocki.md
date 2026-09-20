@@ -340,9 +340,14 @@ Vsaka ima šest slovenskih nazivov nivojev in svojo barvo, ki obarva kartico,
 napredno črto in okvir ob slavju.
 
 ### Slike
-Priloženih je bilo devet plakatov, na vsakem šest nivojev v vrsti — ne 54 ločenih
-datotek, kot predpostavlja izvirni poziv. Razrezal sem jih v
-`assets/junaki/<pot>/nivo_1..6.jpg` (54 slik, 1,7 MB).
+Devet plakatov, na vsakem šest nivojev v vrsti — ne 54 ločenih datotek,
+kot predpostavlja izvirni poziv. Razrezani so v
+`assets/junaki/<pot>/nivo_1..6.jpg` (54 slik, 1,3 MB).
+
+**Izvor:** `GitHub/Pustolovščina/Gemini_Generated_Image_*.jpeg` — originali
+z manj stiskanja kot priloge v pogovoru. Plakate sem razvrstil po poteh tako,
+da sem izrezal njihove naslovne vrstice in jih prebral (na vsaki piše
+„Path of the …"), ne po ugibanju iz barv.
 
 Umeritev je bila za vsak plakat svoja: nekateri imajo naslov panela znotraj okvirja,
 drugi nad njim, tretji so prostostoječi liki z napisi zgoraj in spodaj. Prvi izrezi
