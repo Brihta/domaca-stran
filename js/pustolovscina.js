@@ -9,53 +9,53 @@ const NAJVEC_NIVO = 6;
 
 const POTI = {
   zmaj: {
-    brezOzadja: true,
-    ime: 'Vodni zmaj', barva: '#2E9CC9',
+    ime: 'Zmaj Aqua', barva: '#2E9CC9',
     nivoji: ['Mladič globin', 'Potočni mladiček', 'Vajenec toka',
              'Pevec plimovanja', 'Vladar voda', 'Nebeški leviatan'],
   },
   feniks: {
-    brezOzadja: true,
-    ime: 'Ognjeni feniks', barva: '#E0700A',
+    ime: 'Feniks', barva: '#E0700A',
     nivoji: ['Iskrica iz jajca', 'Mladi plamen', 'Vajenec ognja',
              'Plameno srce', 'Gospodar žara', 'Veliki ognjeni ptič'],
   },
-  skrat: {
-    brezOzadja: true,
-    ime: 'Škratji bojevnik', barva: '#8B5A2B',
-    nivoji: ['Novinec', 'Vajenec', 'Vojak', 'Veteran', 'Prvak', 'Veliki mojster'],
-  },
-  alkimist: {
-    brezOzadja: true,
-    ime: 'Alkimist', barva: '#7A4FBF',
-    nivoji: ['Novinec', 'Pomočnik', 'Izvajalec', 'Poznavalec', 'Mojster', 'Veliki mojster'],
-  },
-  narava: {
-    ime: 'Varuh narave', barva: '#55A51C',
-    nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Adept', 'Mojster varuh', 'Nadduhovnik'],
-  },
-  tat: {
-    ime: 'Senčni tat', barva: '#4A5FC1',
-    nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Operativec', 'Mojster', 'Veliki mojster'],
-  },
   vitez: {
-    ime: 'Vitez', barva: '#C2185B',
+    ime: 'Kralj Artur', barva: '#C2185B',
     nivoji: ['Novinec', 'Pešak', 'Vitez popotnik', 'Stražar', 'Vzorni vitez', 'Veliki paladin'],
   },
+  tat: {
+    ime: 'Skrivnostni tat', barva: '#4A5FC1',
+    nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Operativec', 'Mojster', 'Veliki mojster'],
+  },
   lokostrelka: {
-    ime: 'Lokostrelec', barva: '#0FA3A3',
-    nivoji: ['Novinec', 'Gozdni vajenec', 'Izvidnik', 'Ostrostrelec',
-             'Mojster lokostrelec', 'Veliki lokostrelec'],
+    ime: 'Strelka Elara', barva: '#0FA3A3',
+    nivoji: ['Novinka', 'Gozdna vajenka', 'Izvidnica', 'Ostrostrelka',
+             'Mojstrica lokostrelka', 'Velika lokostrelka'],
+  },
+  narava: {
+    ime: 'Varuhinja gozda', barva: '#55A51C',
+    nivoji: ['Novinka', 'Vajenka', 'Učenka', 'Adeptka', 'Mojstrica varuhinja', 'Nadduhovnica'],
+  },
+  vilinec: {
+    ime: 'Vilinec Fae', barva: '#2E8B4A',
+    nivoji: ['Vilinski otrok', 'Vajenec', 'Gozdni popotnik',
+             'Čuvaj logov', 'Vilinski plemič', 'Svetli vilinec'],
+  },
+  znanstvenica: {
+    ime: 'Znanstvenica Elza', barva: '#7A4FBF',
+    nivoji: ['Radovednica', 'Pomočnica', 'Raziskovalka',
+             'Izumiteljica', 'Mojstrica', 'Velika znanstvenica'],
   },
   carovnik: {
-    ime: 'Čarovnik', barva: '#2266FF',
+    ime: 'Čarovnik Leo', barva: '#2266FF',
     nivoji: ['Učenec', 'Vajenec', 'Čarovnikov pomočnik', 'Čarovnik', 'Čarodej', 'Veliki mag'],
   },
 };
 
-/* Poti z izrezanimi liki imajo prozoren PNG, ostale celotno sliko v JPEG. */
-const slikaPoti = (pot, nivo) =>
-  `assets/junaki/${pot}/nivo_${nivo}.` + (POTI[pot]?.brezOzadja ? 'png' : 'jpg');
+/* Vsi liki so izrezani, s prozornim ozadjem. */
+const slikaPoti = (pot, nivo) => `assets/junaki/${pot}/nivo_${nivo}.png`;
+
+/* Poti, ki jih je nadomestil nov nabor slik. */
+const STARE_POTI = { skrat: 'vilinec', alkimist: 'znanstvenica' };
 
 /** Nivo je kar število točk, omejeno na 1–6. */
 function nivoIzTock(tocke) {
@@ -78,13 +78,24 @@ const Pustolovscina = {
   podatki: Shramba.beri('pustolovscina', {}),
   izbiramZa: null,          // ime učenca, ki mu izbiramo pot
 
-  /** Enkratna selitev s starega štetja na "1 točka = 1 nivo". */
+  /** Selitve shranjenih podatkov ob spremembah pravil ali nabora poti. */
   preseli() {
-    if (Shramba.beri('pustolovscinaRazlicica', 1) >= 2) return;
-    Object.values(this.podatki).forEach(razred =>
-      Object.values(razred).forEach(z => { z.tocke = pretvoriStaro(z.tocke); }));
-    Shramba.pisi('pustolovscinaRazlicica', 2);
-    this.shrani();
+    const r = Shramba.beri('pustolovscinaRazlicica', 1);
+
+    // v2: staro štetje (0/10/25/50/100/150) -> "1 točka = 1 nivo"
+    if (r < 2) {
+      Object.values(this.podatki).forEach(razred =>
+        Object.values(razred).forEach(z => { z.tocke = pretvoriStaro(z.tocke); }));
+    }
+    // v3: opuščeni poti prenesemo na njuni nadomestni, da učenci ne ostanejo brez junaka
+    if (r < 3) {
+      Object.values(this.podatki).forEach(razred =>
+        Object.values(razred).forEach(z => {
+          if (z.pot && STARE_POTI[z.pot]) z.pot = STARE_POTI[z.pot];
+          if (z.pot && !POTI[z.pot]) z.pot = null;      // neznane poti raje počistimo
+        }));
+    }
+    if (r < 3) { Shramba.pisi('pustolovscinaRazlicica', 3); this.shrani(); }
   },
 
   shrani() { Shramba.pisi('pustolovscina', this.podatki); },
@@ -154,7 +165,7 @@ const Pustolovscina = {
     o.innerHTML = `
       <div class="q-slavje-box" style="--pb:${p.barva}">
         <div class="q-slavje-nivo">Nivo ${nivo}</div>
-        <img class="q-slavje-slika${p.brezOzadja ? " brez-ozadja" : ""}" src="${slikaPoti(pot, nivo)}" alt="">
+        <img class="q-slavje-slika brez-ozadja" src="${slikaPoti(pot, nivo)}" alt="">
         <div class="q-slavje-ime">${ubezi(ime)}</div>
         <div class="q-slavje-naziv">${ubezi(p.nivoji[nivo - 1])}</div>
         <div class="q-slavje-pot">${ubezi(p.ime)}</div>
@@ -222,7 +233,7 @@ const Pustolovscina = {
     const p = POTI[z.pot];
     const nivo = nivoIzTock(z.tocke);
     const maks = nivo >= NAJVEC_NIVO;
-    const JE_BREZ = p.brezOzadja ? ' brez-ozadja' : '';
+    const JE_BREZ = ' brez-ozadja';
 
     const stopnice = Array.from({ length: NAJVEC_NIVO }, (_, i) =>
       `<i class="${i < nivo ? 'on' : ''}"></i>`).join('');
@@ -275,7 +286,7 @@ const Pustolovscina = {
     $('#q-izbira-ime').textContent = ime;
     $('#q-izbira-mreza').innerHTML = Object.entries(POTI).map(([k, p]) => `
       <button class="q-pot${k === trenutna ? ' on' : ''}" data-pot="${k}" style="--pb:${p.barva}">
-        <img class="${p.brezOzadja ? "brez-ozadja" : ""}" src="${slikaPoti(k, 6)}" alt="" loading="lazy">
+        <img class="brez-ozadja" src="${slikaPoti(k, 6)}" alt="" loading="lazy">
         <span class="q-pot-ime">${ubezi(p.ime)}</span>
       </button>`).join('');
 

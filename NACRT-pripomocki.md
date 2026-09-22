@@ -422,3 +422,35 @@ prostor, da ne prekriva kartic.
 
 Ostala orodja se še naprej odprejo kot okna; če katero od njih potrebuje ves
 prostor, se doda v `Prevzem.celZaslonPrivzeto`.
+
+### Nov nabor slik (23. 9. 2026)
+
+Učitelj je pripravil nove slike — **posamične, vsak lik na nevtralnem studijskem
+ozadju**, v `~/Desktop/Pustolovščina/<Lik>/1..6`. To je boljša osnova od prejšnjih
+plakatov, saj ni več treba rezati mreže.
+
+Obdelava (skripta v `/tmp/izrezi.py`, enkratna):
+1. ozadje odstranjeno z rastjo območja od robov — lokalni prag ustavi rast na robu lika,
+   globalni prepreči pobeg; ozadja imajo močno vinjeto, zato je globalni prag visok (175),
+2. drobci (rekviziti na tleh) zavrženi, če so manjši od 15 % največjega sklopa,
+3. obrez **po gostoti** stolpcev in vrstic, ker je senca na tleh povezana z likom
+   in tesni okvir zato preširok,
+4. pomanjšano na 420 px in kvantizirano na 192 barv: **18,6 MB → 1,6 MB**.
+
+Ena slika (Strelka Elara, nivo 5) je imela bolj pisano ozadje in je potrebovala
+ohlapnejšo lokalno mejo.
+
+### Spremenjen nabor poti
+
+Novi komplet ima dva druga lika, zato sta **škrat** in **alkimist** izpadla,
+prišla pa sta **Vilinec Fae** in **Znanstvenica Elza**.
+
+Da učenci ne ostanejo brez junaka, selitev v3 preslika `skrat → vilinec`
+in `alkimist → znanstvenica`; če bi se kdaj pojavila neznana pot, se počisti na `null`
+in učenec junaka izbere znova.
+
+Imena poti zdaj sledijo učiteljevim: Zmaj Aqua, Feniks, Kralj Artur, Skrivnostni tat,
+Strelka Elara, Varuhinja gozda, Vilinec Fae, Znanstvenica Elza, Čarovnik Leo.
+Nazivi nivojev so usklajeni po spolu lika.
+
+Ker so zdaj **vsi** liki izrezani, je razmerje okenca usklajeno z njimi (5/9 namesto 1/2).
