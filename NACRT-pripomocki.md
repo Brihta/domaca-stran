@@ -409,3 +409,16 @@ ob slavju pa žari brez okvirja (`drop-shadow` namesto `box-shadow`).
 **Opomba o velikosti:** okence je visok portret (1/2), izrezi pa so širši
 (~0,74), zato lik ne zapolni vse višine. Ko bo izrezov devet od devetih,
 se splača razmerje okenca enkrat uskladiti z njimi.
+
+### Celozaslonski način
+
+Pustolovščina potrebuje več prostora kot ostala orodja, zato se **privzeto odpre
+čez celo stran**. Kartic gre v vrsto enajst namesto osem, razred se vidi naenkrat.
+
+Gumb **⛶ / ❐** v glavi preklaplja med celim zaslonom in oknom; izbira se shrani
+za vsako orodje posebej. V celozaslonskem načinu vlečenje in ročaj za velikost
+odpadeta (nimata pomena), dok pa ostane nad vsebino — spodaj je zanj pripravljen
+prostor, da ne prekriva kartic.
+
+Ostala orodja se še naprej odprejo kot okna; če katero od njih potrebuje ves
+prostor, se doda v `Prevzem.celZaslonPrivzeto`.

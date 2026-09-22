@@ -279,6 +279,15 @@ body {
   display:none; flex-direction:column; overflow:hidden;
   padding:clamp(16px,2.2vw,26px) clamp(16px,2.6vw,30px) 22px;
 }
+/* Čez cel zaslon: največ prostora za vsebino, dok ostane nad njim. */
+.prevzem.cel-zaslon {
+  inset:0; width:auto; height:auto;
+  border-radius:0; box-shadow:none;
+  padding:14px clamp(14px,2vw,26px) 96px;   /* spodaj prostor za dok */
+}
+.prevzem.cel-zaslon .prevzem-glava { cursor:default; }
+.prevzem.cel-zaslon .prevzem-rocaj { display:none; }
+
 .prevzem.odprt { display:flex; animation:vstop .26s ease both; }
 @keyframes vstop { from{opacity:0;transform:scale(.985)} to{opacity:1;transform:none} }
 .prevzem-glava { cursor:grab; touch-action:none; user-select:none; display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-shrink:0; flex-wrap:wrap; }

@@ -275,9 +275,10 @@ const Razredi = {
  * ------------------------------------------------------------------ */
 const Vleci = {
   /** geo je objekt z x/y; ob koncu pokličemo obKoncu(). */
-  premik(rocaj, el, geo, obKoncu, prezri = '') {
+  premik(rocaj, el, geo, obKoncu, prezri = '', dovoljeno = () => true) {
     let zx = 0, zy = 0, sx = 0, sy = 0, vlecem = false;
     rocaj.addEventListener('pointerdown', e => {
+      if (!dovoljeno()) return;
       if (prezri && e.target.closest(prezri)) return;
       vlecem = true;
       try { rocaj.setPointerCapture(e.pointerId); } catch (_) {}
@@ -301,9 +302,10 @@ const Vleci = {
   },
 
   /** geo je objekt z w/h. */
-  velikost(rocaj, el, geo, obKoncu, najmanjW = 180, najmanjH = 120, obSpremembi) {
+  velikost(rocaj, el, geo, obKoncu, najmanjW = 180, najmanjH = 120, obSpremembi, dovoljeno = () => true) {
     let zx = 0, zy = 0, sw = 0, sh = 0, vlecem = false;
     rocaj.addEventListener('pointerdown', e => {
+      if (!dovoljeno()) return;
       vlecem = true; e.stopPropagation();
       try { rocaj.setPointerCapture(e.pointerId); } catch (_) {}
       zx = e.clientX; zy = e.clientY; sw = geo.w; sh = geo.h;
@@ -462,12 +464,18 @@ const Prevzem = {
   geo: Shramba.beri('prevzemGeo', {}),   // { skupine:{x,y,w,h}, semafor:{...}, … }
   pripravljeni: new Set(),
 
+  /** Orodja, ki se privzeto odprejo čez cel zaslon — rabijo ves prostor. */
+  celZaslonPrivzeto: new Set(['quest']),
+
   /** Velik, na sredini, a tako da pusti glavo zgoraj in dok spodaj. */
-  privzetaGeo() {
+  privzetaGeo(ime) {
     const p = $('#platno');
     const w = Math.min(1120, p.clientWidth  - 36);
     const h = Math.min(660,  p.clientHeight - 130);
-    return { x: Math.max(18, (p.clientWidth - w) / 2), y: 18, w, h };
+    return {
+      x: Math.max(18, (p.clientWidth - w) / 2), y: 18, w, h,
+      cel: this.celZaslonPrivzeto.has(ime),
+    };
   },
 
   shraniGeo() { Shramba.pisi('prevzemGeo', this.geo); },
@@ -477,18 +485,29 @@ const Prevzem = {
     const el = document.getElementById('prevzem-' + ime);
     if (!el) return;
 
-    if (!this.geo[ime]) this.geo[ime] = this.privzetaGeo();
+    if (!this.geo[ime]) this.geo[ime] = this.privzetaGeo(ime);
+    if (this.geo[ime].cel === undefined) this.geo[ime].cel = this.celZaslonPrivzeto.has(ime);
     this._uporabiGeo(el, this.geo[ime]);
     if (!this.pripravljeni.has(ime)) { this._omogoci(el, ime); this.pripravljeni.add(ime); }
 
     el.classList.add('odprt');
     this.trenutni = ime;
+    this._osveziGumbe();
     $$('.dok-gumb[data-prevzem]').forEach(g => g.classList.toggle('on', g.dataset.prevzem === ime));
     $('#platno-namig').classList.add('skrit');   // pozdrav ne sme gledati izza okna
   },
 
   _uporabiGeo(el, g) {
     const p = $('#platno');
+
+    // Čez cel zaslon: položaja in velikosti ne nastavljamo, prevzame ju CSS.
+    el.classList.toggle('cel-zaslon', !!g.cel);
+    if (g.cel) {
+      el.style.cssText = '';
+      el.style.setProperty('--okno-h', p.clientHeight + 'px');
+      return;
+    }
+
     // po spremembi velikosti okna lahko okvir pade izven zaslona — potegnimo ga nazaj
     g.w = Math.min(g.w, p.clientWidth  - 24);
     g.h = Math.min(g.h, p.clientHeight - 24);
@@ -500,11 +519,34 @@ const Prevzem = {
 
   _omogoci(el, ime) {
     const g = this.geo[ime];
+    // V celozaslonskem načinu vlečenje in raztegovanje nimata pomena.
     Vleci.premik(el.querySelector('.prevzem-glava'), el, g, () => this.shraniGeo(),
-                 'button, .zetoni, select, input');
+                 'button, .zetoni, select, input', () => !g.cel);
     const rocaj = el.querySelector('.prevzem-rocaj');
     if (rocaj) Vleci.velikost(rocaj, el, g, () => this.shraniGeo(), 320, 240,
-                              () => el.style.setProperty('--okno-h', g.h + 'px'));
+                              () => el.style.setProperty('--okno-h', g.h + 'px'), () => !g.cel);
+  },
+
+  /** Preklop med oknom in celim zaslonom. */
+  preklopiCelZaslon() {
+    if (!this.trenutni) return;
+    const g = this.geo[this.trenutni];
+    g.cel = !g.cel;
+    this._uporabiGeo(document.getElementById('prevzem-' + this.trenutni), g);
+    this.shraniGeo();
+    this._osveziGumbe();
+  },
+
+  _osveziGumbe() {
+    if (!this.trenutni) return;
+    const g = this.geo[this.trenutni];
+    const el = document.getElementById('prevzem-' + this.trenutni);
+    const b = el.querySelector('[data-cel-zaslon]');
+    if (b) {
+      b.textContent = g.cel ? '❐' : '⛶';
+      b.title = g.cel ? 'Pomanjšaj v okno' : 'Čez cel zaslon';
+    }
+    el.querySelector('[data-ponastavi-okvir]')?.classList.toggle('skrit', !!g.cel);
   },
 
   zapri() {
@@ -518,7 +560,9 @@ const Prevzem = {
   /** Nazaj na privzeto velikost — če uporabnik okvir "zgubi". */
   ponastaviGeo() {
     if (!this.trenutni) return;
-    this.geo[this.trenutni] = this.privzetaGeo();
+    const cel = this.geo[this.trenutni]?.cel;
+    this.geo[this.trenutni] = this.privzetaGeo(this.trenutni);
+    this.geo[this.trenutni].cel = cel;
     this._uporabiGeo(document.getElementById('prevzem-' + this.trenutni), this.geo[this.trenutni]);
     this.shraniGeo();
   },
