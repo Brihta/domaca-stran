@@ -455,3 +455,24 @@ Skrivnostni tat, Strelka Elara, Varuhinja gozda, Vilinec Fae, Znanstvenica Elza,
 Nazivi nivojev so usklajeni po spolu lika.
 
 Ker so zdaj **vsi** liki izrezani, je razmerje okenca usklajeno z njimi (5/9 namesto 1/2).
+
+### Kvadratno okence namesto visokega
+
+Visoko okence (5/9) je bilo dobro za stoječe like, a so **zmaji in feniksi z
+razprtimi krili** v njem postali komaj vidni: slika z razmerjem 2,00 je pri
+`object-fit: contain` zapolnila le **28 % višine**.
+
+Okence je zdaj **kvadratno**. Široki liki zapolnijo 50–64 % višine namesto 28 %,
+stoječi pa še vedno vso višino. Kartica je ob tem nižja (200 px namesto 291),
+zato jih gre na zaslon še več.
+
+Dve sliki sta bili prizora, ne lika (zmaj 1 s koralami 2,00 in feniks 2 na veji 1,84) —
+pri njiju je obdržan osrednji del, da je bitje v ospredju. Najširše razmerje je zdaj 1,57
+(feniks z razprtimi krili), kar je legitimno.
+
+### Slavje se ne razlije čez rob
+
+Slika v slavju je imela fiksno razmerje in širino, zato je pri nižjih oknih
+ime poti padlo pod rob zaslona. Zdaj je višina vezana na okno
+(`min(46vh, 400px)`), škatla pa je omejena na `100vh`.
+Preverjeno pri 1045 px in 560 px višine — nič ni odrezano.
