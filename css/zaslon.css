@@ -811,3 +811,14 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   .q-slika-ovoj.napreduj .q-slika,
   .q-slavje-box, .q-slavje-slika, .q-kartica.utripni { animation:none; }
 }
+
+/* Prazno stanje pustolovščine — brez tega se besedilo stisne v en stolpec mreže. */
+.q-prazno {
+  grid-column:1/-1; justify-self:center; align-self:center;
+  max-width:420px; margin:auto; padding:26px 20px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.q-prazno svg { width:52px; height:52px; color:var(--brand-blue); opacity:.55; }
+.q-prazno h3  { font-size:20px; font-weight:800; color:var(--text); }
+.q-prazno p   { font-size:13.5px; color:var(--muted); line-height:1.55; }
+.q-prazno .gumb { margin-top:6px; }

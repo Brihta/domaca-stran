@@ -206,7 +206,15 @@ const Pustolovscina = {
     if (!mreza) return;
 
     if (!Stanje.razred || !Stanje.seznam.length) {
-      mreza.innerHTML = `<p class="namig">Najprej odkleni in izberi razred v „Razred".</p>`;
+      mreza.innerHTML = `
+        <div class="q-prazno">
+          ${ikona('quest')}
+          <h3>Najprej izberi razred</h3>
+          <p>Pustolovščina potrebuje seznam učencev. Odkleni ga z geslom
+             in izberi razred — nato tu dobiš kartico za vsakega učenca.</p>
+          <button class="gumb gumb-p gumb-xl" id="q-odpri-razred">Odpri „Razred"</button>
+        </div>`;
+      $('#q-odpri-razred').addEventListener('click', () => Plosca.odpri());
       $('#q-znacka').textContent = '';
       $('#q-dodeli').classList.add('skrit');
       return;
@@ -219,8 +227,15 @@ const Pustolovscina = {
 
     mreza.innerHTML = zJunakom.length
       ? zJunakom.map(u => this._kartica(u.ime)).join('')
-      : `<p class="namig">Nihče še nima junaka. Klikni „Dodeli junaka" zgoraj.</p>`;
+      : `<div class="q-prazno">
+           ${ikona('quest')}
+           <h3>Nihče še nima junaka</h3>
+           <p>Vsak učenec si izbere svojo pot in z zbranimi točkami
+              napreduje skozi šest nivojev.</p>
+           <button class="gumb gumb-p gumb-xl" id="q-zacni">Dodeli junaka</button>
+         </div>`;
     this._poveziKartice();
+    $('#q-zacni')?.addEventListener('click', () => this.odpriDodelitev());
 
     // Brez te poti junaka ne bi bilo mogoče nikomur dodeliti.
     const g = $('#q-dodeli');
