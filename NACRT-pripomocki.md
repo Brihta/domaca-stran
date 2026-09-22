@@ -442,15 +442,16 @@ ohlapnejšo lokalno mejo.
 
 ### Spremenjen nabor poti
 
-Novi komplet ima dva druga lika, zato sta **škrat** in **alkimist** izpadla,
-prišla pa sta **Vilinec Fae** in **Znanstvenica Elza**.
+Novi komplet je sprva imel dva druga lika, zato sta **škrat** in **alkimist** izpadla,
+prišla pa sta **Vilinec Fae** in **Znanstvenica Elza**. Škrata je učitelj nato dodal
+nazaj, zato jih je zdaj **deset**; edina opuščena pot ostaja alkimist.
 
-Da učenci ne ostanejo brez junaka, selitev v3 preslika `skrat → vilinec`
-in `alkimist → znanstvenica`; če bi se kdaj pojavila neznana pot, se počisti na `null`
-in učenec junaka izbere znova.
+Da učenci ne ostanejo brez junaka, selitev v3 preslika `alkimist → znanstvenica`;
+če bi se kdaj pojavila neznana pot, se počisti na `null` in učenec junaka izbere znova.
+Preslikave `skrat → vilinec` ni več — odkar je škrat spet veljavna pot, bi bila napačna.
 
-Imena poti zdaj sledijo učiteljevim: Zmaj Aqua, Feniks, Kralj Artur, Skrivnostni tat,
-Strelka Elara, Varuhinja gozda, Vilinec Fae, Znanstvenica Elza, Čarovnik Leo.
+Imena poti zdaj sledijo učiteljevim: Zmaj Aqua, Feniks, Kralj Artur, Bojevnik Škrat,
+Skrivnostni tat, Strelka Elara, Varuhinja gozda, Vilinec Fae, Znanstvenica Elza, Čarovnik Leo.
 Nazivi nivojev so usklajeni po spolu lika.
 
 Ker so zdaj **vsi** liki izrezani, je razmerje okenca usklajeno z njimi (5/9 namesto 1/2).

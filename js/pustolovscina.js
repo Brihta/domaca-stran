@@ -22,6 +22,10 @@ const POTI = {
     ime: 'Kralj Artur', barva: '#C2185B',
     nivoji: ['Novinec', 'Pešak', 'Vitez popotnik', 'Stražar', 'Vzorni vitez', 'Veliki paladin'],
   },
+  skrat: {
+    ime: 'Bojevnik Škrat', barva: '#8B5A2B',
+    nivoji: ['Novinec', 'Vajenec', 'Vojak', 'Veteran', 'Prvak', 'Veliki mojster'],
+  },
   tat: {
     ime: 'Skrivnostni tat', barva: '#4A5FC1',
     nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Operativec', 'Mojster', 'Veliki mojster'],
@@ -55,7 +59,7 @@ const POTI = {
 const slikaPoti = (pot, nivo) => `assets/junaki/${pot}/nivo_${nivo}.png`;
 
 /* Poti, ki jih je nadomestil nov nabor slik. */
-const STARE_POTI = { skrat: 'vilinec', alkimist: 'znanstvenica' };
+const STARE_POTI = { alkimist: 'znanstvenica' };
 
 /** Nivo je kar število točk, omejeno na 1–6. */
 function nivoIzTock(tocke) {
