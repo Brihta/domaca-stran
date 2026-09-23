@@ -8,3 +8,6 @@ Ucenci*.csv
 # Claude Code
 .claude/worktrees/
 .claude/settings.local.json
+
+# Stare slike (12 MB) — nadomeščene, hranjene le lokalno
+viri/stare-slike/

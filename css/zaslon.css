@@ -824,3 +824,11 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .q-prazno h3  { font-size:20px; font-weight:800; color:var(--text); }
 .q-prazno p   { font-size:13.5px; color:var(--muted); line-height:1.55; }
 .q-prazno .gumb { margin-top:6px; }
+
+/* Slike, ki imajo svoje ozadje (celi prizori): zapolnijo okence od roba do roba,
+   brez podlage in odmika, ki ju potrebujejo izrezani liki. */
+.q-slika-ovoj.ima-ozadje { background:var(--kartica-2); }
+.q-slika-ovoj.ima-ozadje .q-slika {
+  object-fit:cover; object-position:center; padding:0;
+}
+.q-pot img.ima-ozadje { object-fit:cover; object-position:center; padding:0; background:none; }

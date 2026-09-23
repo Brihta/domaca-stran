@@ -9,6 +9,7 @@ const NAJVEC_NIVO = 6;
 
 const POTI = {
   zmaj: {
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Zmaj Aqua', barva: '#2E9CC9',
     nivoji: ['Mladič globin', 'Potočni mladiček', 'Vajenec toka',
              'Pevec plimovanja', 'Vladar voda', 'Nebeški leviatan'],
@@ -55,8 +56,10 @@ const POTI = {
   },
 };
 
-/* Vsi liki so izrezani, s prozornim ozadjem. */
-const slikaPoti = (pot, nivo) => `assets/junaki/${pot}/nivo_${nivo}.png`;
+/* Večina poti ima izrezane like (PNG s prozornim ozadjem),
+   nekatere pa cele prizore s svojim ozadjem (JPEG). */
+const slikaPoti = (pot, nivo) =>
+  `assets/junaki/${pot}/nivo_${nivo}.` + (POTI[pot]?.pripona || 'png');
 
 /* Poti, ki jih je nadomestil nov nabor slik. */
 const STARE_POTI = { alkimist: 'znanstvenica' };
@@ -169,7 +172,7 @@ const Pustolovscina = {
     o.innerHTML = `
       <div class="q-slavje-box" style="--pb:${p.barva}">
         <div class="q-slavje-nivo">Nivo ${nivo}</div>
-        <img class="q-slavje-slika brez-ozadja" src="${slikaPoti(pot, nivo)}" alt="">
+        <img class="q-slavje-slika ${p.svojeOzadje ? '' : 'brez-ozadja'}" src="${slikaPoti(pot, nivo)}" alt="">
         <div class="q-slavje-ime">${ubezi(ime)}</div>
         <div class="q-slavje-naziv">${ubezi(p.nivoji[nivo - 1])}</div>
         <div class="q-slavje-pot">${ubezi(p.ime)}</div>
@@ -252,7 +255,7 @@ const Pustolovscina = {
     const p = POTI[z.pot];
     const nivo = nivoIzTock(z.tocke);
     const maks = nivo >= NAJVEC_NIVO;
-    const JE_BREZ = ' brez-ozadja';
+    const JE_BREZ = p.svojeOzadje ? ' ima-ozadje' : ' brez-ozadja';
 
     const stopnice = Array.from({ length: NAJVEC_NIVO }, (_, i) =>
       `<i class="${i < nivo ? 'on' : ''}"></i>`).join('');
@@ -305,7 +308,7 @@ const Pustolovscina = {
     $('#q-izbira-ime').textContent = ime;
     $('#q-izbira-mreza').innerHTML = Object.entries(POTI).map(([k, p]) => `
       <button class="q-pot${k === trenutna ? ' on' : ''}" data-pot="${k}" style="--pb:${p.barva}">
-        <img class="brez-ozadja" src="${slikaPoti(k, 6)}" alt="" loading="lazy">
+        <img class="${p.svojeOzadje ? 'ima-ozadje' : 'brez-ozadja'}" src="${slikaPoti(k, 6)}" alt="" loading="lazy">
         <span class="q-pot-ime">${ubezi(p.ime)}</span>
       </button>`).join('');
 
