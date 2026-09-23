@@ -15,6 +15,7 @@ const POTI = {
              'Pevec plimovanja', 'Vladar voda', 'Nebeški leviatan'],
   },
   feniks: {
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Feniks', barva: '#E0700A',
     nivoji: ['Iskrica iz jajca', 'Mladi plamen', 'Vajenec ognja',
              'Plameno srce', 'Gospodar žara', 'Veliki ognjeni ptič'],
