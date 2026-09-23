@@ -64,6 +64,17 @@ js/razredi.js       šifrirani seznami
 assets/junaki/      10 poti × 6 nivojev
 ```
 
+### Dodajanje slik junaka
+
+```bash
+python3 orodja/kadriraj.py ~/Desktop/Pustolovščina/"Kralj Artur" vitez
+```
+
+Slik ne spreminja — poišče le, kje v sliki je lik, vzame kvadraten izrez
+in ga zmeri na 520×520. Z `--obrnjeno`, kadar je prva datoteka najvišji nivo.
+Nato je treba pri tisti poti v `js/pustolovscina.js` dodati
+`svojeOzadje: true, pripona: 'jpg'` in dvigniti različico v `sw.js`.
+
 Brez orodij za gradnjo — dovolj je statični strežnik.
 Ob spremembi datotek je treba dvigniti različico v `sw.js`,
 sicer service worker postreže staro.

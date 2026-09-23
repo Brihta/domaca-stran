@@ -21,6 +21,7 @@ const POTI = {
              'Plameno srce', 'Gospodar žara', 'Veliki ognjeni ptič'],
   },
   vitez: {
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Kralj Artur', barva: '#C2185B',
     nivoji: ['Novinec', 'Pešak', 'Vitez popotnik', 'Stražar', 'Vzorni vitez', 'Veliki paladin'],
   },
