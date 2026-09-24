@@ -53,7 +53,8 @@ const POTI = {
              'Izumiteljica', 'Mojstrica', 'Velika znanstvenica'],
   },
   carovnik: {
-    ime: 'Čarovnik Leo', barva: '#2266FF',
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Čarovnik Homer', barva: '#2266FF',
     nivoji: ['Učenec', 'Vajenec', 'Čarovnikov pomočnik', 'Čarovnik', 'Čarodej', 'Veliki mag'],
   },
 };
