@@ -45,7 +45,8 @@ const POTI = {
     nivoji: ['Novinka', 'Vajenka', 'Učenka', 'Adeptka', 'Mojstrica varuhinja', 'Nadduhovnica'],
   },
   vilinec: {
-    ime: 'Vilinec Fae', barva: '#2E8B4A',
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Frodo', barva: '#2E8B4A',
     nivoji: ['Vilinski otrok', 'Vajenec', 'Gozdni popotnik',
              'Čuvaj logov', 'Vilinski plemič', 'Svetli vilinec'],
   },
