@@ -51,7 +51,8 @@ const POTI = {
              'Čuvaj logov', 'Vilinski plemič', 'Svetli vilinec'],
   },
   znanstvenica: {
-    ime: 'Znanstvenica Elza', barva: '#7A4FBF',
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Aurelia', barva: '#7A4FBF',
     nivoji: ['Radovednica', 'Pomočnica', 'Raziskovalka',
              'Izumiteljica', 'Mojstrica', 'Velika znanstvenica'],
   },
