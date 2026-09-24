@@ -14,9 +14,29 @@ def _maska(im, nasic=0.22, temno=0.45):
         return s > nasic or mx/255 < temno
     return [[1 if jeLik(px[x,y]) else 0 for y in range(h)] for x in range(w)], w, h
 
+def _najvecji_sklop(mask, w, h):
+    """Obdrži le največji povezan sklop. Vodni žigi in okraski v kotih
+    so ločeni od lika in bi sicer raztegnili okvir do roba slike."""
+    from collections import deque
+    oznaka = [[0]*h for _ in range(w)]
+    naj, najid, n = 0, 0, 0
+    for x in range(w):
+        for y in range(h):
+            if mask[x][y] and not oznaka[x][y]:
+                n += 1; q = deque([(x,y)]); oznaka[x][y] = n; vel = 0
+                while q:
+                    a,b = q.popleft(); vel += 1
+                    for na,nb in ((a+1,b),(a-1,b),(a,b+1),(a,b-1)):
+                        if 0<=na<w and 0<=nb<h and mask[na][nb] and not oznaka[na][nb]:
+                            oznaka[na][nb] = n; q.append((na,nb))
+                if vel > naj: naj, najid = vel, n
+    return [[1 if oznaka[x][y] == najid else 0 for y in range(h)] for x in range(w)]
+
+
 def okvir_lika(im, delez=0.06):
     """Meje lika po gostoti stolpcev in vrstic — senca in vinjeta ne štejeta."""
     mask, w, h = _maska(im)
+    mask = _najvecji_sklop(mask, w, h)
     stolpci = [sum(mask[x]) for x in range(w)]
     vrstice = [sum(mask[x][y] for x in range(w)) for y in range(h)]
     def meje(v):

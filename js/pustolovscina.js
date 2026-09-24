@@ -40,7 +40,8 @@ const POTI = {
              'Mojstrica lokostrelka', 'Velika lokostrelka'],
   },
   narava: {
-    ime: 'Varuhinja gozda', barva: '#55A51C',
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Kalisto', barva: '#55A51C',
     nivoji: ['Novinka', 'Vajenka', 'Učenka', 'Adeptka', 'Mojstrica varuhinja', 'Nadduhovnica'],
   },
   vilinec: {

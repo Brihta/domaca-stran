@@ -46,7 +46,14 @@ def main():
                                      'JPEG', quality=86, optimize=True)
         print(f"  {os.path.basename(f)} -> nivo_{nivo}.jpg")
 
-    kb = sum(os.path.getsize(f) for f in glob.glob(os.path.join(cilj, '*'))) // 1024
+    # Zapišemo, od kod slike prihajajo — sicer se ob ponovni obdelavi
+    # zlahka zgrabi napačna mapa (enkrat se je to že zgodilo pri zmaju).
+    with open(os.path.join(viri, 'IZVOR.txt'), 'w', encoding='utf-8') as f:
+        f.write(os.path.abspath(os.path.expanduser(izvor)) + '\n')
+        f.write(('obrnjeno' if obrnjeno else 'naravni vrstni red') + '\n')
+
+    kb = sum(os.path.getsize(f) for f in glob.glob(os.path.join(cilj, '*'))
+             if not f.endswith('.txt')) // 1024
     print(f"\n{pot}: 6 slik, {kb} kB, vse {STRAN}x{STRAN}")
     print("Ne pozabi dvigniti različice v sw.js.")
 
