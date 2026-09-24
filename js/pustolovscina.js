@@ -30,7 +30,8 @@ const POTI = {
     nivoji: ['Novinec', 'Vajenec', 'Vojak', 'Veteran', 'Prvak', 'Veliki mojster'],
   },
   tat: {
-    ime: 'Skrivnostni tat', barva: '#4A5FC1',
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Hattori Hanzō', barva: '#4A5FC1',
     nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Operativec', 'Mojster', 'Veliki mojster'],
   },
   lokostrelka: {
