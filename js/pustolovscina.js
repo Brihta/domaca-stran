@@ -32,7 +32,7 @@ const POTI = {
   tat: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Hattori Hanzō', barva: '#4A5FC1',
-    nivoji: ['Novinec', 'Vajenec', 'Učenec', 'Operativec', 'Mojster', 'Veliki mojster'],
+    nivoji: ['Učenec', 'Vajenec', 'Senčni tekač', 'Shinobi', 'Mojster senc', 'Veliki Hanzō'],
   },
   lokostrelka: {
     ime: 'Strelka Elara', barva: '#0FA3A3',
