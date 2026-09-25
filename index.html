@@ -18,9 +18,12 @@
     <div class="platno-namig" id="platno-namig">
       <div class="pozdrav">
         <h1 id="pozdrav">Razredni zaslon</h1>
-        <p id="pozdrav-pod">Izberi orodje spodaj ali klikni ploščico</p>
+        <p id="pozdrav-pod">Izberi orodje</p>
       </div>
       <div class="ploscice">
+        <button class="ploscica" data-odpri="quest">
+          <span class="i"></span><span class="lbl">Pustolovščina</span><span class="sub">točke in junaki</span>
+        </button>
         <button class="ploscica" data-odpri="skupine">
           <span class="i"></span><span class="lbl">Skupine</span><span class="sub">pari, trojke, ekipe</span>
         </button>
@@ -30,14 +33,29 @@
         <button class="ploscica" data-odpri="semafor">
           <span class="i"></span><span class="lbl">Semafor</span><span class="sub">raven pogovora</span>
         </button>
-        <button class="ploscica" data-dodaj="besedilo">
-          <span class="i"></span><span class="lbl">Besedilo</span><span class="sub">navodila za uro</span>
+        <button class="ploscica" data-cas="1">
+          <span class="i"></span><span class="lbl">Časovnik</span><span class="sub">odštevanje</span>
         </button>
         <button class="ploscica" data-odpri="urnik">
           <span class="i"></span><span class="lbl">Urnik</span><span class="sub">predmeti po urah</span>
         </button>
-        <button class="ploscica" data-odpri="quest">
-          <span class="i"></span><span class="lbl">Pustolovščina</span><span class="sub">točke in junaki</span>
+        <button class="ploscica" data-dodaj="besedilo">
+          <span class="i"></span><span class="lbl">Besedilo</span><span class="sub">navodila za uro</span>
+        </button>
+        <button class="ploscica" data-dodaj="kocka">
+          <span class="i"></span><span class="lbl">Kocka</span><span class="sub">met kocke</span>
+        </button>
+        <button class="ploscica" data-dodaj="slika">
+          <span class="i"></span><span class="lbl">Slika</span><span class="sub">z naprave</span>
+        </button>
+        <button class="ploscica" data-dodaj="anketa">
+          <span class="i"></span><span class="lbl">Anketa</span><span class="sub">ročno štetje</span>
+        </button>
+        <button class="ploscica" data-odpri="miselni">
+          <span class="i"></span><span class="lbl">Miselni vzorec</span><span class="sub">ideje in povezave</span>
+        </button>
+        <button class="ploscica" data-plosca>
+          <span class="i"></span><span class="lbl">Razred</span><span class="sub">geslo in prisotnost</span>
         </button>
       </div>
     </div>
@@ -110,27 +128,6 @@
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-    <!-- ---------- PREVZEM: SIMBOLI DELA ---------- -->
-    <section class="prevzem" id="prevzem-simbol">
-      <div class="prevzem-glava">
-        <h2>Simbol dela</h2>
-        <div class="desno">
-          <button class="gumb gumb-t" id="simbol-ugasni">Ugasni</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
-        </div>
-      </div>
-      <div class="veliki-polje">
-        <div class="veliki-ikona" id="simbol-velika"></div>
-        <div>
-          <div class="veliki-napis" id="simbol-napis">Izberi simbol</div>
-          <div class="veliki-pod" id="simbol-pod"></div>
-        </div>
-        <div class="simbol-izbira" id="simbol-izbira"></div>
-      </div>
-      <div class="prevzem-rocaj" aria-hidden="true"></div>
-    </section>
 
     <!-- ---------- PREVZEM: URNIK ---------- -->
     <section class="prevzem" id="prevzem-urnik">
@@ -179,12 +176,14 @@
         <span class="znacka" id="q-znacka"></span>
         <div class="desno">
           <button class="gumb gumb-s skrit" id="q-dodeli">Dodeli junaka</button>
+          <button class="gumb gumb-s" id="q-ogled">Samo junaki</button>
           <button class="gumb gumb-t" id="q-ponastavi">Ponastavi</button>
           <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
           <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
           <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
         </div>
       </div>
+      <button class="q-izhod" id="q-izhod">Zapri ogled</button>
       <div class="q-mreza" id="q-mreza"></div>
 
       <!-- izbira junaka -->
@@ -236,10 +235,6 @@
       <span class="napis">Semafor</span>
     </div>
 
-    <button class="t-simbol skrit" id="t-simbol">
-      <span class="ikona"></span>
-      <span class="napis">Simbol dela</span>
-    </button>
 
     <div class="t-cas skrit" id="t-cas">
       <button class="mini" data-min="1">1m</button>
@@ -257,30 +252,6 @@
 
 
   <!-- ========================= DOK ========================= -->
-  <nav class="dok">
-    <button class="dok-gumb" id="dok-domov"><span class="ico"></span><span class="lbl">Domov</span></button>
-    <div class="dok-loc"></div>
-    <button class="dok-gumb" data-prevzem="skupine"><span class="ico"></span><span class="lbl">Skupine</span></button>
-    <button class="dok-gumb" data-trak="semafor" data-prevzem-tudi="semafor"><span class="ico"></span><span class="lbl">Semafor</span></button>
-    <button class="dok-gumb" data-trak="simbol" data-prevzem-tudi="simbol"><span class="ico"></span><span class="lbl">Simbol</span></button>
-    <button class="dok-gumb" data-trak="casovnik"><span class="ico"></span><span class="lbl">Časovnik</span></button>
-    <div class="dok-loc"></div>
-    <div class="vec-ovoj">
-      <button class="dok-gumb" id="dok-vec"><span class="ico"></span><span class="lbl">Več orodij</span></button>
-      <div class="vec-meni" id="vec-meni">
-        <button data-prevzem="zreb">Žreb — izberi učenca</button>
-        <button data-dodaj="kocka">Kocka</button>
-        <button data-dodaj="besedilo">Besedilo</button>
-        <button data-dodaj="slika">Slika</button>
-        <button data-dodaj="anketa">Anketa</button>
-        <button data-prevzem="urnik">Urnik</button>
-        <button data-prevzem="miselni">Miselni vzorec</button>
-        <button data-prevzem="quest">Pustolovščina</button>
-        <button id="meni-razporejevalnik">Napredni razporejevalnik…</button>
-      </div>
-    </div>
-    <button class="dok-gumb" id="dok-plosca"><span class="ico"></span><span class="lbl">Razred</span></button>
-  </nav>
 </div>
 
 <!-- ========================= PLOŠČA ========================= -->

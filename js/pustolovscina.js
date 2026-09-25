@@ -158,6 +158,16 @@ const Pustolovscina = {
     this.izbiramZa = null;
     this.izris();
     obvesti(`${ime} je izbral pot: ${POTI[pot].ime}`);
+
+    // Razred se dodeljuje po vrsti, zato takoj ponudimo naslednjega brez junaka.
+    const nasl = this.naslednjiBrezJunaka();
+    if (nasl) this.odpriIzbiro(nasl);
+    else this.zapriIzbiro();
+  },
+
+  /** Prvi prisotni učenec, ki junaka še nima. */
+  naslednjiBrezJunaka() {
+    return aktivni().find(u => !this.zapis(u.ime).pot)?.ime || null;
   },
 
   ponastavi(ime) {
@@ -226,6 +236,7 @@ const Pustolovscina = {
           <button class="gumb gumb-p gumb-xl" id="q-odpri-razred">Odpri „Razred"</button>
         </div>`;
       $('#q-odpri-razred').addEventListener('click', () => Plosca.odpri());
+      $('#q-mreza').style.gridTemplateColumns = '';
       $('#q-znacka').textContent = '';
       $('#q-dodeli').classList.add('skrit');
       return;
@@ -247,6 +258,7 @@ const Pustolovscina = {
          </div>`;
     this._poveziKartice();
     $('#q-zacni')?.addEventListener('click', () => this.odpriDodelitev());
+    if (!zJunakom.length) mreza.style.gridTemplateColumns = '';
 
     // Brez te poti junaka ne bi bilo mogoče nikomur dodeliti.
     const g = $('#q-dodeli');
@@ -256,40 +268,65 @@ const Pustolovscina = {
     $('#q-znacka').textContent =
       `${Stanje.razred} · ${zJunakom.length} junakov` +
       (brezJunaka ? ` · ${brezJunaka} brez` : '');
+
+    this._razporedi();
   },
 
   _kartica(ime) {
     const z = this.zapis(ime);
     const p = POTI[z.pot];
     const nivo = nivoIzTock(z.tocke);
-    const maks = nivo >= NAJVEC_NIVO;
-    const JE_BREZ = p.svojeOzadje ? ' ima-ozadje' : ' brez-ozadja';
-
-    const stopnice = Array.from({ length: NAJVEC_NIVO }, (_, i) =>
-      `<i class="${i < nivo ? 'on' : ''}"></i>`).join('');
+    const ovojRazred = p.svojeOzadje ? 'ima-ozadje' : 'brez-ozadja';
 
     return `
       <div class="q-kartica" data-ime="${ubezi(ime)}" style="--pb:${p.barva}">
-        <div class="q-slika-ovoj${JE_BREZ}">
+        <div class="q-slika-ovoj ${ovojRazred}">
           <img class="q-slika" src="${slikaPoti(z.pot, nivo)}"
                alt="${ubezi(p.nivoji[nivo - 1])}" loading="lazy">
           <span class="q-nivo">${nivo}</span>
+          <button class="q-menjaj" data-izberi="${ubezi(ime)}" title="Zamenjaj junaka">⤾</button>
+          <button class="q-manj" data-tocke="-1" data-ime="${ubezi(ime)}"
+                  ${nivo <= 1 ? 'disabled' : ''} title="Nivo nazaj">−</button>
+          <button class="q-vec" data-tocke="1" data-ime="${ubezi(ime)}"
+                  ${nivo >= NAJVEC_NIVO ? 'disabled' : ''} title="Nivo naprej">+</button>
         </div>
         <div class="q-ime">${ubezi(ime)}</div>
         <div class="q-naziv">${ubezi(p.nivoji[nivo - 1])}</div>
-        <div class="q-stopnice">${stopnice}</div>
-        <div class="q-gumbi">
-          <button class="q-pt manj" data-tocke="-1" data-ime="${ubezi(ime)}"
-                  ${nivo <= 1 ? 'disabled' : ''} aria-label="Nivo nazaj">−</button>
-          <button class="q-pt plus" data-tocke="1" data-ime="${ubezi(ime)}"
-                  ${maks ? 'disabled' : ''} aria-label="Nivo naprej">+1</button>
-          <button class="q-pt menjaj" data-izberi="${ubezi(ime)}" aria-label="Zamenjaj junaka">⤾</button>
-        </div>
       </div>`;
   },
 
+  /**
+   * Velikost celic izračunamo tako, da gredo vsi junaki na zaslon brez drsenja.
+   * Preizkusimo vsako število stolpcev in obdržimo tisto z največjo celico.
+   */
+  _razporedi() {
+    const mreza = $('#q-mreza');
+    const n = mreza.querySelectorAll('.q-kartica').length;
+    if (!n) { mreza.style.gridTemplateColumns = ''; return; }
+
+    const razmik = 8;
+    const W = mreza.clientWidth, H = mreza.clientHeight;
+    if (W < 40 || H < 40) return;
+
+    const samoJunaki = $('#prevzem-quest').classList.contains('samo-junaki');
+    const podNapisi = samoJunaki ? 26 : 34;     // višina imena in naziva
+    const razmerje = 1;                          // slika je kvadratna
+
+    let naj = { w: 0, st: 1 };
+    for (let st = 1; st <= n; st++) {
+      const vrst = Math.ceil(n / st);
+      const w = (W - razmik * (st - 1)) / st;
+      const h = (H - razmik * (vrst - 1)) / vrst;
+      const sirina = Math.min(w, (h - podNapisi) * razmerje);
+      if (sirina > naj.w) naj = { w: sirina, st };
+    }
+    if (naj.w <= 0) return;
+    mreza.style.gridTemplateColumns = `repeat(${naj.st}, ${Math.floor(naj.w)}px)`;
+    mreza.style.gridAutoRows = `${Math.floor(naj.w / razmerje + podNapisi)}px`;
+  },
+
   _poveziKartice() {
-    $$('#q-mreza .q-pt[data-tocke]').forEach(b =>
+    $$('#q-mreza [data-tocke]').forEach(b =>
       b.addEventListener('click', () => this.dodaj(b.dataset.ime, +b.dataset.tocke)));
     $$('#q-mreza [data-izberi]').forEach(b =>
       b.addEventListener('click', () => this.odpriIzbiro(b.dataset.izberi)));
@@ -326,4 +363,13 @@ const Pustolovscina = {
     $('#q-izbira').classList.add('vidno');
   },
   zapriIzbiro() { $('#q-izbira').classList.remove('vidno'); this.izbiramZa = null; },
+
+  /** Ogled brez kromiranja: samo junaki in imena, čim večji. */
+  preklopiOgled() {
+    const el = $('#prevzem-quest');
+    const vklop = !el.classList.contains('samo-junaki');
+    el.classList.toggle('samo-junaki', vklop);
+    if (vklop && !Prevzem.geo.quest?.cel) Prevzem.preklopiCelZaslon();
+    this._razporedi();
+  },
 };

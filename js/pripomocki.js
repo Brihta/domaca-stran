@@ -34,50 +34,6 @@ const Semafor = {
 };
 
 /* ------------------------------------------------------------------ *
- * SIMBOLI DELA
- * ------------------------------------------------------------------ */
-const SIMBOLI = {
-  tisina:   { ime: 'Tišina',          pod: 'Brez pogovora',               ikona: 'tisina' },
-  sam:      { ime: 'Samostojno delo', pod: 'Vsak dela zase',              ikona: 'sam' },
-  par:      { ime: 'Delo v paru',     pod: 'S sosedom',                   ikona: 'par' },
-  skupina:  { ime: 'Delo v skupini',  pod: 'Sodelujemo',                  ikona: 'skupina' },
-  vprasaj:  { ime: 'Vprašaj sošolca', pod: 'Najprej sošolec, nato učitelj',ikona: 'vprasaj' },
-  pomagaj:  { ime: 'Pomagaj sosedu',  pod: 'Kdor zna, pomaga',            ikona: 'pomagaj' },
-  sepet:    { ime: 'Šepetanje',       pod: 'Tiho, da ne motimo',          ikona: 'sepet' },
-  slusalke: { ime: 'Slušalke',        pod: 'Poslušamo posnetek',          ikona: 'slusalke' },
-};
-
-const Simboli = {
-  nastavi(k) {
-    Stanje.simbol = (Stanje.simbol === k) ? null : k;
-    this.izris();
-    Trak.osvezi();
-  },
-  ugasni() { Stanje.simbol = null; this.izris(); Trak.osvezi(); },
-
-  izris() {
-    const k = Stanje.simbol;
-    const t = $('#t-simbol');
-    t.querySelector('.napis').textContent = k ? SIMBOLI[k].ime : 'Simbol dela';
-    t.querySelector('.ikona').innerHTML = ikona(k ? SIMBOLI[k].ikona : 'simbol');
-
-    $$('#simbol-izbira .simbol-gumb').forEach(g => g.classList.toggle('on', g.dataset.k === k));
-    $('#simbol-velika').innerHTML = k ? ikona(SIMBOLI[k].ikona) : '';
-    $('#simbol-napis').textContent = k ? SIMBOLI[k].ime : 'Izberi simbol';
-    $('#simbol-pod').textContent   = k ? SIMBOLI[k].pod : '';
-  },
-
-  napolniIzbiro() {
-    $('#simbol-izbira').innerHTML = Object.entries(SIMBOLI).map(([k, s]) => `
-      <button class="simbol-gumb" data-k="${k}">
-        ${ikona(s.ikona)}<span class="lbl">${ubezi(s.ime)}</span>
-      </button>`).join('');
-    $$('#simbol-izbira .simbol-gumb').forEach(g =>
-      g.addEventListener('click', () => this.nastavi(g.dataset.k)));
-  },
-};
-
-/* ------------------------------------------------------------------ *
  * ČASOVNIK — v traku
  * ------------------------------------------------------------------ */
 const Casovnik = {

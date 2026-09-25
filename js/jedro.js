@@ -12,7 +12,6 @@ const IKONE = {
   domov:    '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
   skupine:  '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M15.5 20c0-2.3 1.6-3.6 4-3.6"/>',
   semafor:  '<rect x="8" y="2" width="8" height="20" rx="4"/><circle cx="12" cy="7" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="17" r="1.6"/>',
-  simbol:   '<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M15 11V6.5a1.5 1.5 0 0 1 3 0V13c0 4.4-2.6 8-7 8s-7-3.1-7-6.5c0-1.4 1-2.3 2-2.3.7 0 1.3.4 1.6 1L9 14"/>',
   casovnik: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/><path d="M9 2h6"/>',
   kocka:    '<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/>',
   besedilo: '<path d="M4 6V4h16v2"/><path d="M12 4v16"/><path d="M9 20h6"/>',
@@ -32,15 +31,6 @@ const IKONE = {
   plus:     '<path d="M12 5v14M5 12h14"/>',
   minus:    '<path d="M5 12h14"/>',
   mesaj:    '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>',
-  // simboli dela
-  tisina:   '<path d="M9 9v6a3 3 0 0 0 6 0V6a3 3 0 0 0-6 0"/><path d="M4 4l16 16"/>',
-  sam:      '<path d="m16 3 5 5L8 21H3v-5z"/><path d="m14 5 5 5"/>',
-  par:      '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.4-5 6-5s6 2 6 5"/><path d="M14 20c0-3 2-5 5-5s3 2 3 5"/>',
-  skupina:  '<circle cx="12" cy="6" r="2.6"/><circle cx="5" cy="13" r="2.6"/><circle cx="19" cy="13" r="2.6"/><path d="M12 9v4"/><path d="M7.4 13.8 12 13l4.6.8"/><path d="M3 21c0-2.2 1.2-3.4 4-3.4"/><path d="M21 21c0-2.2-1.2-3.4-4-3.4"/><path d="M8 21c0-2.5 1.6-4 4-4s4 1.5 4 4"/>',
-  vprasaj:  '<circle cx="9" cy="7" r="3"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M17 4.5a2 2 0 1 1 2.6 1.9c-.7.3-1.1.9-1.1 1.6v.5"/><circle cx="18.5" cy="11.5" r=".9" fill="currentColor" stroke="none"/>',
-  pomagaj:  '<path d="M7 12.5 10 15l4-4.5"/><path d="M12 21s-7-4.4-7-9.5A4.5 4.5 0 0 1 12 8a4.5 4.5 0 0 1 7 3.5C19 16.6 12 21 12 21z"/>',
-  sepet:    '<path d="M4 11a8 8 0 0 1 16 0v3a3 3 0 0 1-3 3h-1v-6h4"/><path d="M4 11v3a3 3 0 0 0 3 3h1v-6H4"/>',
-  slusalke: '<path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2" y="13" width="5" height="8" rx="2"/><rect x="17" y="13" width="5" height="8" rx="2"/>',
 };
 function ikona(ime, atrib = '') {
   const d = IKONE[ime] || '';
@@ -193,7 +183,6 @@ const Stanje = {
   velikost: Shramba.beri('velikost', 4),
   ozadje:   Shramba.beri('ozadje', OZADJE_PRIVZETO),
   semafor:  null,                                 // 'rdeca'|'rumena'|'zelena'|null
-  simbol:   null,                                 // ključ iz SIMBOLI
   platno:   Shramba.beri('platno', []),
   zrebani:  new Set(Shramba.beri('zrebani', [])), // za "brez ponavljanja"
 };
@@ -441,16 +430,13 @@ const Platno = {
 const Trak = {
   osvezi() {
     const trak = $('#trak');
-    const karkoli = Stanje.semafor !== null || Stanje.simbol !== null || Casovnik.aktiven;
+    const karkoli = Stanje.semafor !== null || Casovnik.aktiven;
     trak.classList.toggle('vklopljen', karkoli);
     $('#t-semafor').classList.toggle('skrit', Stanje.semafor === null);
-    $('#t-simbol').classList.toggle('skrit', Stanje.simbol === null);
     $('#t-cas').classList.toggle('skrit', !Casovnik.aktiven);
     $$('.dok-gumb[data-trak]').forEach(g => {
       const k = g.dataset.trak;
-      const on = k === 'semafor' ? Stanje.semafor !== null
-               : k === 'simbol'  ? Stanje.simbol !== null
-               : Casovnik.aktiven;
+      const on = k === 'semafor' ? Stanje.semafor !== null : Casovnik.aktiven;
       g.classList.toggle('on', on);
     });
   },

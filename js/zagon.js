@@ -7,35 +7,18 @@
  * IKONE V RAZDELKIH
  * ------------------------------------------------------------------ */
 function napolniIkone() {
-  /* Dok: ikona gre v okrogli .ico, napis ostane pod njo. */
-  const dokIkone = {
-    'dok-domov': 'domov', 'dok-vec': 'vec', 'dok-plosca': 'nastavi',
+  const ploscicaIkone = {
+    quest:'quest', skupine:'skupine', zreb:'zreb', semafor:'semafor',
+    urnik:'urnik', miselni:'miselni', besedilo:'besedilo', kocka:'kocka',
+    slika:'slika', anketa:'anketa',
   };
-  Object.entries(dokIkone).forEach(([id, k]) => {
-    const el = document.getElementById(id);
-    if (el) el.querySelector('.ico').innerHTML = ikona(k);
-  });
-  $$('.dok-gumb[data-prevzem]').forEach(g =>
-    g.querySelector('.ico').innerHTML = ikona(g.dataset.prevzem === 'zreb' ? 'zreb' : 'skupine'));
-  $$('.dok-gumb[data-trak]').forEach(g =>
-    g.querySelector('.ico').innerHTML = ikona(g.dataset.trak));
-
-  const meniIkone = { kocka:'kocka', besedilo:'besedilo', slika:'slika', zreb:'zreb',
-                      anketa:'anketa', urnik:'urnik', miselni:'miselni', quest:'quest' };
-  $$('.vec-meni button').forEach(b => {
-    const k = b.dataset.dodaj || b.dataset.prevzem;
-    b.insertAdjacentHTML('afterbegin', ikona(meniIkone[k] || 'skupine'));
-  });
-
-  const ploscicaIkone = { skupine:'skupine', zreb:'zreb', semafor:'semafor',
-                          besedilo:'besedilo', urnik:'urnik', quest:'quest' };
   $$('.ploscica').forEach(p => {
-    const k = p.dataset.odpri || p.dataset.dodaj;
-    p.querySelector('.i').innerHTML = ikona(ploscicaIkone[k] || 'besedilo');
+    const k = p.dataset.odpri || p.dataset.dodaj
+            || (p.hasAttribute('data-cas') ? 'casovnik' : 'nastavi');
+    p.querySelector('.i').innerHTML = ikona(ploscicaIkone[k] || k);
   });
 
   $('#cas-ponastavi').innerHTML = ikona('ponastavi');
-  $('#t-simbol .ikona').innerHTML = ikona('simbol');
   Casovnik.izris();
 }
 
@@ -102,7 +85,6 @@ function izrisiPozdrav() {
  * POVEZAVE
  * ------------------------------------------------------------------ */
 function poveziPlosco() {
-  $('#dok-plosca').addEventListener('click', () => Plosca.odpri());
   $('#plosca-zapri').addEventListener('click', () => Plosca.zapri());
   $('#zastor').addEventListener('click', () => Plosca.zapri());
 
@@ -156,55 +138,23 @@ function poveziPlosco() {
   $('#ustvari').addEventListener('click', () => { Skupine.ustvari(); Plosca.zapri(); });
 }
 
-function poveziDok() {
-  $('#dok-domov').addEventListener('click', () => { Prevzem.zapri(); zapriMeni(); });
-
-  $$('.dok-gumb[data-prevzem]').forEach(g =>
-    g.addEventListener('click', () => Prevzem.preklopi(g.dataset.prevzem)));
-
-  // Semafor in Simbol: klik vklopi v traku, drugi klik odpre velik pogled
-  $$('.dok-gumb[data-trak]').forEach(g => g.addEventListener('click', () => {
-    const k = g.dataset.trak;
-    if (k === 'casovnik') {
-      Casovnik.aktiven ? Casovnik.ugasni() : Casovnik.vklopi(5);
-      return;
-    }
-    const vklopljen = k === 'semafor' ? Stanje.semafor !== null : Stanje.simbol !== null;
-    if (!vklopljen) {
-      k === 'semafor' ? Semafor.nastavi('zelena') : Simboli.nastavi('sam');
-      Prevzem.odpri(g.dataset.prevzemTudi);
-    } else {
-      Prevzem.preklopi(g.dataset.prevzemTudi);
-    }
-  }));
-
-  $$('[data-zapri-prevzem]').forEach(b => b.addEventListener('click', () => Prevzem.zapri()));
-  $$('[data-ponastavi-okvir]').forEach(b => b.addEventListener('click', () => Prevzem.ponastaviGeo()));
-  $$('[data-cel-zaslon]').forEach(b => b.addEventListener('click', () => Prevzem.preklopiCelZaslon()));
-
+function poveziPloscice() {
+  // Ploščice na domačem zaslonu so edina navigacija — doka ni več.
   $$('.ploscica').forEach(p => p.addEventListener('click', () => {
     if (p.dataset.odpri) {
       if (p.dataset.odpri === 'semafor' && Stanje.semafor === null) Semafor.nastavi('zelena');
       Prevzem.odpri(p.dataset.odpri);
     }
     if (p.dataset.dodaj) Platno.dodaj(p.dataset.dodaj);
+    if (p.hasAttribute('data-cas')) Casovnik.aktiven ? Casovnik.ugasni() : Casovnik.vklopi(5);
+    if (p.hasAttribute('data-plosca')) Plosca.odpri();
   }));
 
-  // meni "Več orodij"
-  const meni = $('#vec-meni');
-  $('#dok-vec').addEventListener('click', e => { e.stopPropagation(); meni.classList.toggle('odprt'); });
-  document.addEventListener('click', () => meni.classList.remove('odprt'));
-  meni.addEventListener('click', e => e.stopPropagation());
-
-  $$('#vec-meni [data-dodaj]').forEach(b => b.addEventListener('click', () => {
-    Platno.dodaj(b.dataset.dodaj); zapriMeni();
-  }));
-  $$('#vec-meni [data-prevzem]').forEach(b => b.addEventListener('click', () => {
-    Prevzem.odpri(b.dataset.prevzem); zapriMeni();
-  }));
-  $('#meni-razporejevalnik').addEventListener('click', () => { location.href = 'skupine.html'; });
+  $$('[data-zapri-prevzem]').forEach(b => b.addEventListener('click', () => Prevzem.zapri()));
+  $$('[data-ponastavi-okvir]').forEach(b => b.addEventListener('click', () => Prevzem.ponastaviGeo()));
+  $$('[data-cel-zaslon]').forEach(b => b.addEventListener('click', () => Prevzem.preklopiCelZaslon()));
 }
-function zapriMeni() { $('#vec-meni').classList.remove('odprt'); }
+
 
 function poveziTrak() {
   $$('#t-semafor .luc').forEach(l =>
@@ -213,8 +163,6 @@ function poveziTrak() {
     l.addEventListener('click', () => Semafor.nastavi(l.dataset.barva)));
   $('#semafor-ugasni').addEventListener('click', () => { Semafor.ugasni(); Prevzem.zapri(); });
 
-  $('#t-simbol').addEventListener('click', () => Prevzem.preklopi('simbol'));
-  $('#simbol-ugasni').addEventListener('click', () => { Simboli.ugasni(); Prevzem.zapri(); });
 
   $$('#t-cas .mini[data-min]').forEach(m =>
     m.addEventListener('click', () => { Casovnik.nastavi(+m.dataset.min); Casovnik.zacni(); }));
@@ -222,7 +170,7 @@ function poveziTrak() {
   $('#cas-ponastavi').addEventListener('click', () => Casovnik.ponastavi());
 
   $('#trak-pocisti').addEventListener('click', () => {
-    Semafor.ugasni(); Simboli.ugasni(); Casovnik.ugasni();
+    Semafor.ugasni(); Casovnik.ugasni();
   });
 }
 
@@ -251,6 +199,19 @@ function poveziOrodja() {
   $('#q-ponastavi').addEventListener('click', () => Pustolovscina.ponastaviVse());
   $('#q-dodeli').addEventListener('click', () => Pustolovscina.odpriDodelitev());
   $('#q-izbira-zapri').addEventListener('click', () => Pustolovscina.zapriIzbiro());
+  $('#q-ogled').addEventListener('click', () => Pustolovscina.preklopiOgled());
+  $('#q-izhod').addEventListener('click', () => Pustolovscina.preklopiOgled());
+
+  // Izbirnik junakov je premakljiv. Skupnega pripomočka ne uporabimo, ker
+  // omejuje na pozitivne odmike, tu pa je treba okno znati dvigniti navzgor.
+  poveziPremikIzbirnika();
+
+  // Ob spremembi velikosti okna je treba mrežo junakov znova razporediti.
+  let cas = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(cas);
+    cas = setTimeout(() => Pustolovscina._razporedi(), 120);
+  });
   $('#q-izbira').addEventListener('click', e => {
     if (e.target.id === 'q-izbira') Pustolovscina.zapriIzbiro();
   });
@@ -266,13 +227,40 @@ function poveziOrodja() {
   });
 }
 
+/** Premikanje izbirnika junakov; dovoljen je tudi odmik navzgor. */
+function poveziPremikIzbirnika() {
+  const okno = $('.q-izbira-box');
+  const rocaj = $('.q-izbira-glava');
+  let zx = 0, zy = 0, sx = 0, sy = 0, dx = 0, dy = 0, vlecem = false;
+
+  rocaj.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    vlecem = true;
+    try { rocaj.setPointerCapture(e.pointerId); } catch (_) {}
+    zx = e.clientX; zy = e.clientY; sx = dx; sy = dy;
+  });
+  rocaj.addEventListener('pointermove', e => {
+    if (!vlecem) return;
+    const p = $('#platno');
+    dx = Math.min(Math.max(sx + e.clientX - zx, -p.clientWidth  / 2), p.clientWidth  / 2);
+    dy = Math.min(Math.max(sy + e.clientY - zy, -p.clientHeight + 60), p.clientHeight - 80);
+    okno.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  const konec = e => {
+    if (!vlecem) return;
+    vlecem = false;
+    try { rocaj.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+  rocaj.addEventListener('pointerup', konec);
+  rocaj.addEventListener('pointercancel', konec);
+}
+
 function poveziTipke() {
   document.addEventListener('keydown', e => {
     if (e.target.matches('input, textarea, [contenteditable]')) return;
     if (e.key === 'Escape') {
       if ($('#plosca').classList.contains('odprt')) Plosca.zapri();
       else if (Prevzem.trenutni) Prevzem.zapri();
-      else zapriMeni();
     }
   });
 }
@@ -282,7 +270,6 @@ function poveziTipke() {
  * ------------------------------------------------------------------ */
 function zagon() {
   napolniIkone();
-  Simboli.napolniIzbiro();
 
   Razredi.obnovi();
   // seznam učencev obnovimo, če je razred še odklenjen v tej seji
@@ -300,7 +287,6 @@ function zagon() {
   izrisiPozdrav();
 
   Semafor.izris();
-  Simboli.izris();
   Trak.osvezi();
   Zreb.izrisStanja();
   Skupine.izris();
@@ -313,7 +299,7 @@ function zagon() {
   Platno.obnoviVse();
 
   poveziPlosco();
-  poveziDok();
+  poveziPloscice();
   poveziTrak();
   poveziSkupineInZreb();
   poveziOrodja();

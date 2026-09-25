@@ -14,7 +14,6 @@ v slovenščini in prilagojeno naši šoli.
 | **Skupine** | razdeli razred v pare, trojke ali ekipe |
 | **Žreb** | izbere učenca; z možnostjo, da vsak pride na vrsto enkrat na krog |
 | **Semafor** | rdeča tišina · rumena šepetanje · zelena pogovor dovoljen |
-| **Simbol dela** | samostojno, v paru, v skupini, vprašaj sošolca … |
 | **Časovnik** | odštevanje za nalogo, z zvokom ob koncu |
 | **Urnik** | ure so že iz šolskega zvonca, vpišeš le predmet |
 | **Pustolovščina** | učenci zbirajo točke in razvijajo svojega junaka |
@@ -27,12 +26,13 @@ in koliko je še do odmora.
 ## Kako se uporablja
 
 1. Odpri povezavo zgoraj.
-2. **Razred** (desno spodaj) → vpiši geslo → izberi razred.
+2. Ploščica **Razred** → vpiši geslo → izberi razred.
    Geslo se vpiše enkrat in velja do konca seje.
-3. Označi odsotne in izberi orodje v doku spodaj.
+3. Označi odsotne in klikni ploščico orodja.
 
-Ostala orodja so pod **Več orodij**. Razporejevalnik z naprednimi možnostmi
-(zaklepanje skupin, pari „ne skupaj", izvoz CSV) je na `skupine.html`.
+Vsa orodja so ploščice na domačem zaslonu — orodne vrstice ni.
+Razporejevalnik z naprednimi možnostmi (zaklepanje skupin, pari „ne skupaj",
+izvoz CSV) je na `skupine.html`.
 
 ### Namestitev na tablo
 
@@ -57,7 +57,7 @@ skupine.html    razporejevalnik skupin
 css/zaslon.css
 js/jedro.js         stanje, shramba, šolski zvonec, ogrodje oken
 js/skupine.js       razporejanje
-js/pripomocki.js    semafor, simboli, časovnik, žreb, besedilo, kocka, slika
+js/pripomocki.js    semafor, časovnik, žreb, besedilo, kocka, slika
 js/orodja.js        urnik, anketa, miselni vzorec
 js/pustolovscina.js točke in junaki
 js/razredi.js       šifrirani seznami

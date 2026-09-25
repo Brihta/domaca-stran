@@ -182,18 +182,18 @@ body {
 
 .ploscice {
   display:flex; flex-wrap:wrap; gap:14px; justify-content:center;
-  pointer-events:auto; width:min(700px,92vw);
+  pointer-events:auto; width:min(860px,94vw);
 }
 .ploscica {
   width:158px; background:var(--kartica); border:none; border-radius:var(--zaobl);
-  padding:22px 14px; display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding:16px 10px; display:flex; flex-direction:column; align-items:center; gap:7px;
   cursor:pointer; font-family:inherit; color:var(--text);
   box-shadow:var(--senca); transition:transform .16s, box-shadow .16s;
 }
 .ploscica:hover { transform:translateY(-4px); box-shadow:var(--senca-mv); }
-.ploscica svg { width:28px; height:28px; color:var(--brand-blue-dk); }
-.ploscica .lbl { font-size:14px; font-weight:800; }
-.ploscica .sub { font-size:10.5px; color:var(--muted); font-weight:600; text-align:center; }
+.ploscica svg { width:25px; height:25px; color:var(--brand-blue-dk); }
+.ploscica .lbl { font-size:12.5px; font-weight:800; }
+.ploscica .sub { font-size:9.5px; color:var(--muted); font-weight:600; text-align:center; }
 
 /* ===================== LEBDEČI PRIPOMOČEK ===================== */
 .pw {
@@ -277,13 +277,13 @@ body {
   position:absolute; z-index:15;                 /* položaj in velikost nastavi JS */
   background:var(--kartica); border-radius:24px; box-shadow:var(--senca-mv);
   display:none; flex-direction:column; overflow:hidden;
-  padding:clamp(16px,2.2vw,26px) clamp(16px,2.6vw,30px) 22px;
+  padding:clamp(14px,2vw,22px) clamp(14px,2.4vw,26px) 16px;
 }
 /* Čez cel zaslon: največ prostora za vsebino, dok ostane nad njim. */
 .prevzem.cel-zaslon {
   inset:0; width:auto; height:auto;
   border-radius:0; box-shadow:none;
-  padding:14px clamp(14px,2vw,26px) 96px;   /* spodaj prostor za dok */
+  padding:14px clamp(14px,2vw,26px) 18px;
 }
 .prevzem.cel-zaslon .prevzem-glava { cursor:default; }
 .prevzem.cel-zaslon .prevzem-rocaj { display:none; }
@@ -350,19 +350,7 @@ body {
 
 .veliki-napis { font-size:min(clamp(19px,3.4vw,42px), calc(var(--okno-h,660px) * 0.0700)); font-weight:800; color:var(--text); text-align:center; }
 .veliki-pod { font-size:clamp(13px,1.5vw,17px); font-weight:600; color:var(--muted); text-align:center; margin-top:4px; }
-.veliki-ikona svg { width:min(clamp(64px,14vw,170px),calc(var(--okno-h,660px) * 0.3000)); height:min(clamp(64px,14vw,170px),calc(var(--okno-h,660px) * 0.3000)); color:var(--brand-blue-dk); }
 
-.simbol-izbira { display:flex; flex-wrap:wrap; gap:11px; justify-content:center; flex-shrink:0; }
-.simbol-gumb {
-  background:#fff; border:1px solid var(--rob-md); border-radius:16px;
-  padding:13px 15px; cursor:pointer; font-family:inherit;
-  display:flex; flex-direction:column; align-items:center; gap:7px; width:116px; transition:.15s;
-}
-.simbol-gumb:hover { box-shadow:0 5px 16px rgba(20,30,60,.13); }
-.simbol-gumb.on { background:var(--brand-blue); border-color:var(--brand-blue); }
-.simbol-gumb.on .lbl, .simbol-gumb.on svg { color:#fff; }
-.simbol-gumb svg { width:31px; height:31px; color:var(--brand-blue-dk); }
-.simbol-gumb .lbl { font-size:11.5px; font-weight:700; color:var(--text2); text-align:center; line-height:1.25; }
 
 .prevzem-rocaj {
   position:absolute; right:4px; bottom:4px; width:22px; height:22px;
@@ -372,58 +360,6 @@ body {
     linear-gradient(135deg, transparent 70%, var(--rob-md) 70%, var(--rob-md) 78%, transparent 78%);
 }
 .prevzem:hover .prevzem-rocaj { opacity:1; }
-
-/* ===================== DOK (plavajoč, na dnu) ===================== */
-.dok {
-  position:absolute; left:50%; bottom:16px; transform:translateX(-50%); z-index:20;
-  display:flex; align-items:flex-start; gap:4px;
-  background:rgba(255,255,255,.16);
-  backdrop-filter:blur(16px) saturate(160%); -webkit-backdrop-filter:blur(16px) saturate(160%);
-  border:1px solid rgba(255,255,255,.22); border-radius:28px;
-  padding:9px 12px; box-shadow:0 10px 36px rgba(8,10,30,.36);
-  max-width:calc(100vw - 32px); overflow-x:auto;
-}
-.dok-gumb {
-  font-family:inherit; background:none; border:none; cursor:pointer; position:relative;
-  display:flex; flex-direction:column; align-items:center; gap:5px;
-  padding:3px 7px; border-radius:16px; width:66px; flex-shrink:0;
-}
-.dok-gumb .ico {
-  width:46px; height:46px; border-radius:50%;
-  background:var(--kartica); box-shadow:0 3px 10px rgba(8,10,30,.24);
-  display:flex; align-items:center; justify-content:center;
-  color:var(--text2); transition:transform .16s, background .16s, color .16s;
-}
-.dok-gumb .ico svg { width:21px; height:21px; }
-.dok-gumb .lbl {
-  font-size:10.5px; font-weight:700; color:#fff; text-align:center; line-height:1.2;
-  text-shadow:0 1px 5px rgba(0,0,0,.6); white-space:nowrap;
-}
-.dok-gumb:hover .ico { transform:translateY(-3px); }
-.dok-gumb.on .ico { background:var(--brand-blue); color:#fff; }
-.dok-gumb.on::after {
-  content:'×'; position:absolute; top:-1px; right:6px;
-  width:19px; height:19px; border-radius:50%;
-  background:var(--brand-red); color:#fff;
-  font-size:13px; font-weight:800; line-height:19px; text-align:center;
-  box-shadow:0 2px 6px rgba(0,0,0,.3);
-}
-.dok-loc { width:1px; align-self:stretch; margin:6px 5px; background:rgba(255,255,255,.28); }
-
-.vec-ovoj { position:relative; }
-.vec-meni {
-  position:absolute; bottom:calc(100% + 12px); right:0; z-index:30;
-  background:var(--kartica); border:none; border-radius:18px;
-  box-shadow:var(--senca-mv); padding:7px; min-width:210px; display:none;
-}
-.vec-meni.odprt { display:block; animation:vstop .16s ease both; }
-.vec-meni button {
-  width:100%; display:flex; align-items:center; gap:10px; padding:10px 12px;
-  background:none; border:none; cursor:pointer; font-family:inherit;
-  font-size:13px; font-weight:700; color:var(--text2); border-radius:11px; text-align:left;
-}
-.vec-meni button:hover { background:var(--kartica-2); color:var(--text); }
-.vec-meni button svg { width:16px; height:16px; color:var(--brand-blue-dk); flex-shrink:0; }
 
 /* ===================== PLOŠČA ===================== */
 .zastor {
@@ -522,7 +458,6 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 
 /* ===================== DOTIK / OZKI ZASLONI ===================== */
 @media (pointer:coarse) {
-  .dok-gumb .ico { width:52px; height:52px; }
   .znacka-ime { padding:9px 13px; font-size:13.5px; }
   .mini { width:38px; height:38px; }
 }
@@ -530,8 +465,6 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   .ura .t { font-size:24px; }
   .trak { top:86px; }
 
-  .dok-gumb { width:60px; }
-  .dok-gumb .ico { width:42px; height:42px; }
 }
 
 /* ===================== URNIK ===================== */
@@ -637,85 +570,115 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 @media (pointer:coarse) { .mv-brisi { opacity:1; } }
 
 /* ===================== PUSTOLOVŠČINA ===================== */
-/* Kompaktne kartice — cilj je čim več junakov naenkrat, brez drsenja. */
+/* Junak je glavna stvar: slika zavzame kartico, kromiranje je komaj vidno.
+   Velikost celice izračuna JS, da gre cel razred na zaslon brez drsenja. */
 .q-mreza {
-  flex:1; display:grid; gap:9px; align-content:start; overflow-y:auto;
-  grid-template-columns:repeat(auto-fill,minmax(104px,1fr));
+  flex:1; min-height:0; display:grid; gap:8px; overflow:hidden;
+  justify-content:center; align-content:center;
 }
 
 .q-kartica {
-  background:#fff; border:1px solid var(--rob); border-radius:12px;
-  padding:6px 6px 7px; text-align:center;
-  border-top:4px solid var(--pb,var(--rob-md));
-  box-shadow:0 1px 5px rgba(20,30,60,.08);
-  display:flex; flex-direction:column; gap:4px;
+  display:flex; flex-direction:column; min-width:0; min-height:0;
+  border-radius:12px; overflow:hidden; background:#fff;
+  box-shadow:0 1px 4px rgba(20,30,60,.10);
+  border-top:3px solid var(--pb,var(--rob-md));
 }
 .q-kartica.utripni { animation:q-utrip .5s ease; }
-@keyframes q-utrip { 0%,100%{transform:scale(1)} 45%{transform:scale(1.05)} }
+@keyframes q-utrip { 0%,100%{transform:scale(1)} 45%{transform:scale(1.04)} }
 
-/* Izvorne slike so visoki portreti (~1:2,2). Okence mora biti enako visoko,
-   sicer se vidi le glava. "contain" zagotovi, da je lik vedno cel. */
-.q-slika-ovoj {
-  position:relative; aspect-ratio:1/1; border-radius:9px;
-  overflow:hidden; background:var(--kartica-2);
-  display:flex; align-items:center; justify-content:center;
-}
-/* Lik brez ozadja: nežna podlaga v barvi poti, da ne lebdi v praznem. */
+.q-slika-ovoj { position:relative; flex:1; min-height:0; background:var(--kartica-2); }
+.q-slika { width:100%; height:100%; display:block; object-fit:contain; object-position:center; }
+.q-slika-ovoj.ima-ozadje .q-slika { object-fit:cover; }
 .q-slika-ovoj.brez-ozadja {
   background:
-    radial-gradient(ellipse at 50% 78%, color-mix(in srgb, var(--pb) 22%, transparent), transparent 62%),
-    linear-gradient(180deg, #fff, color-mix(in srgb, var(--pb) 10%, #fff));
-}
-.q-slika-ovoj.brez-ozadja .q-slika { padding:5px; object-position:center bottom; }
-.q-slika {
-  width:100%; height:100%; display:block;
-  object-fit:contain; object-position:top center;
-  transition:filter .3s;
+    radial-gradient(ellipse at 50% 80%, color-mix(in srgb, var(--pb) 20%, transparent), transparent 62%),
+    linear-gradient(180deg, #fff, color-mix(in srgb, var(--pb) 9%, #fff));
 }
 .q-slika-ovoj.napreduj .q-slika { animation:q-pop .85s cubic-bezier(.34,1.56,.64,1); }
 @keyframes q-pop {
   0%   { transform:scale(1);    filter:drop-shadow(0 0 0 rgba(255,214,102,0)); }
-  35%  { transform:scale(1.14); filter:drop-shadow(0 0 22px rgba(255,214,102,.95)) brightness(1.25); }
-  60%  { transform:scale(.97);  filter:drop-shadow(0 0 14px rgba(255,214,102,.7)) brightness(1.1); }
+  35%  { transform:scale(1.12); filter:drop-shadow(0 0 22px rgba(255,214,102,.95)) brightness(1.2); }
   100% { transform:scale(1);    filter:drop-shadow(0 0 0 rgba(255,214,102,0)); }
 }
 
+/* Številke so namenoma drobne — prostor pripada junaku. */
 .q-nivo {
-  position:absolute; top:4px; right:4px; z-index:2;
-  min-width:20px; height:20px; padding:0 5px; border-radius:99px;
+  position:absolute; top:3px; right:3px; z-index:2;
+  min-width:15px; height:15px; padding:0 4px; border-radius:99px;
   background:var(--pb,var(--brand-blue)); color:#fff;
-  font-size:11px; font-weight:800; line-height:20px; text-align:center;
-  box-shadow:0 2px 6px rgba(0,0,0,.35);
+  font-size:9.5px; font-weight:800; line-height:15px; text-align:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.3); opacity:.9;
 }
 
-.q-ime   { font-size:12px; font-weight:800; color:var(--text); line-height:1.15; }
+/* Spodnja kota kartice sta gumba za nivo gor in dol. */
+.q-manj, .q-vec {
+  position:absolute; bottom:0; width:34%; height:26%; z-index:2;
+  border:none; background:transparent; cursor:pointer; padding:0;
+  font-family:inherit; font-size:15px; font-weight:800; line-height:1;
+  color:#fff; opacity:0; transition:opacity .15s, background .15s;
+  display:flex; align-items:flex-end; justify-content:center;
+  padding-bottom:3px; text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.q-manj { left:0;  background:linear-gradient(to top, rgba(210,45,32,.55), transparent); }
+.q-vec  { right:0; background:linear-gradient(to top, rgba(34,102,255,.55), transparent); }
+.q-kartica:hover .q-manj, .q-kartica:hover .q-vec { opacity:1; }
+.q-manj:disabled, .q-vec:disabled { opacity:0 !important; cursor:default; }
+
+/* Zamenjava junaka je redka — pokaže se le ob prehodu miške. */
+.q-menjaj {
+  position:absolute; top:3px; left:3px; z-index:2;
+  width:17px; height:17px; border-radius:50%; border:none; padding:0;
+  background:rgba(20,30,60,.4); color:#fff; cursor:pointer;
+  font-size:10px; line-height:17px; opacity:0; transition:opacity .15s;
+}
+.q-kartica:hover .q-menjaj { opacity:1; }
+
+.q-ime {
+  font-size:12px; font-weight:800; color:var(--text); text-align:center;
+  padding:4px 4px 1px; line-height:1.15; flex-shrink:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 .q-naziv {
   font-size:9.5px; font-weight:700; color:var(--pb,var(--muted));
-  line-height:1.2; min-height:22px;
+  text-align:center; padding:0 3px 4px; line-height:1.1; flex-shrink:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 
-/* Šest stopničk namesto črte — en pogled pove, kateri nivo je. */
-.q-stopnice { display:flex; gap:2px; justify-content:center; }
-.q-stopnice i {
-  flex:1; height:4px; border-radius:99px; background:var(--kartica-2);
-  transition:background .35s;
+@media (pointer:coarse) {
+  .q-manj, .q-vec, .q-menjaj { opacity:.85; }
 }
-.q-stopnice i.on { background:var(--pb,var(--brand-blue)); }
 
-.q-gumbi { display:flex; gap:3px; justify-content:center; margin-top:2px; }
-.q-pt {
-  font-family:inherit; font-size:11px; font-weight:800; padding:4px 0;
-  border-radius:7px; border:1px solid var(--rob-md); background:#fff;
-  color:var(--brand-blue-dk); cursor:pointer; transition:.14s; flex:1; min-width:0;
+/* ---------- celozaslonski ogled: samo junaki ---------- */
+.prevzem.samo-junaki .prevzem-glava { display:none; }
+.prevzem.samo-junaki .q-naziv,
+.prevzem.samo-junaki .q-nivo,
+.prevzem.samo-junaki .q-menjaj,
+.prevzem.samo-junaki .q-manj,
+.prevzem.samo-junaki .q-vec { display:none; }
+.prevzem.samo-junaki .q-ime { font-size:clamp(11px,1.1vw,17px); padding:5px 4px; }
+.prevzem.samo-junaki .q-kartica { border-top-width:4px; }
+.prevzem.samo-junaki { padding:12px; }
+
+/* gumb za izhod iz ogleda lebdi v kotu */
+.q-izhod {
+  position:absolute; top:10px; right:12px; z-index:6;
+  border:none; border-radius:999px; cursor:pointer; font-family:inherit;
+  background:rgba(20,30,60,.5); color:#fff; font-size:12px; font-weight:700;
+  padding:7px 14px; opacity:.35; transition:opacity .15s;
 }
-.q-pt:hover:not(:disabled) { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
-.q-pt:disabled { opacity:.32; cursor:default; }
-.q-pt.manj   { color:var(--muted); }
-.q-pt.manj:hover:not(:disabled) { background:var(--brand-red); border-color:var(--brand-red); }
-.q-pt.menjaj { color:var(--muted); font-size:12px; flex:0 0 26px; }
-.q-pt.menjaj:hover { background:var(--muted); border-color:var(--muted); color:#fff; }
+.q-izhod:hover { opacity:1; }
+.prevzem:not(.samo-junaki) .q-izhod { display:none; }
 
-/* seznam učencev brez junaka */
+.q-prazno {
+  grid-column:1/-1; justify-self:center; align-self:center;
+  max-width:420px; margin:auto; padding:26px 20px; text-align:center;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+}
+.q-prazno svg { width:52px; height:52px; color:var(--brand-blue); opacity:.55; }
+.q-prazno h3  { font-size:20px; font-weight:800; color:var(--text); }
+.q-prazno p   { font-size:13.5px; color:var(--muted); line-height:1.55; }
+.q-prazno .gumb { margin-top:6px; }
+
 .q-ucenec {
   font-family:inherit; font-size:13px; font-weight:700; color:var(--text);
   padding:11px 12px; border-radius:11px; border:1px solid var(--rob-md);
@@ -726,14 +689,17 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 /* ---------- izbira junaka ---------- */
 .q-izbira {
   position:absolute; inset:0; z-index:6; display:none;
-  align-items:center; justify-content:center; padding:18px;
+  align-items:flex-start; justify-content:center; padding:18px;
   background:rgba(20,26,44,.5); backdrop-filter:blur(3px); border-radius:24px;
 }
 .q-izbira.vidno { display:flex; animation:vstop .2s ease both; }
 .q-izbira-box {
-  background:#fff; border-radius:20px; box-shadow:var(--senca-mv);
+  position:relative; background:#fff; border-radius:20px; box-shadow:var(--senca-mv);
   width:min(760px,100%); max-height:100%; display:flex; flex-direction:column; overflow:hidden;
 }
+/* Na šolski tabli okno rado pade pod orodno vrstico — zato ga je mogoče premakniti. */
+.q-izbira-glava { cursor:grab; touch-action:none; user-select:none; }
+.q-izbira-glava:active { cursor:grabbing; }
 .q-izbira-glava {
   display:flex; align-items:center; gap:10px; padding:14px 18px;
   border-bottom:1px solid var(--rob); flex-shrink:0;
