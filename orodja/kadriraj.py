@@ -30,7 +30,8 @@ def main():
         print(__doc__); sys.exit(1)
     izvor, pot = args
 
-    sl = sorted(glob.glob(os.path.join(os.path.expanduser(izvor), '*.jp*g')))
+    mapa = os.path.expanduser(izvor)
+    sl = sorted(glob.glob(os.path.join(mapa, '*.jp*g')) + glob.glob(os.path.join(mapa, '*.png')))
     if len(sl) != 6:
         print(f"Pričakoval 6 slik, našel {len(sl)} v {izvor}"); sys.exit(1)
 

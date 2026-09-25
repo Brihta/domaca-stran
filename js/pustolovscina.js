@@ -11,56 +11,102 @@ const POTI = {
   zmaj: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Zmaj Aqua', barva: '#2E9CC9',
-    nivoji: ['Mladič globin', 'Potočni mladiček', 'Vajenec toka',
-             'Pevec plimovanja', 'Vladar voda', 'Nebeški leviatan'],
+    nivoji: ['Biserni mladič',
+             'Potočni zmajček',
+             'Čuvaj tolmuna',
+             'Gospodar valov',
+             'Kralj plimovanja',
+             'Zvezdni leviatan'],
   },
   feniks: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Feniks', barva: '#E0700A',
-    nivoji: ['Iskrica iz jajca', 'Mladi plamen', 'Vajenec ognja',
-             'Plameno srce', 'Gospodar žara', 'Veliki ognjeni ptič'],
+    nivoji: ['Ognjeno jajce',
+             'Ognjeni puhek',
+             'Žerjavica',
+             'Krila ognja',
+             'Sončni plamen',
+             'Modri feniks'],
   },
   vitez: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Kralj Artur', barva: '#C2185B',
-    nivoji: ['Novinec', 'Pešak', 'Vitez popotnik', 'Stražar', 'Vzorni vitez', 'Veliki paladin'],
+    nivoji: ['Vaški fant',
+             'Ščitonoša',
+             'Levji vitez',
+             'Turnirski vitez',
+             'Zlati paladin',
+             'Krilati Artur'],
   },
   skrat: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Bojevnik Škrat', barva: '#8B5A2B',
-    nivoji: ['Novinec', 'Vajenec', 'Vojak', 'Veteran', 'Prvak', 'Veliki mojster'],
+    nivoji: ['Kovačev pomočnik',
+             'Bradati stražar',
+             'Verižni bojevnik',
+             'Oklepni borec',
+             'Runski kovač',
+             'Gromsko kladivo'],
   },
   tat: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Hattori Hanzō', barva: '#4A5FC1',
-    nivoji: ['Učenec', 'Vajenec', 'Senčni tekač', 'Shinobi', 'Mojster senc', 'Veliki Hanzō'],
+    nivoji: ['Bosonogi tat',
+             'Tihi korak',
+             'Senčni tekač',
+             'Shinobi',
+             'Mojster senc',
+             'Veliki Hanzō'],
   },
   lokostrelka: {
-    ime: 'Strelka Elara', barva: '#0FA3A3',
-    nivoji: ['Novinka', 'Gozdna vajenka', 'Izvidnica', 'Ostrostrelka',
-             'Mojstrica lokostrelka', 'Velika lokostrelka'],
+    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    ime: 'Vixen', barva: '#0FA3A3',
+    nivoji: ['Prva puščica',
+             'Gozdna sledilka',
+             'Tiha lovka',
+             'Ostrostrelka',
+             'Jantarni lok',
+             'Lunina strelka'],
   },
   narava: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Kalisto', barva: '#55A51C',
-    nivoji: ['Novinka', 'Vajenka', 'Učenka', 'Adeptka', 'Mojstrica varuhinja', 'Nadduhovnica'],
+    nivoji: ['Seme gozda',
+             'Zeliščarka',
+             'Varuhinja studenca',
+             'Gozdna bojevnica',
+             'Vladarica gaja',
+             'Duh pragozda'],
   },
   vilinec: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Frodo', barva: '#2E8B4A',
-    nivoji: ['Vilinski otrok', 'Vajenec', 'Gozdni popotnik',
-             'Čuvaj logov', 'Vilinski plemič', 'Svetli vilinec'],
+    nivoji: ['Bosi popotnik',
+             'Nosilec kristala',
+             'Zeleni plašč',
+             'Vilinski stražar',
+             'Temni plemič',
+             'Kronani vilinec'],
   },
   znanstvenica: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Aurelia', barva: '#7A4FBF',
-    nivoji: ['Radovednica', 'Pomočnica', 'Raziskovalka',
-             'Izumiteljica', 'Mojstrica', 'Velika znanstvenica'],
+    nivoji: ['Prva bučka',
+             'Dvojni napoj',
+             'Lekarnarica',
+             'Modra raziskovalka',
+             'Zbirateljica eliksirjev',
+             'Zlata Aurelia'],
   },
   carovnik: {
     svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Čarovnik Homer', barva: '#2266FF',
-    nivoji: ['Učenec', 'Vajenec', 'Čarovnikov pomočnik', 'Čarovnik', 'Čarodej', 'Veliki mag'],
+    nivoji: ['Lesena palica',
+             'Prvi urok',
+             'Kristalna palica',
+             'Čarovniški klobuk',
+             'Bralec urokov',
+             'Arhimag'],
   },
 };
 
