@@ -9,7 +9,7 @@ const NAJVEC_NIVO = 6;
 
 const POTI = {
   zmaj: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'zvezdni-leviatan', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Zmaj Aqua', barva: '#2E9CC9',
     nivoji: ['Biserni mladič',
              'Potočni zmajček',
@@ -19,7 +19,7 @@ const POTI = {
              'Zvezdni leviatan'],
   },
   feniks: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'modri-feniks', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Feniks', barva: '#E0700A',
     nivoji: ['Ognjeno jajce',
              'Ognjeni puhek',
@@ -29,7 +29,7 @@ const POTI = {
              'Modri feniks'],
   },
   vitez: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'krilati-artur', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Kralj Artur', barva: '#C2185B',
     nivoji: ['Vaški fant',
              'Ščitonoša',
@@ -39,7 +39,7 @@ const POTI = {
              'Krilati Artur'],
   },
   skrat: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'gromsko-kladivo', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Bojevnik Škrat', barva: '#8B5A2B',
     nivoji: ['Kovačev pomočnik',
              'Bradati stražar',
@@ -49,7 +49,7 @@ const POTI = {
              'Gromsko kladivo'],
   },
   tat: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'veliki-hanzo', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Hattori Hanzō', barva: '#4A5FC1',
     nivoji: ['Bosonogi tat',
              'Tihi korak',
@@ -59,7 +59,7 @@ const POTI = {
              'Veliki Hanzō'],
   },
   lokostrelka: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'lunina-strelka', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Vixen', barva: '#0FA3A3',
     nivoji: ['Prva puščica',
              'Gozdna sledilka',
@@ -69,7 +69,7 @@ const POTI = {
              'Lunina strelka'],
   },
   narava: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'duh-pragozda', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Kalisto', barva: '#55A51C',
     nivoji: ['Seme gozda',
              'Zeliščarka',
@@ -79,7 +79,7 @@ const POTI = {
              'Duh pragozda'],
   },
   vilinec: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'kronani-vilinec', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Frodo', barva: '#2E8B4A',
     nivoji: ['Bosi popotnik',
              'Nosilec kristala',
@@ -89,7 +89,7 @@ const POTI = {
              'Kronani vilinec'],
   },
   znanstvenica: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'zlata-aurelia', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Aurelia', barva: '#7A4FBF',
     nivoji: ['Prva bučka',
              'Dvojni napoj',
@@ -99,7 +99,7 @@ const POTI = {
              'Zlata Aurelia'],
   },
   carovnik: {
-    svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
+    mapa: 'arhimag', svojeOzadje: true, pripona: 'jpg',   // slike so celi prizori, ne izrezani liki
     ime: 'Čarovnik Homer', barva: '#2266FF',
     nivoji: ['Lesena palica',
              'Prvi urok',
@@ -110,10 +110,10 @@ const POTI = {
   },
 };
 
-/* Večina poti ima izrezane like (PNG s prozornim ozadjem),
-   nekatere pa cele prizore s svojim ozadjem (JPEG). */
+/* Mapa je poimenovana po 6. stopnji junaka, ključ poti pa ostaja nespremenjen —
+   nanj so vezane shranjene točke učencev, zato ga ne preimenujemo. */
 const slikaPoti = (pot, nivo) =>
-  `assets/junaki/${pot}/nivo_${nivo}.` + (POTI[pot]?.pripona || 'png');
+  `assets/junaki/${POTI[pot]?.mapa || pot}/nivo_${nivo}.` + (POTI[pot]?.pripona || 'png');
 
 /* Poti, ki jih je nadomestil nov nabor slik. */
 const STARE_POTI = { alkimist: 'znanstvenica' };
