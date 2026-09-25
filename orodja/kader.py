@@ -90,9 +90,9 @@ def kvadrat(pot, stran=520, zrak=1.18):
     r = max(x1 - x0, y1 - y0) * zrak / 2
 
     # Podaljšan rob je neopazen na enakomernem ozadju, na prizoru (korale pri
-    # zmaju) pa naredi proge. Zato ga dovolimo le tam, kjer je rob enakomeren,
-    # in še tam največ desetino izreza.
-    MEJA_PESTROSTI, NAJVEC_ROB = 12.0, 0.10
+    # zmaju) pa naredi proge. Zato ga dovolimo le tam, kjer je rob enakomeren —
+    # tam sme biti velik, sicer pokončnim izvirnikom (Vixen) odreže glavo.
+    MEJA_PESTROSTI, NAJVEC_ROB = 12.0, 0.55
     dovoljeno = {
         'levo':   cx,        'desno':  W - cx,
         'zgoraj': cy,        'spodaj': H - cy,

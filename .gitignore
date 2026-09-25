@@ -11,3 +11,4 @@ Ucenci*.csv
 
 # Stare slike (12 MB) — nadomeščene, hranjene le lokalno
 viri/stare-slike/
+__pycache__/
