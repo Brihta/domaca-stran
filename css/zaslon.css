@@ -610,18 +610,21 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   box-shadow:0 1px 4px rgba(0,0,0,.3); opacity:.9;
 }
 
-/* Spodnja kota kartice sta gumba za nivo gor in dol. */
+/* Gumba za nivo sta drobna kroga v spodnjih kotih. Prej sta bila velika
+   barvna pasova, ki sta ob prehodu miške prekrila tretjino junaka. */
 .q-manj, .q-vec {
-  position:absolute; bottom:0; width:34%; height:26%; z-index:2;
-  border:none; background:transparent; cursor:pointer; padding:0;
-  font-family:inherit; font-size:15px; font-weight:800; line-height:1;
-  color:#fff; opacity:0; transition:opacity .15s, background .15s;
-  display:flex; align-items:flex-end; justify-content:center;
-  padding-bottom:3px; text-shadow:0 1px 3px rgba(0,0,0,.6);
+  position:absolute; bottom:5px; z-index:2;
+  width:22px; height:22px; border-radius:50%; border:none; padding:0;
+  cursor:pointer; font-family:inherit; font-size:13px; font-weight:800;
+  line-height:22px; text-align:center; color:#fff;
+  background:rgba(20,30,60,.45); backdrop-filter:blur(2px);
+  opacity:0; transition:opacity .15s, background .15s;
 }
-.q-manj { left:0;  background:linear-gradient(to top, rgba(210,45,32,.55), transparent); }
-.q-vec  { right:0; background:linear-gradient(to top, rgba(34,102,255,.55), transparent); }
+.q-manj { left:5px; }
+.q-vec  { right:5px; }
 .q-kartica:hover .q-manj, .q-kartica:hover .q-vec { opacity:1; }
+.q-manj:hover { background:var(--brand-red); }
+.q-vec:hover  { background:var(--brand-blue); }
 .q-manj:disabled, .q-vec:disabled { opacity:0 !important; cursor:default; }
 
 /* Zamenjava junaka je redka — pokaže se le ob prehodu miške. */

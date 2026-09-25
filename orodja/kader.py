@@ -1,6 +1,7 @@
 """Enoten kvadratni kader okoli lika. Ozadje ostane nedotaknjeno —
 maska služi SAMO za to, da najdemo, kje v sliki lik je."""
 from PIL import Image
+import statistics
 
 def _maska(im, nasic=0.22, temno=0.45):
     """Studijsko ozadje je bledo in nenasičeno; lik je barvit ali temen.
@@ -49,6 +50,17 @@ def okvir_lika(im, delez=0.06):
     s = im.size[0]/w
     return int(x0*s), int(y0*s), int(x1*s), int(y1*s)
 
+def _pestrost_roba(im, stran, korak=4):
+    """Odklon svetlosti vzdolž robu. Enakomerno ozadje ima nizkega,
+    prizor (npr. korale) visokega."""
+    W, H = im.size
+    if stran == 'levo':   pas = [im.getpixel((0, y))     for y in range(0, H, korak)]
+    elif stran == 'desno':  pas = [im.getpixel((W-1, y)) for y in range(0, H, korak)]
+    elif stran == 'zgoraj': pas = [im.getpixel((x, 0))   for x in range(0, W, korak)]
+    else:                   pas = [im.getpixel((x, H-1)) for x in range(0, W, korak)]
+    return statistics.pstdev([sum(p) / 3 for p in pas])
+
+
 def _razsiri(im, levo, desno, zgoraj, spodaj):
     """Podaljša robne pike navzven. Studijsko ozadje ima vinjeto, zato
     enobarvna zapolnitev pusti šiv — raztegnjen rob se zlije z njim."""
@@ -77,12 +89,19 @@ def kvadrat(pot, stran=520, zrak=1.18):
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     r = max(x1 - x0, y1 - y0) * zrak / 2
 
-    # Podaljšan rob je neopazen na enobarvnem ozadju, na prizoru (npr. korale
-    # pri zmaju) pa se pozna kot proge. Zato ga omejimo na desetino izreza;
-    # če bi ga bilo treba več, raje vzamemo malo manj zraka okoli lika.
-    NAJVEC_ROB = 0.10
-    meja = min(cx, cy, W - cx, H - cy) / (1 - 2 * NAJVEC_ROB)
-    r = min(r, meja)
+    # Podaljšan rob je neopazen na enakomernem ozadju, na prizoru (korale pri
+    # zmaju) pa naredi proge. Zato ga dovolimo le tam, kjer je rob enakomeren,
+    # in še tam največ desetino izreza.
+    MEJA_PESTROSTI, NAJVEC_ROB = 12.0, 0.10
+    dovoljeno = {
+        'levo':   cx,        'desno':  W - cx,
+        'zgoraj': cy,        'spodaj': H - cy,
+    }
+    for rob, razdalja in dovoljeno.items():          # ne "stran" — to je parameter
+        if _pestrost_roba(im, rob) <= MEJA_PESTROSTI:
+            r = min(r, razdalja / (1 - NAJVEC_ROB))   # rob smemo podaljšati
+        else:
+            r = min(r, razdalja)                       # rob mora ostati v sliki
 
     levo   = max(0, round(r - cx))
     zgoraj = max(0, round(r - cy))
