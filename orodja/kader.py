@@ -49,14 +49,48 @@ def okvir_lika(im, delez=0.06):
     s = im.size[0]/w
     return int(x0*s), int(y0*s), int(x1*s), int(y1*s)
 
+def _razsiri(im, levo, desno, zgoraj, spodaj):
+    """Podaljša robne pike navzven. Studijsko ozadje ima vinjeto, zato
+    enobarvna zapolnitev pusti šiv — raztegnjen rob se zlije z njim."""
+    W, H = im.size
+    nova = Image.new('RGB', (W + levo + desno, H + zgoraj + spodaj))
+    nova.paste(im, (levo, zgoraj))
+    if levo:   nova.paste(im.crop((0, 0, 1, H)).resize((levo, H)), (0, zgoraj))
+    if desno:  nova.paste(im.crop((W - 1, 0, W, H)).resize((desno, H)), (levo + W, zgoraj))
+    NW, NH = nova.size
+    if zgoraj: nova.paste(nova.crop((0, zgoraj, NW, zgoraj + 1)).resize((NW, zgoraj)), (0, 0))
+    if spodaj: nova.paste(nova.crop((0, zgoraj + H - 1, NW, zgoraj + H)).resize((NW, spodaj)),
+                          (0, zgoraj + H))
+    return nova
+
+
 def kvadrat(pot, stran=520, zrak=1.18):
-    """Kvadraten izrez okoli lika, brez poseganja v slikovne pike."""
+    """Kvadraten izrez okoli lika, brez poseganja v slikovne pike.
+
+    Kadar lik potrebuje več prostora, kot ga slika premore (to se zgodi pri
+    pokončnih izvirnikih), izreza NE stisnemo — to bi lik približalo in bi
+    izstopal med drugimi. Namesto tega podaljšamo robove.
+    """
     im = Image.open(pot).convert('RGB')
-    W,H = im.size
-    x0,y0,x1,y1 = okvir_lika(im)
-    cx, cy = (x0+x1)/2, (y0+y1)/2
-    r = max(x1-x0, y1-y0) * zrak / 2
-    r = min(r, min(W,H)/2)                      # ne čez rob slike
-    cx = min(max(cx, r), W-r); cy = min(max(cy, r), H-r)
-    izrez = im.crop((int(cx-r), int(cy-r), int(cx+r), int(cy+r)))
-    return izrez.resize((stran,stran), Image.LANCZOS)
+    W, H = im.size
+    x0, y0, x1, y1 = okvir_lika(im)
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    r = max(x1 - x0, y1 - y0) * zrak / 2
+
+    # Podaljšan rob je neopazen na enobarvnem ozadju, na prizoru (npr. korale
+    # pri zmaju) pa se pozna kot proge. Zato ga omejimo na desetino izreza;
+    # če bi ga bilo treba več, raje vzamemo malo manj zraka okoli lika.
+    NAJVEC_ROB = 0.10
+    meja = min(cx, cy, W - cx, H - cy) / (1 - 2 * NAJVEC_ROB)
+    r = min(r, meja)
+
+    levo   = max(0, round(r - cx))
+    zgoraj = max(0, round(r - cy))
+    desno  = max(0, round(cx + r - W))
+    spodaj = max(0, round(cy + r - H))
+    if levo or desno or zgoraj or spodaj:
+        im = _razsiri(im, levo, desno, zgoraj, spodaj)
+        cx += levo; cy += zgoraj
+
+    izrez = im.crop((round(cx - r), round(cy - r), round(cx + r), round(cy + r)))
+    return izrez.resize((stran, stran), Image.LANCZOS)
