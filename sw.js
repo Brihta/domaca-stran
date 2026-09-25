@@ -1,4 +1,4 @@
-const CACHE = 'zaslon-v41';
+const CACHE = 'zaslon-v42';
 
 /** Lupina aplikacije. */
 const ASSETS = [
@@ -47,7 +47,10 @@ self.addEventListener('fetch', e => {
 async function najprejPredpomnilnik(zahteva) {
   const zadetek = await caches.match(zahteva);
   if (zadetek) return zadetek;
-  const odziv = await fetch(zahteva);
+  // Ob novi različici mora priti res nova slika, ne tista iz brskalnikovega
+  // HTTP-predpomnilnika — sicer bi se stara znova ujela v nov CACHE.
+  const lastna = new URL(zahteva.url).origin === self.location.origin;
+  const odziv = await fetch(zahteva, lastna ? { cache: 'no-cache' } : undefined);
   if (odziv.ok) (await caches.open(CACHE)).put(zahteva, odziv.clone());
   return odziv;
 }
