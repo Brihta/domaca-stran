@@ -42,7 +42,7 @@ body {
   -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
 }
 
-.zaslon { height:100vh; position:relative; }
+.zaslon { height:100vh; height:100dvh; position:relative; }  /* dvh: v Safariju na iPhonu 100vh sega pod orodno vrstico */
 
 /* ===================== OZADJE (polno) ===================== */
 .platno {
@@ -465,6 +465,34 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   .ura .t { font-size:24px; }
   .trak { top:86px; }
 
+}
+
+/* Telefon: glava v eni vrsti, pozdrav pod njo, ploščice v mreži, ki se
+   po potrebi drsa — sredinska postavitev je sicer odrezala pozdrav. */
+@media (max-width:600px) {
+  .glava { flex-wrap:nowrap; gap:8px; padding:10px 12px; align-items:center; }
+  .sola { padding:5px 12px 5px 5px; gap:8px; min-width:0; }
+  .sola img { height:32px; }
+  .sola-ime { display:none; }
+  .sola-pod { font-size:13px; font-weight:800; color:var(--text); margin:0; white-space:nowrap; }
+  .ura-kartica { flex-shrink:0; gap:10px; padding:7px 13px; border-radius:16px; }
+  .ura-chip, .ura-loc { display:none; }
+  .ura .t { font-size:21px; }
+  .ura .d { font-size:10.5px; white-space:nowrap; }
+
+  .platno-namig {
+    justify-content:flex-start; gap:18px; padding:74px 12px 20px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch; pointer-events:auto;
+  }
+  .pozdrav h1 { font-size:30px; }
+  .pozdrav p { font-size:14px; margin-top:6px; }
+  .ploscice {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:9px; width:100%;
+  }
+  .ploscica { width:auto; padding:12px 4px; gap:5px; border-radius:16px; }
+  .ploscica svg { width:24px; height:24px; }
+  .ploscica .lbl { font-size:14px; }
+  .ploscica .sub { font-size:11px; line-height:1.2; }
 }
 
 /* ===================== URNIK ===================== */
