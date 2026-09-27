@@ -13,7 +13,8 @@ function napolniIkone() {
     slika:'slika', anketa:'anketa',
   };
   $$('.ploscica').forEach(p => {
-    const k = p.dataset.odpri || p.dataset.dodaj
+    const k = p.dataset.odpri || p.dataset.dodaj || p.dataset.ikona
+            || (p.hasAttribute('data-bingo') ? 'zreb' : '')
             || (p.hasAttribute('data-cas') ? 'casovnik' : 'nastavi');
     p.querySelector('.i').innerHTML = ikona(ploscicaIkone[k] || k);
   });
@@ -148,6 +149,7 @@ function poveziPloscice() {
     if (p.dataset.dodaj) Platno.dodaj(p.dataset.dodaj);
     if (p.hasAttribute('data-cas')) Casovnik.aktiven ? Casovnik.ugasni() : Casovnik.vklopi(5);
     if (p.hasAttribute('data-plosca')) Plosca.odpri();
+    if (p.hasAttribute('data-bingo')) odpriBingo();
   }));
 
   $$('[data-zapri-prevzem]').forEach(b => b.addEventListener('click', () => Prevzem.zapri()));
@@ -155,6 +157,14 @@ function poveziPloscice() {
   $$('[data-cel-zaslon]').forEach(b => b.addEventListener('click', () => Prevzem.preklopiCelZaslon()));
 }
 
+/* Žreb je samostojna stran (Bingo). Prisotne učence ji damo v delu za #,
+   ki ne gre na strežnik; Bingo ga po branju pobriše iz naslova. */
+function odpriBingo() {
+  const imena = aktivni().map(u => u.ime);
+  const url = 'https://nicki89-blip.github.io/bingo/'
+            + (imena.length ? '#imena=' + encodeURIComponent(imena.join('|')) : '');
+  window.open(url, '_blank', 'noopener');
+}
 
 function poveziTrak() {
   $$('#t-semafor .luc').forEach(l =>

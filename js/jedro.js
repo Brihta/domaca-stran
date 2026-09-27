@@ -19,6 +19,7 @@ const IKONE = {
   slika:    '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/>',
   ozadje:   '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 14l4-4 4 4"/><path d="M14 12l3-3 4 4"/>',
   anketa:   '<path d="M5 20V10"/><path d="M12 20V4"/><path d="M19 20v-7"/>',
+  ladjice:  '<path d="M3 16h18l-2.5 4h-13z"/><path d="M12 3v11"/><path d="M12 4l6 8h-6"/><path d="M11 6l-5 6h5"/>',
   urnik:    '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18"/><path d="M8 3v4M16 3v4"/>',
   quest:    '<path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/>',
   miselni:  '<circle cx="12" cy="5" r="2.6"/><circle cx="5" cy="18" r="2.6"/><circle cx="19" cy="18" r="2.6"/><path d="M12 7.6 6.6 15.8"/><path d="M12 7.6l5.4 8.2"/><path d="M7.6 18h8.8"/>',

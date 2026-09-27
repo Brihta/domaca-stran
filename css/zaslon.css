@@ -190,6 +190,7 @@ body {
   cursor:pointer; font-family:inherit; color:var(--text);
   box-shadow:var(--senca); transition:transform .16s, box-shadow .16s;
 }
+.ploscica { text-decoration:none; }  /* ploščica je lahko tudi povezava */
 .ploscica:hover { transform:translateY(-4px); box-shadow:var(--senca-mv); }
 .ploscica svg { width:25px; height:25px; color:var(--brand-blue-dk); }
 .ploscica .lbl { font-size:12.5px; font-weight:800; }
