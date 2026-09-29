@@ -415,7 +415,7 @@ const Pustolovscina = {
     const el = $('#prevzem-quest');
     const vklop = !el.classList.contains('samo-junaki');
     el.classList.toggle('samo-junaki', vklop);
-    if (vklop && !Prevzem.geo.quest?.cel) Prevzem.preklopiCelZaslon();
+    if (vklop && !Prevzem.geo.quest?.cel) Prevzem.preklopiCelZaslon('quest');
     this._razporedi();
   },
 };

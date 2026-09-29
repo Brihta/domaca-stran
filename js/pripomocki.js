@@ -18,15 +18,11 @@ const Semafor = {
   nastavi(barva) {
     Stanje.semafor = (Stanje.semafor === barva) ? null : barva;
     this.izris();
-    Trak.osvezi();
   },
-  ugasni() { Stanje.semafor = null; this.izris(); Trak.osvezi(); },
+  ugasni() { Stanje.semafor = null; this.izris(); },
 
   izris() {
     const b = Stanje.semafor;
-    $$('#t-semafor .luc').forEach(l => l.classList.toggle('on', l.dataset.barva === b));
-    $('#t-semafor .napis').textContent = b ? SEMAFOR[b].ime : 'Semafor';
-
     $$('#prevzem-semafor .veliki-luc').forEach(l => l.classList.toggle('on', l.dataset.barva === b));
     $('#semafor-napis').textContent = b ? SEMAFOR[b].ime : 'Izberi barvo';
     $('#semafor-pod').textContent   = b ? SEMAFOR[b].pod : '';
@@ -34,22 +30,22 @@ const Semafor = {
 };
 
 /* ------------------------------------------------------------------ *
- * ČASOVNIK — v traku
+ * ČASOVNIK — svoje okno; teče naprej, tudi ko je okno zaprto
  * ------------------------------------------------------------------ */
 const Casovnik = {
-  skupno: 300, ostalo: 300, tece: false, id: null, aktiven: false, zvok: null,
+  skupno: Shramba.beri('casSkupno', 300), ostalo: 0, tece: false, id: null, zvok: null,
 
-  vklopi(minute = 5) {
-    this.aktiven = true;
-    this.nastavi(minute);
-    Trak.osvezi();
-  },
-  ugasni() {
-    this.ustavi(); this.aktiven = false; Trak.osvezi();
-  },
   nastavi(minute) {
     this.ustavi();
-    this.skupno = this.ostalo = Math.round(minute * 60);
+    this.skupno = this.ostalo = Math.max(1, Math.round(minute * 60));
+    Shramba.pisi('casSkupno', this.skupno);
+    this.izris();
+  },
+  /** ±1 minuta, med tekom ali pred njim. */
+  dodaj(minute) {
+    const nova = Math.max(60, Math.min(99 * 60, this.ostalo + minute * 60));
+    this.skupno = Math.max(this.skupno + (nova - this.ostalo), nova);
+    this.ostalo = nova;
     this.izris();
   },
   preklopi() { this.tece ? this.ustavi() : this.zacni(); },
@@ -72,8 +68,9 @@ const Casovnik = {
 
   konec() {
     obvesti('Čas je potekel!');
-    $('#t-cas .stevec').classList.add('konec');
-    setTimeout(() => $('#t-cas .stevec')?.classList.remove('konec'), 6000);
+    Prevzem.odpri('casovnik');                  // če je bilo okno zaprto, se pokaže
+    $('#cas-stevec').classList.add('konec');
+    setTimeout(() => $('#cas-stevec').classList.remove('konec'), 6000);
     this.piskni();
   },
   piskni() {
@@ -96,94 +93,18 @@ const Casovnik = {
     return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
   },
   izris() {
-    const el = $('#t-cas .stevec');
-    if (!el) return;
+    const el = $('#cas-stevec');
     el.textContent = this.zapis(this.ostalo);
     el.classList.toggle('malo', this.ostalo <= 30 && this.ostalo > 0);
+    $('#cas-napredek').style.width = (this.skupno ? this.ostalo / this.skupno * 100 : 0) + '%';
     const g = $('#cas-igraj');
-    if (g) {
-      g.innerHTML = ikona(this.tece ? 'premor' : 'igraj');
-      g.setAttribute('aria-label', this.tece ? 'Premor' : 'Začni');
-    }
+    g.innerHTML = ikona(this.tece ? 'premor' : 'igraj') + (this.tece ? 'Premor' : 'Začni');
+    g.setAttribute('aria-label', this.tece ? 'Premor' : 'Začni');
+    $$('#cas-minute .zeton').forEach(z => z.classList.toggle('on', +z.dataset.min * 60 === this.skupno));
+    Okna.osveziDok();
   },
 };
-
-/* ------------------------------------------------------------------ *
- * ŽREB — naključni izbor učenca
- * ------------------------------------------------------------------ */
-const Zreb = {
-  brezPonavljanja: Shramba.beri('zrebBrez', true),
-  koliko: 1,
-
-  /** Kdo je še na voljo v tem krogu. */
-  naVoljo() {
-    const a = aktivni();
-    if (!this.brezPonavljanja) return a;
-    const ostali = a.filter(u => !Stanje.zrebani.has(u.id));
-    return ostali.length ? ostali : a;   // krog je poln -> začni znova
-  },
-
-  zrebaj() {
-    const a = aktivni();
-    if (!a.length) { obvesti('Ni prisotnih učencev — najprej naloži razred.'); return; }
-
-    // nov krog?
-    if (this.brezPonavljanja && a.every(u => Stanje.zrebani.has(u.id))) {
-      Stanje.zrebani.clear();
-      obvesti('Vsi so bili izbrani — začenjam nov krog.');
-    }
-
-    const bazen = this.naVoljo();
-    const n = Math.min(this.koliko, bazen.length);
-    const mesano = bazen.slice().sort(() => Math.random() - 0.5).slice(0, n);
-
-    if (n === 1) {
-      this.animiraj(bazen, mesano[0]);
-    } else {
-      $('#zreb-ime').classList.add('skrit');
-      $('#zreb-vec').classList.remove('skrit');
-      $('#zreb-vec').innerHTML = mesano.map((u, i) =>
-        `<div class="zreb-kartica" style="animation-delay:${i * 0.07}s">${ubezi(u.ime)}</div>`).join('');
-      this.zakljuci(mesano);
-    }
-  },
-
-  animiraj(bazen, zmagovalec) {
-    $('#zreb-vec').classList.add('skrit');
-    const el = $('#zreb-ime');
-    el.classList.remove('skrit');
-    let i = 0;
-    const vrti = setInterval(() => {
-      el.textContent = bazen[Math.floor(Math.random() * bazen.length)].ime;
-      if (++i > 13) {
-        clearInterval(vrti);
-        el.textContent = zmagovalec.ime;
-        this.zakljuci([zmagovalec]);
-      }
-    }, 70);
-  },
-
-  zakljuci(izbrani) {
-    if (this.brezPonavljanja) izbrani.forEach(u => Stanje.zrebani.add(u.id));
-    shraniStanje();
-    this.izrisStanja();
-  },
-
-  izrisStanja() {
-    const a = aktivni();
-    const ze = a.filter(u => Stanje.zrebani.has(u.id)).length;
-    $('#zreb-stanje').textContent = this.brezPonavljanja
-      ? `${ze} / ${a.length} v tem krogu` + (Stanje.razred ? ` · ${Stanje.razred}` : '')
-      : (Stanje.razred ? `${Stanje.razred} · ${a.length} prisotnih` : `${a.length} prisotnih`);
-    $('#zreb-brez').classList.toggle('on', this.brezPonavljanja);
-    $$('#zreb-koliko .zeton').forEach(z => z.classList.toggle('on', +z.dataset.n === this.koliko));
-  },
-
-  ponastaviKrog() {
-    Stanje.zrebani.clear(); shraniStanje(); this.izrisStanja();
-    obvesti('Krog ponastavljen.');
-  },
-};
+Casovnik.ostalo = Casovnik.skupno;
 
 /* ------------------------------------------------------------------ *
  * PRIPOMOČKI NA PLATNU

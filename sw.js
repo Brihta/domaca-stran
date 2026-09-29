@@ -1,4 +1,4 @@
-const CACHE = 'zaslon-v47';
+const CACHE = 'zaslon-v49';
 
 /** Lupina aplikacije. */
 const ASSETS = [
@@ -13,8 +13,10 @@ const ASSETS = [
   './js/jedro.js',
   './js/skupine.js',
   './js/pripomocki.js',
+  './js/zreb.js',
   './js/orodja.js',
   './js/pustolovscina.js',
+  './js/povezave.js',
   './js/zagon.js',
 ];
 
@@ -35,6 +37,8 @@ self.addEventListener('fetch', e => {
 
   const url = new URL(e.request.url);
   const tuja = url.origin !== self.location.origin;
+  // Povezave (Firebase) so žive — nikoli iz predpomnilnika.
+  if (url.hostname.endsWith('firebasedatabase.app')) return;
 
   /* Slike in pisave se ne spreminjajo — najprej predpomnilnik.
      Koda aplikacije (html/css/js) pa se: tam gre najprej na mrežo,

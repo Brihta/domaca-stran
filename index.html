@@ -13,57 +13,14 @@
 
 <div class="zaslon">
 
+  <!-- Orodja so okna na platnu; več jih je lahko odprtih hkrati. -->
   <main class="platno" id="platno">
 
-    <div class="platno-namig" id="platno-namig">
-      <div class="pozdrav">
-        <h1 id="pozdrav">Razredni zaslon</h1>
-        <p id="pozdrav-pod">Izberi orodje</p>
-      </div>
-      <div class="ploscice">
-        <button class="ploscica" data-odpri="quest">
-          <span class="i"></span><span class="lbl">Pustolovščina</span><span class="sub">točke in junaki</span>
-        </button>
-        <button class="ploscica" data-odpri="skupine">
-          <span class="i"></span><span class="lbl">Skupine</span><span class="sub">pari, trojke, ekipe</span>
-        </button>
-        <button class="ploscica" data-bingo>
-          <span class="i"></span><span class="lbl">Žreb</span><span class="sub">kolo z imeni</span>
-        </button>
-        <a class="ploscica" data-ikona="ladjice" href="https://brihta.github.io/potapljanje-ladjic/" target="_blank" rel="noopener">
-          <span class="i"></span><span class="lbl">Ladjice</span><span class="sub">potapljanje ladjic</span>
-        </a>
-        <button class="ploscica" data-odpri="semafor">
-          <span class="i"></span><span class="lbl">Semafor</span><span class="sub">raven pogovora</span>
-        </button>
-        <button class="ploscica" data-cas="1">
-          <span class="i"></span><span class="lbl">Časovnik</span><span class="sub">odštevanje</span>
-        </button>
-        <button class="ploscica" data-odpri="urnik">
-          <span class="i"></span><span class="lbl">Urnik</span><span class="sub">predmeti po urah</span>
-        </button>
-        <button class="ploscica" data-dodaj="besedilo">
-          <span class="i"></span><span class="lbl">Besedilo</span><span class="sub">navodila za uro</span>
-        </button>
-        <button class="ploscica" data-dodaj="kocka">
-          <span class="i"></span><span class="lbl">Kocka</span><span class="sub">met kocke</span>
-        </button>
-        <button class="ploscica" data-dodaj="slika">
-          <span class="i"></span><span class="lbl">Slika</span><span class="sub">z naprave</span>
-        </button>
-        <button class="ploscica" data-dodaj="anketa">
-          <span class="i"></span><span class="lbl">Anketa</span><span class="sub">ročno štetje</span>
-        </button>
-        <button class="ploscica" data-odpri="miselni">
-          <span class="i"></span><span class="lbl">Miselni vzorec</span><span class="sub">ideje in povezave</span>
-        </button>
-        <button class="ploscica" data-plosca>
-          <span class="i"></span><span class="lbl">Razred</span><span class="sub">geslo in prisotnost</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ---------- PREVZEM: SKUPINE ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: SKUPINE ---------- -->
     <section class="prevzem" id="prevzem-skupine">
       <div class="prevzem-glava">
         <h2>Skupine</h2>
@@ -71,53 +28,94 @@
         <div class="desno">
           <button class="gumb gumb-s" id="skupine-mesaj">Premešaj</button>
           <button class="gumb gumb-t" id="skupine-nastavi">Nastavitve</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem aria-label="Zapri">Zapri</button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
       <div class="mreza" id="skupine-mreza"></div>
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-    <!-- ---------- PREVZEM: ŽREB ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: ŽREB (kolo, kot Bingo) ---------- -->
     <section class="prevzem" id="prevzem-zreb">
       <div class="prevzem-glava">
         <h2>Žreb</h2>
         <span class="znacka" id="zreb-stanje"></span>
         <div class="desno">
-          <div class="zetoni" id="zreb-koliko">
-            <button class="zeton on" data-n="1">1</button>
-            <button class="zeton" data-n="2">2</button>
-            <button class="zeton" data-n="3">3</button>
-          </div>
-          <button class="zeton" id="zreb-brez" title="Vsak pride na vrsto, preden se kdo ponovi">Brez ponavljanja</button>
-          <button class="gumb gumb-t" id="zreb-ponastavi">Nov krog</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+          <button class="okno-gumb" id="zreb-zvok" title="Zvok"></button>
+          <button class="okno-gumb" id="zreb-seznam-gumb" title="Pokaži/skrij seznam imen"></button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
-      <div class="zreb-polje">
-        <div class="zreb-ime" id="zreb-ime">Kdo pa danes?</div>
-        <div class="zreb-vec skrit" id="zreb-vec"></div>
-        <button class="gumb gumb-p gumb-xl" id="zreb-gumb">Izberi</button>
+      <div class="zr-telo">
+        <div class="zr-levo">
+          <div class="zr-kolo" id="zreb-kolo">
+            <canvas id="zreb-platno" aria-label="Kolo z imeni"></canvas>
+            <div class="zr-kazalec" aria-hidden="true"></div>
+          </div>
+          <div class="zr-rezultat" id="zreb-rezultat" aria-live="polite"></div>
+          <button class="gumb gumb-p zr-vrti" id="zreb-gumb">Zavrti!</button>
+        </div>
+        <aside class="zr-seznam" id="zreb-seznam">
+          <div class="zr-zavihki">
+            <button class="zr-zavihek on" data-zavihek="imena">Na kolesu <b id="zreb-st-imena">0</b></button>
+            <button class="zr-zavihek" data-zavihek="izzrebani">Izžrebani <b id="zreb-st-izzrebani">0</b></button>
+          </div>
+          <div class="zr-plosca" data-plosca-zreb="imena">
+            <div class="zr-vnos">
+              <input class="vnos" id="zreb-vnos" type="text" placeholder="Dodaj ime ali besedo…" autocomplete="off">
+              <button class="gumb gumb-s" id="zreb-dodaj">Dodaj</button>
+            </div>
+            <div class="zr-imena" id="zreb-imena"></div>
+            <div class="zr-noga">
+              <button class="gumb gumb-s" id="zreb-razred">Naloži razred</button>
+              <button class="gumb gumb-t" id="zreb-pocisti">Izbriši vse</button>
+            </div>
+          </div>
+          <div class="zr-plosca skrit" data-plosca-zreb="izzrebani">
+            <ol class="zr-izzrebani" id="zreb-izzrebani"></ol>
+            <div class="zr-noga">
+              <button class="gumb gumb-s" id="zreb-nov-krog">Vrni vse na kolo</button>
+            </div>
+          </div>
+          <label class="zr-stikalo">
+            <input type="checkbox" id="zreb-izloci">
+            <span>Izbrane odstrani s kolesa</span>
+          </label>
+        </aside>
       </div>
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-    <!-- ---------- PREVZEM: SEMAFOR ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: SEMAFOR ---------- -->
     <section class="prevzem" id="prevzem-semafor">
       <div class="prevzem-glava">
         <h2>Semafor</h2>
         <div class="desno">
           <button class="gumb gumb-t" id="semafor-ugasni">Ugasni</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
-      <div class="veliki-polje">
+      <div class="veliki-polje"><div class="veliki-notranje">
         <div class="veliki-luci">
           <button class="veliki-luc" data-barva="rdeca"  aria-label="Rdeča — tišina"></button>
           <button class="veliki-luc" data-barva="rumena" aria-label="Rumena — šepetanje"></button>
@@ -127,21 +125,64 @@
           <div class="veliki-napis" id="semafor-napis">Izberi barvo</div>
           <div class="veliki-pod" id="semafor-pod"></div>
         </div>
+      </div></div>
+      <div class="prevzem-rocaj" aria-hidden="true"></div>
+    </section>
+
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: ČASOVNIK ---------- -->
+    <section class="prevzem" id="prevzem-casovnik">
+      <div class="prevzem-glava">
+        <h2>Časovnik</h2>
+        <div class="desno">
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
+        </div>
+      </div>
+      <div class="cas-polje">
+        <div class="cas-stevec" id="cas-stevec">05:00</div>
+        <div class="cas-napredek"><i id="cas-napredek"></i></div>
+        <div class="cas-gumbi">
+          <div class="zetoni" id="cas-minute">
+            <button class="zeton" data-min="1">1 min</button>
+            <button class="zeton" data-min="3">3</button>
+            <button class="zeton" data-min="5">5</button>
+            <button class="zeton" data-min="10">10</button>
+            <button class="zeton" data-min="15">15</button>
+          </div>
+          <div class="cas-krmilo">
+            <button class="mini" id="cas-manj" title="Minuto manj">−1</button>
+            <button class="gumb gumb-p cas-igraj" id="cas-igraj" aria-label="Začni"></button>
+            <button class="mini" id="cas-vec" title="Minuto več">+1</button>
+            <button class="mini" id="cas-ponastavi" aria-label="Ponastavi" title="Ponastavi"></button>
+          </div>
+        </div>
       </div>
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-
-    <!-- ---------- PREVZEM: URNIK ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: URNIK ---------- -->
     <section class="prevzem" id="prevzem-urnik">
       <div class="prevzem-glava">
         <h2>Urnik</h2>
         <span class="znacka" id="urnik-znacka"></span>
         <div class="desno">
           <button class="gumb gumb-t" id="urnik-pocisti">Počisti</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
       <div class="urnik-ovoj">
@@ -151,7 +192,11 @@
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-    <!-- ---------- PREVZEM: MISELNI VZOREC ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: MISELNI VZOREC ---------- -->
     <section class="prevzem" id="prevzem-miselni">
       <div class="prevzem-glava">
         <h2>Miselni vzorec</h2>
@@ -160,9 +205,11 @@
           <button class="gumb gumb-p" id="miselni-dodaj">Dodaj idejo</button>
           <button class="gumb gumb-s" id="miselni-povezi">Poveži</button>
           <button class="gumb gumb-t" id="miselni-pocisti">Počisti</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
       <div class="miselni-polje" id="miselni-polje">
@@ -172,7 +219,11 @@
       <div class="prevzem-rocaj" aria-hidden="true"></div>
     </section>
 
-    <!-- ---------- PREVZEM: PUSTOLOVŠČINA ---------- -->
+    <!-- ---------- <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>: PUSTOLOVŠČINA ---------- -->
     <section class="prevzem" id="prevzem-quest">
       <div class="prevzem-glava">
         <h2>Pustolovščina</h2>
@@ -181,9 +232,11 @@
           <button class="gumb gumb-s skrit" id="q-dodeli">Dodeli junaka</button>
           <button class="gumb gumb-s" id="q-ogled">Samo junaki</button>
           <button class="gumb gumb-t" id="q-ponastavi">Ponastavi</button>
-          <button class="gumb gumb-t" data-cel-zaslon title="Čez cel zaslon">⛶</button>
-          <button class="gumb gumb-t" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
-          <button class="gumb gumb-t" data-zapri-prevzem>Zapri</button>
+          <span class="okno-gumbi">
+            <button class="okno-gumb" data-cel-zaslon title="Čez ves prostor">⛶</button>
+            <button class="okno-gumb" data-ponastavi-okvir title="Nazaj na privzeto velikost">⤢</button>
+            <button class="okno-gumb" data-zapri-prevzem title="Zapri" aria-label="Zapri">✕</button>
+          </span>
         </div>
       </div>
       <button class="q-izhod" id="q-izhod">Zapri ogled</button>
@@ -214,6 +267,8 @@
       </div>
     </div>
 
+    <h1 class="pozdrav" id="pozdrav">Razredni zaslon</h1>
+
     <div class="ura-kartica">
       <div class="ura-chip" id="ura-chip">
         <span class="num" id="ura-num">—</span>
@@ -227,34 +282,33 @@
     </div>
   </header>
 
-  <!-- ========================= TRAK ========================= -->
-  <!-- Majhni pripomočki, vedno vidni. Skrijejo se, ko niso vklopljeni. -->
-  <div class="trak" id="trak">
-
-    <div class="t-semafor skrit" id="t-semafor">
-      <button class="luc" data-barva="rdeca"  aria-label="Rdeča — tišina"></button>
-      <button class="luc" data-barva="rumena" aria-label="Rumena — šepetanje"></button>
-      <button class="luc" data-barva="zelena" aria-label="Zelena — pogovor dovoljen"></button>
-      <span class="napis">Semafor</span>
+  <!-- ========================= ORODJA =========================
+       Okrogle ikone ob robovih. data-okno: eno okno na orodje ·
+       data-dodaj: vsak klik doda nov pripomoček (več besedil, slik …). -->
+  <nav class="dok" aria-label="Orodja">
+    <div class="dok-skupina dok-levo">
+      <button class="orodje" data-okno="quest"   data-ime="Pustolovščina" data-ikona="quest"></button>
+      <button class="orodje" data-okno="urnik"   data-ime="Urnik"         data-ikona="urnik"></button>
+      <button class="orodje" data-okno="miselni" data-ime="Miselni vzorec" data-ikona="miselni"></button>
+      <button class="orodje" data-dodaj="anketa" data-ime="Anketa"        data-ikona="anketa"></button>
+      <a class="orodje" href="https://brihta.github.io/potapljanje-ladjic/" target="_blank" rel="noopener"
+         data-ime="Ladjice" data-ikona="ladjice"></a>
     </div>
-
-
-    <div class="t-cas skrit" id="t-cas">
-      <button class="mini" data-min="1">1m</button>
-      <button class="mini" data-min="5">5m</button>
-      <button class="mini" data-min="10">10m</button>
-      <span class="stevec">05:00</span>
-      <button class="mini" id="cas-igraj" aria-label="Začni"></button>
-      <button class="mini" id="cas-ponastavi" aria-label="Ponastavi"></button>
+    <div class="dok-skupina dok-spodaj">
+      <button class="orodje" data-dodaj="besedilo" data-ime="Besedilo"  data-ikona="besedilo"></button>
+      <button class="orodje" data-okno="casovnik"  data-ime="Časovnik"  data-ikona="casovnik"></button>
+      <button class="orodje" data-dodaj="slika"    data-ime="Slika"     data-ikona="slika"></button>
+      <button class="orodje" data-okno="zreb"      data-ime="Žreb"      data-ikona="zreb"></button>
+      <button class="orodje" data-okno="skupine"   data-ime="Skupine"   data-ikona="skupine"></button>
+      <button class="orodje" data-okno="semafor"   data-ime="Semafor"   data-ikona="semafor"></button>
+      <button class="orodje" data-dodaj="kocka"    data-ime="Kocka"     data-ikona="kocka"></button>
     </div>
-
-    <button class="trak-zapri" id="trak-pocisti">Počisti trak</button>
-  </div>
-
-  <!-- ========================= PLATNO ========================= -->
-
-
-  <!-- ========================= DOK ========================= -->
+    <div class="dok-skupina dok-desno">
+      <button class="orodje" data-plosca            data-ime="Razred"    data-ikona="nastavi"></button>
+      <button class="orodje" id="pov-gumb"          data-ime="Povezave"  data-ikona="povezava"></button>
+      <button class="orodje" id="pospravi"          data-ime="Pospravi vse" data-ikona="pospravi"></button>
+    </div>
+  </nav>
 </div>
 
 <!-- ========================= PLOŠČA ========================= -->
@@ -325,6 +379,29 @@
   </div>
 </aside>
 
+<!-- ========================= POVEZAVE ========================= -->
+<!-- Povezava, poslana z ene naprave, se v živo pokaže na vseh. -->
+<div class="zastor" id="pov-zastor"></div>
+<aside class="plosca povezave" id="povezave" role="dialog" aria-label="Aktualne povezave">
+  <div class="plosca-glava">
+    <h3>Aktualne povezave</h3>
+    <span class="pov-vzivo"><span></span>V živo</span>
+    <button class="gumb gumb-t" style="margin-left:auto;padding:6px 10px;" id="pov-uredi">Uredi</button>
+    <button class="gumb gumb-t" style="padding:6px 10px;color:#2A2A20;" id="pov-zapri" aria-label="Zapri">✕</button>
+  </div>
+  <div class="plosca-telo">
+    <div class="pov-seznam" id="pov-seznam"></div>
+    <p class="namig skrit" id="pov-prazno">Še ni povezav. Dodaj jo spodaj — takoj se pokaže na vseh napravah.</p>
+  </div>
+  <div class="plosca-noga pov-noga">
+    <div class="pov-vnosi">
+      <input class="vnos" type="url" id="pov-url" placeholder="https://…" autocomplete="off">
+      <input class="vnos" type="text" id="pov-opis" placeholder="Opis (npr. Froggy gets dressed)" autocomplete="off">
+    </div>
+    <button class="gumb gumb-p pov-dodaj" id="pov-dodaj" aria-label="Dodaj povezavo"></button>
+  </div>
+</aside>
+
 <div class="q-slavje" id="q-slavje" aria-live="polite"></div>
 
 <div class="obvestilo" id="obvestilo" role="status" aria-live="polite"></div>
@@ -333,8 +410,10 @@
 <script src="js/jedro.js"></script>
 <script src="js/skupine.js"></script>
 <script src="js/pripomocki.js"></script>
+<script src="js/zreb.js"></script>
 <script src="js/orodja.js"></script>
 <script src="js/pustolovscina.js"></script>
+<script src="js/povezave.js"></script>
 <script src="js/zagon.js"></script>
 </body>
 </html>

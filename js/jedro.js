@@ -31,6 +31,12 @@ const IKONE = {
   ponastavi:'<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/>',
   plus:     '<path d="M12 5v14M5 12h14"/>',
   minus:    '<path d="M5 12h14"/>',
+  povezava: '<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z"/><path d="M8.5 9h7M8.5 12.5h4.5"/>',
+  poslji:   '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+  pospravi: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>',
+  zvok:     '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/>',
+  tiho:     '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="m17 9 5 6M22 9l-5 6"/>',
+  seznam:   '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
   mesaj:    '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/>',
 };
 function ikona(ime, atrib = '') {
@@ -185,7 +191,6 @@ const Stanje = {
   ozadje:   Shramba.beri('ozadje', OZADJE_PRIVZETO),
   semafor:  null,                                 // 'rdeca'|'rumena'|'zelena'|null
   platno:   Shramba.beri('platno', []),
-  zrebani:  new Set(Shramba.beri('zrebani', [])), // za "brez ponavljanja"
 };
 
 function aktivni() { return Stanje.seznam.filter(u => !Stanje.odsotni.has(u.id)); }
@@ -197,7 +202,6 @@ function shraniStanje() {
     Stanje.seznam.filter(u => Stanje.odsotni.has(u.id)).map(u => u.ime));
   Shramba.pisi('velikost', Stanje.velikost);
   Shramba.pisi('ozadje', Stanje.ozadje);
-  Shramba.pisi('zrebani', [...Stanje.zrebani]);
   Shramba.pisi('platno', Stanje.platno.map(p => ({ ...p, el: undefined })));
 }
 
@@ -254,7 +258,6 @@ const Razredi = {
     Stanje.razred = razred;
     Stanje.seznam = this.podatki[razred].map(ime => ({ id: novId(), ime }));
     Stanje.odsotni.clear();
-    Stanje.zrebani.clear();
     shraniStanje();
     return true;
   },
@@ -276,9 +279,9 @@ const Vleci = {
     });
     rocaj.addEventListener('pointermove', e => {
       if (!vlecem) return;
-      const p = $('#platno');
+      const p = $('#platno'), vrh = Okna.obmocje().y;   // glava ostane vidna
       geo.x = Math.min(Math.max(0, sx + e.clientX - zx), p.clientWidth  - 60);
-      geo.y = Math.min(Math.max(0, sy + e.clientY - zy), p.clientHeight - 40);
+      geo.y = Math.min(Math.max(vrh, sy + e.clientY - zy), p.clientHeight - 40);
       el.style.left = geo.x + 'px'; el.style.top = geo.y + 'px';
     });
     const konec = e => {
@@ -330,15 +333,14 @@ const Platno = {
   dodaj(tip, podatki = {}, polozaj = null) {
     const opis = this.tipi[tip];
     if (!opis) return null;
-    const platno = $('#platno');
     const sirina  = polozaj?.w ?? opis.velikost?.[0] ?? 280;
     const visina  = polozaj?.h ?? opis.velikost?.[1] ?? 200;
+    const mesto = Okna.prostor(sirina, visina);   // prosto mesto, ne na kup
     const zapis = {
       id: polozaj?.id ?? novId(),
       tip,
-      // kaskada: vsak naslednji nekoliko zamaknjen, da se ne zlagajo na kup
-      x: polozaj?.x ?? this._prostX(platno, sirina),
-      y: polozaj?.y ?? this._prostY(platno, visina),
+      x: polozaj?.x ?? mesto.x,
+      y: polozaj?.y ?? mesto.y,
       w: sirina, h: visina,
       podatki,
     };
@@ -346,23 +348,15 @@ const Platno = {
     this._ustvari(zapis);
     Stanje.platno.push(zapis);
     shraniStanje();
-    this._posodobiNamig();
+    Okna.vOspredje(zapis.el);
+    Okna.osveziDok();
+    zapis.el.querySelector('[contenteditable]')?.focus();   // besedilo: takoj pišeš
     return zapis;
-  },
-
-  _prostX(platno, sirina) {
-    const n = Stanje.platno.length;
-    const zac = Math.max(16, (platno.clientWidth - sirina) / 2 - 130);
-    return Math.min(zac + (n % 5) * 46, Math.max(16, platno.clientWidth - sirina - 16));
-  },
-  _prostY(platno, visina) {
-    const n = Stanje.platno.length;
-    const zac = Math.max(96, (platno.clientHeight - visina) / 2 - 70);
-    return Math.min(zac + (n % 5) * 38, Math.max(96, platno.clientHeight - visina - 96));
   },
 
   _ustvari(zapis) {
     const opis = this.tipi[zapis.tip];
+    Okna.vObmocje(zapis, 180, 120);
     const el = document.createElement('div');
     el.className = 'pw';
     el.dataset.id = zapis.id;
@@ -382,17 +376,10 @@ const Platno = {
     opis.izris(el.querySelector('.pw-telo'), zapis);
 
     el.querySelector('.zapri').addEventListener('click', () => this.odstrani(zapis.id));
-    el.addEventListener('pointerdown', () => this._vOspredje(el));
+    el.addEventListener('pointerdown', () => Okna.vOspredje(el));
     this._omogociVlecenje(el, zapis);
     this._omogociVelikost(el, zapis);
     return el;
-  },
-
-  _vOspredje(el) {
-    $$('.pw').forEach(p => p.classList.remove('izbran'));
-    el.classList.add('izbran');
-    const najvisji = Math.max(0, ...$$('.pw').map(p => +p.style.zIndex || 0));
-    el.style.zIndex = najvisji + 1;
   },
 
   _omogociVlecenje(el, zapis) {
@@ -412,146 +399,239 @@ const Platno = {
     zapis.el?.remove();
     Stanje.platno.splice(i, 1);
     shraniStanje();
-    this._posodobiNamig();
+    Okna.osveziDok();
   },
 
   obnoviVse() {
     Stanje.platno.forEach(z => this._ustvari(z));
-    this._posodobiNamig();
-  },
-
-  _posodobiNamig() {
-    $('#platno-namig').classList.toggle('skrit', Stanje.platno.length > 0);
   },
 };
 
 /* ------------------------------------------------------------------ *
- * TRAK — majhni pripomočki, vedno vidni
+ * OKNA — skupno za vse, kar plava na platnu (okna orodij in pripomočki)
  * ------------------------------------------------------------------ */
-const Trak = {
-  osvezi() {
-    const trak = $('#trak');
-    const karkoli = Stanje.semafor !== null || Casovnik.aktiven;
-    trak.classList.toggle('vklopljen', karkoli);
-    $('#t-semafor').classList.toggle('skrit', Stanje.semafor === null);
-    $('#t-cas').classList.toggle('skrit', !Casovnik.aktiven);
-    $$('.dok-gumb[data-trak]').forEach(g => {
-      const k = g.dataset.trak;
-      const on = k === 'semafor' ? Stanje.semafor !== null : Casovnik.aktiven;
-      g.classList.toggle('on', on);
+const Okna = {
+  z: 20,
+
+  /** Kliknjeno okno gre na vrh. Platno je svoj sloj, zato z-index ne uide nad glavo. */
+  vOspredje(el) {
+    $$('.pw.izbran, .prevzem.izbran').forEach(p => p.classList.remove('izbran'));
+    el.classList.add('izbran');
+    if (+el.style.zIndex === this.z) return;
+    el.style.zIndex = ++this.z;
+    // vrstni red si zapomnimo, da je po ponovnem nalaganju enak
+    const pw = Stanje.platno.find(p => p.el === el);
+    if (pw) { pw.z = this.z; shraniStanje(); }
+    const ime = el.id.startsWith('prevzem-') && el.id.slice(8);
+    if (ime && Prevzem.geo[ime]) { Prevzem.geo[ime].z = this.z; Prevzem.shraniGeo(); }
+  },
+
+  /** Po zagonu: okna in pripomočki v enakem vrstnem redu kot ob zadnjem obisku. */
+  obnoviVrstniRed() {
+    [...Stanje.platno.map(p => ({ el: p.el, z: p.z || 0 })),
+     ...Prevzem.odprti.map(ime => ({ el: Prevzem.el(ime), z: Prevzem.geo[ime]?.z || 0 }))]
+      .sort((a, b) => a.z - b.z)
+      .forEach(o => this.vOspredje(o.el));
+  },
+
+  /** Delovni prostor: platno brez glave zgoraj in dokov ob robovih. */
+  obmocje() {
+    const p = $('#platno'), cs = getComputedStyle(document.documentElement);
+    const v = ime => parseFloat(cs.getPropertyValue(ime)) || 0;
+    const l = v('--rob-levo'), d = v('--rob-desno'), z = v('--rob-zgoraj'), s = v('--rob-spodaj');
+    return { x: l, y: z, w: p.clientWidth - l - d, h: p.clientHeight - z - s };
+  },
+
+  /** Po spremembi velikosti zaslona (ali na telefonu) okno potegnemo nazaj v delovni prostor. */
+  vObmocje(g, najW, najH) {
+    const p = $('#platno'), o = this.obmocje();
+    g.w = Math.max(najW, Math.min(g.w, p.clientWidth - 16));
+    g.h = Math.max(najH, Math.min(g.h, o.h));
+    g.x = Math.min(Math.max(0, g.x), Math.max(0, p.clientWidth - g.w));
+    g.y = Math.min(Math.max(o.y, g.y), Math.max(o.y, o.y + o.h - g.h));
+  },
+
+  /** Kam postaviti novo okno: na mesto, kjer najmanj prekrije že odprta —
+      tako se orodja razporedijo drugo ob drugo, namesto da se zlagajo na kup. */
+  prostor(w, h) {
+    const o = this.obmocje();
+    w = Math.min(w, o.w); h = Math.min(h, o.h);
+    const zasedeno = [...$$('.pw'), ...$$('.prevzem.odprt:not(.cel-zaslon)')].map(el => ({
+      x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight,
+    }));
+    const prekrivanje = (x, y) => zasedeno.reduce((vsota, r) =>
+      vsota + Math.max(0, Math.min(x + w, r.x + r.w) - Math.max(x, r.x))
+            * Math.max(0, Math.min(y + h, r.y + r.h) - Math.max(y, r.y)), 0);
+
+    const sx = o.x + (o.w - w) / 2, sy = o.y + (o.h - h) / 2;
+    let naj = { x: sx, y: sy, p: prekrivanje(sx, sy), d: 0 };
+    const korak = 24;
+    for (let y = o.y; y <= o.y + o.h - h; y += korak) {
+      for (let x = o.x; x <= o.x + o.w - w; x += korak) {
+        const p = prekrivanje(x, y), d = Math.hypot(x - sx, y - sy);
+        if (p < naj.p - 1 || (Math.abs(p - naj.p) <= 1 && d < naj.d)) naj = { x, y, p, d };
+      }
+    }
+    return { x: Math.round(Math.max(0, naj.x)), y: Math.round(Math.max(0, naj.y)) };
+  },
+
+  /** Ikone v doku pokažejo, katera orodja so odprta. */
+  osveziDok() {
+    $$('.orodje[data-okno]').forEach(b => {
+      const ime = b.dataset.okno;
+      b.classList.toggle('on', Prevzem.odprti.includes(ime) || (ime === 'casovnik' && Casovnik.tece));
     });
+    $$('.orodje[data-dodaj]').forEach(b =>
+      b.classList.toggle('on', Stanje.platno.some(p => p.tip === b.dataset.dodaj)));
+  },
+
+  /** Zapre vsa okna in odstrani vse pripomočke. */
+  pospravi() {
+    [...Prevzem.odprti].forEach(ime => Prevzem.zapri(ime));
+    [...Stanje.platno].forEach(p => Platno.odstrani(p.id));
   },
 };
 
 /* ------------------------------------------------------------------ *
- * PREVZEM — orodja, ki potrebujejo cel zaslon
+ * PREVZEM — večja orodja, vsako v svojem oknu; odprtih je lahko več.
  * ------------------------------------------------------------------ */
 const Prevzem = {
-  trenutni: null,
-  geo: Shramba.beri('prevzemGeo', {}),   // { skupine:{x,y,w,h}, semafor:{...}, … }
+  geo: Shramba.beri('prevzemGeo', {}),        // { skupine:{x,y,w,h,cel}, … }
+  odprti: Shramba.beri('odprtaOkna', []),     // vrstni red = kdo je bil zadnji na vrhu
   pripravljeni: new Set(),
 
-  /** Orodja, ki se privzeto odprejo čez cel zaslon — rabijo ves prostor. */
+  /** Privzete velikosti — vsako orodje dobi, kar potrebuje, ne cel zaslon. */
+  VELIKOSTI: {
+    skupine: [760, 480], zreb: [780, 520], semafor: [270, 470], casovnik: [380, 270],
+    urnik: [780, 540], miselni: [720, 480], quest: [980, 620],
+  },
+  /** Orodja, ki se privzeto odprejo čez ves prostor — rabijo ga. */
   celZaslonPrivzeto: new Set(['quest']),
 
-  /** Velik, na sredini, a tako da pusti glavo zgoraj in dok spodaj. */
   privzetaGeo(ime) {
-    const p = $('#platno');
-    const w = Math.min(1120, p.clientWidth  - 36);
-    const h = Math.min(660,  p.clientHeight - 130);
-    return {
-      x: Math.max(18, (p.clientWidth - w) / 2), y: 18, w, h,
-      cel: this.celZaslonPrivzeto.has(ime),
-    };
+    const o = Okna.obmocje();
+    const [sw, sh] = this.VELIKOSTI[ime] || [640, 440];
+    const w = Math.min(sw, o.w - 16), h = Math.min(sh, o.h - 16);
+    return { ...Okna.prostor(w, h), w, h, cel: this.celZaslonPrivzeto.has(ime) };
   },
 
   shraniGeo() { Shramba.pisi('prevzemGeo', this.geo); },
+  shraniOdprte() { Shramba.pisi('odprtaOkna', this.odprti); },
+
+  el(ime) { return document.getElementById('prevzem-' + ime); },
+  jeOdprto(ime) { return this.odprti.includes(ime); },
 
   odpri(ime) {
-    $$('.prevzem').forEach(p => p.classList.remove('odprt'));
-    const el = document.getElementById('prevzem-' + ime);
+    const el = this.el(ime);
     if (!el) return;
 
-    if (!this.geo[ime]) this.geo[ime] = this.privzetaGeo(ime);
-    if (this.geo[ime].cel === undefined) this.geo[ime].cel = this.celZaslonPrivzeto.has(ime);
-    this._uporabiGeo(el, this.geo[ime]);
-    if (!this.pripravljeni.has(ime)) { this._omogoci(el, ime); this.pripravljeni.add(ime); }
-
-    el.classList.add('odprt');
-    this.trenutni = ime;
-    this._osveziGumbe();
-    $$('.dok-gumb[data-prevzem]').forEach(g => g.classList.toggle('on', g.dataset.prevzem === ime));
-    $('#platno-namig').classList.add('skrit');   // pozdrav ne sme gledati izza okna
-  },
-
-  _uporabiGeo(el, g) {
-    const p = $('#platno');
-
-    // Čez cel zaslon: položaja in velikosti ne nastavljamo, prevzame ju CSS.
-    el.classList.toggle('cel-zaslon', !!g.cel);
-    if (g.cel) {
-      el.style.cssText = '';
-      el.style.setProperty('--okno-h', p.clientHeight + 'px');
+    // že odprto: le na vrh in rahlo pomigaj, da se vidi, kje je
+    if (this.jeOdprto(ime) && el.classList.contains('odprt')) {
+      Okna.vOspredje(el);
+      el.classList.remove('pomigaj'); void el.offsetWidth; el.classList.add('pomigaj');
       return;
     }
 
-    // po spremembi velikosti okna lahko okvir pade izven zaslona — potegnimo ga nazaj
-    g.w = Math.min(g.w, p.clientWidth  - 24);
-    g.h = Math.min(g.h, p.clientHeight - 24);
-    g.x = Math.min(Math.max(0, g.x), Math.max(0, p.clientWidth  - 120));
-    g.y = Math.min(Math.max(0, g.y), Math.max(0, p.clientHeight - 80));
-    el.style.cssText = `left:${g.x}px; top:${g.y}px; width:${g.w}px; height:${g.h}px`;
-    el.style.setProperty('--okno-h', g.h + 'px');   // vsebina se meri po tej višini
+    if (!this.geo[ime]) this.geo[ime] = this.privzetaGeo(ime);
+    if (this.geo[ime].cel === undefined) this.geo[ime].cel = this.celZaslonPrivzeto.has(ime);
+    if (!this.pripravljeni.has(ime)) { this._omogoci(el, ime); this.pripravljeni.add(ime); }
+
+    el.classList.add('odprt');
+    this._uporabiGeo(el, this.geo[ime]);
+    Okna.vOspredje(el);
+    if (!this.jeOdprto(ime)) { this.odprti.push(ime); this.shraniOdprte(); }
+    this._osveziGumbe(ime);
+    Okna.osveziDok();
+    this._obVelikosti(ime);
+  },
+
+  zapri(ime) {
+    const el = this.el(ime);
+    el?.classList.remove('odprt', 'izbran');
+    this.odprti = this.odprti.filter(i => i !== ime);
+    this.shraniOdprte();
+    Okna.osveziDok();
+  },
+
+  /** Ob zagonu odpremo okna, ki so bila odprta ob zadnjem obisku, v istem vrstnem redu. */
+  obnovi() {
+    const prej = [...this.odprti];
+    this.odprti = [];
+    prej.forEach(ime => this.odpri(ime));
+  },
+
+  _uporabiGeo(el, g) {
+    el.classList.toggle('cel-zaslon', !!g.cel);
+    if (g.cel) { el.style.left = el.style.top = el.style.width = el.style.height = ''; return; }
+
+    Okna.vObmocje(g, 240, 160);
+    Object.assign(el.style, { left: g.x + 'px', top: g.y + 'px', width: g.w + 'px', height: g.h + 'px' });
   },
 
   _omogoci(el, ime) {
-    const g = this.geo[ime];
-    // V celozaslonskem načinu vlečenje in raztegovanje nimata pomena.
-    Vleci.premik(el.querySelector('.prevzem-glava'), el, g, () => this.shraniGeo(),
-                 'button, .zetoni, select, input', () => !g.cel);
+    const g = () => this.geo[ime];
+    // Geo objekt se ob "ponastavi" zamenja, zato ga vlečenje bere prek posrednika.
+    const posrednik = {
+      get x() { return g().x; }, set x(v) { g().x = v; },
+      get y() { return g().y; }, set y(v) { g().y = v; },
+      get w() { return g().w; }, set w(v) { g().w = v; },
+      get h() { return g().h; }, set h(v) { g().h = v; },
+    };
+    el.addEventListener('pointerdown', () => Okna.vOspredje(el));
+    Vleci.premik(el.querySelector('.prevzem-glava'), el, posrednik, () => this.shraniGeo(),
+                 'button, .zetoni, select, input, label', () => !g().cel);
     const rocaj = el.querySelector('.prevzem-rocaj');
-    if (rocaj) Vleci.velikost(rocaj, el, g, () => this.shraniGeo(), 320, 240,
-                              () => el.style.setProperty('--okno-h', g.h + 'px'), () => !g.cel);
+    if (rocaj) Vleci.velikost(rocaj, el, posrednik, () => this.shraniGeo(), 240, 160, null, () => !g().cel);
+
+    el.querySelector('[data-zapri-prevzem]')?.addEventListener('click', () => this.zapri(ime));
+    el.querySelector('[data-cel-zaslon]')?.addEventListener('click', () => this.preklopiCelZaslon(ime));
+    el.querySelector('[data-ponastavi-okvir]')?.addEventListener('click', () => this.ponastaviGeo(ime));
+
+    // Vsebina (kolo, junaki, velike številke) se prilagodi velikosti okna.
+    new ResizeObserver(() => this._obVelikosti(ime)).observe(el);
   },
 
-  /** Preklop med oknom in celim zaslonom. */
-  preklopiCelZaslon() {
-    if (!this.trenutni) return;
-    const g = this.geo[this.trenutni];
+  _obVelikosti(ime) {
+    const el = this.el(ime);
+    if (!el?.classList.contains('odprt')) return;
+    el.style.setProperty('--okno-h', el.clientHeight + 'px');
+    if (ime === 'quest') Pustolovscina._razporedi();
+    if (ime === 'zreb') Zreb.izrisKolesa();
+  },
+
+  /** Preklop med oknom in celim delovnim prostorom. */
+  preklopiCelZaslon(ime) {
+    const g = this.geo[ime];
+    if (!g) return;
     g.cel = !g.cel;
-    this._uporabiGeo(document.getElementById('prevzem-' + this.trenutni), g);
+    this._uporabiGeo(this.el(ime), g);
     this.shraniGeo();
-    this._osveziGumbe();
+    this._osveziGumbe(ime);
   },
 
-  _osveziGumbe() {
-    if (!this.trenutni) return;
-    const g = this.geo[this.trenutni];
-    const el = document.getElementById('prevzem-' + this.trenutni);
+  _osveziGumbe(ime) {
+    const g = this.geo[ime], el = this.el(ime);
     const b = el.querySelector('[data-cel-zaslon]');
     if (b) {
       b.textContent = g.cel ? '❐' : '⛶';
-      b.title = g.cel ? 'Pomanjšaj v okno' : 'Čez cel zaslon';
+      b.title = g.cel ? 'Pomanjšaj v okno' : 'Čez ves prostor';
     }
     el.querySelector('[data-ponastavi-okvir]')?.classList.toggle('skrit', !!g.cel);
   },
 
-  zapri() {
-    $$('.prevzem').forEach(p => p.classList.remove('odprt'));
-    this.trenutni = null;
-    $$('.dok-gumb[data-prevzem]').forEach(g => g.classList.remove('on'));
-    Platno._posodobiNamig();                     // pozdrav nazaj, če je platno prazno
-  },
-  preklopi(ime) { this.trenutni === ime ? this.zapri() : this.odpri(ime); },
-
-  /** Nazaj na privzeto velikost — če uporabnik okvir "zgubi". */
-  ponastaviGeo() {
-    if (!this.trenutni) return;
-    const cel = this.geo[this.trenutni]?.cel;
-    this.geo[this.trenutni] = this.privzetaGeo(this.trenutni);
-    this.geo[this.trenutni].cel = cel;
-    this._uporabiGeo(document.getElementById('prevzem-' + this.trenutni), this.geo[this.trenutni]);
+  /** Nazaj na privzeto velikost — če uporabnik okno "zgubi". */
+  ponastaviGeo(ime) {
+    this.geo[ime] = { ...this.privzetaGeo(ime), cel: false };
+    this._uporabiGeo(this.el(ime), this.geo[ime]);
     this.shraniGeo();
+    this._osveziGumbe(ime);
+  },
+
+  /** Zgornje okno (za tipko Escape). */
+  zgornje() {
+    return this.odprti
+      .map(ime => ({ ime, z: +this.el(ime).style.zIndex || 0 }))
+      .sort((a, b) => b.z - a.z)[0]?.ime || null;
   },
 };
 
