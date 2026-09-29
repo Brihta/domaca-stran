@@ -650,6 +650,90 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .a-pisava { width:auto; padding:0 9px; }
 .a-pisava small { font-size:10px; }
 
+/* ===================== TRAKCI (tračni modeli) ===================== */
+.bm { position:relative; }
+.bm-orodja { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; flex-shrink:0; }
+.bm-vrstica { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+.bm-vrstica .gumb { padding:7px 11px; font-size:12.5px; border-radius:10px; }
+.bm-vrstica .izbirnik { width:auto; padding:7px 10px; font-size:12.5px; border-radius:10px; }
+.bm-vrstica .mini.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
+.bm-izbor { min-height:46px; background:var(--kartica-2); border-radius:12px; padding:6px 8px; }
+.bm-izbor .vnos { width:170px; padding:7px 10px; font-size:13.5px; border-radius:10px; }
+.bm-izbor .bm-brisi:hover { background:var(--brand-red); color:#fff; }
+.bm-napis { font-size:10.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-right:1px; }
+.bm-loc { width:1px; height:22px; background:var(--rob-md); margin:0 3px; }
+.bm-barva {
+  width:24px; height:24px; border-radius:50%; padding:0; cursor:pointer;
+  border:2px solid #fff; box-shadow:0 0 0 1px var(--rob-md);
+}
+.bm-barva.on { box-shadow:0 0 0 2.5px var(--brand-blue); }
+
+.bm-vsebina { flex:1; min-height:0; display:flex; gap:16px; overflow:auto; }
+.bm-model {
+  flex:1; min-width:0; display:flex; flex-direction:column;
+  gap:calc(16px * var(--bs, 1)); padding:6px 36px 6px 28px;
+}
+/* na sredini, a pri visokem modelu se vrh ne odreže (justify-content:center bi ga) */
+.bm-vrsta:first-child { margin-top:auto; }
+.bm-vrsta:last-child  { margin-bottom:auto; }
+.bm-vrsta { display:grid; grid-template-rows:auto auto auto; border-radius:10px; }
+.bm-vrsta.izbran { background:rgba(34,102,255,.07); }
+.bm-ime {
+  grid-row:2; grid-column:1; align-self:center; padding-right:10px; text-align:right;
+  font-size:calc(14px * var(--bs, 1)); font-weight:800; color:var(--text); overflow-wrap:anywhere;
+}
+.bm-oklepaji { position:relative; grid-column:2; }
+.bm-oklepaji.zgoraj { grid-row:1; }
+.bm-oklepaji.spodaj { grid-row:3; }
+.bm-trak { grid-row:2; grid-column:2; display:flex; position:relative; width:max-content; }
+.bm-del {
+  height:calc(46px * var(--bs, 1)); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+  box-shadow:inset 0 0 0 1.5px rgba(20,30,60,.55);
+  font-size:calc(17px * var(--bs, 1)); font-weight:800; white-space:nowrap;
+}
+.bm-del span { padding:0 3px; overflow:hidden; text-overflow:ellipsis; }
+.bm-del.izbran { position:relative; z-index:1; outline:3px solid var(--brand-blue); outline-offset:1px; }
+
+.bm-oklepaj { position:absolute; display:flex; flex-direction:column; align-items:center; color:var(--text2); }
+.bm-oklepaj svg { display:block; overflow:visible; }
+.bm-oklepaji.spodaj svg { transform:scaleY(-1); }
+.bm-ok-oznaka {
+  font-size:calc(15px * var(--bs, 1)); font-weight:800; color:var(--text); line-height:1.25;
+  white-space:nowrap; padding:1px 5px; border-radius:7px; margin:2px 0;
+}
+.bm-ok-oznaka:empty::before { content:'…'; color:var(--muted); }
+.bm-oklepaj.izbran { color:var(--brand-blue); }
+.bm-oklepaj.izbran .bm-ok-oznaka { background:rgba(34,102,255,.14); color:var(--brand-blue-dk); }
+
+.bm-plus, .bm-rocaj-traku {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:24px; height:24px; border-radius:50%; padding:0; cursor:pointer;
+  font-family:inherit; font-weight:800; line-height:1;
+}
+.bm-plus { right:-32px; border:1.5px dashed var(--rob-md); background:#fff; color:var(--muted); font-size:15px; }
+.bm-plus:hover { border-color:var(--brand-blue); color:var(--brand-blue-dk); }
+.bm-rocaj-traku { left:-24px; border:none; background:transparent; color:var(--muted); font-size:16px; }
+.bm-rocaj-traku:hover { color:var(--brand-blue-dk); }
+.bm.urejam .bm-del, .bm.urejam .bm-oklepaj, .bm.urejam .bm-ime { cursor:pointer; }
+
+.bm-racun {
+  width:190px; flex-shrink:0; border-left:2px solid var(--rob-md); padding:4px 12px;
+  font-size:calc(16px * var(--bs, 1)); font-weight:700; line-height:1.6; color:var(--text);
+  white-space:pre-wrap; outline:none; align-self:stretch;
+}
+.bm-racun:empty::before { content:attr(data-prazno); color:var(--muted); }
+
+/* prikaz: samo model, brez urejanja */
+.bm.prikaz .bm-orodja, .bm.prikaz .bm-plus, .bm.prikaz .bm-rocaj-traku { display:none; }
+.bm-uredi {
+  display:none; position:absolute; right:8px; bottom:4px; z-index:2;
+  padding:6px 12px; font-size:12px; opacity:0; transition:opacity .15s;
+}
+.bm.prikaz .bm-uredi { display:inline-flex; }
+.pw:hover .bm-uredi { opacity:1; }
+@media (pointer:coarse) { .bm-uredi { opacity:.8; } }
+
 /* ===================== MISELNI VZOREC ===================== */
 .miselni-polje {
   flex:1; position:relative; overflow:hidden;

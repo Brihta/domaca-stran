@@ -1,4 +1,4 @@
-const CACHE = 'zaslon-v52';
+const CACHE = 'zaslon-v53';
 
 /** Lupina aplikacije. */
 const ASSETS = [
@@ -15,6 +15,7 @@ const ASSETS = [
   './js/pripomocki.js',
   './js/zreb.js',
   './js/orodja.js',
+  './js/trakci.js',
   './js/pustolovscina.js',
   './js/povezave.js',
   './js/zagon.js',
