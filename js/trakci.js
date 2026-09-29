@@ -22,10 +22,10 @@ const PREDLOGE_TRAKOV = {
   delcelota: {
     ime: 'Del + del = celota',
     model: () => ({
-      // celota je svoj pravokotnik pod deli, enako dolg kot vsi deli skupaj
+      // celota je svoj pravokotnik nad deli, enako dolg kot vsi deli skupaj
       trakovi: [
-        { ime: '', zamik: 0, deli: [del(3, 'Del', '#F9A65A'), del(2, 'Del', '#F47C7C')], oklepaji: [] },
         { ime: '', zamik: 0, deli: [del(5, 'Celota', '#29B6E0')], oklepaji: [] },
+        { ime: '', zamik: 0, deli: [del(3, 'Del', '#F9A65A'), del(2, 'Del', '#F47C7C')], oklepaji: [] },
       ],
       racun: '',
     }),
