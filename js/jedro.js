@@ -188,6 +188,7 @@ const Stanje = {
   seznam:   [],                                   // [{id, ime}]
   odsotni:  new Set(),                            // napolni se ob nalaganju razreda
   velikost: Shramba.beri('velikost', 4),
+  stSkupin: Shramba.beri('stSkupin', null),       // izbrano število skupin; sicer velja velikost
   ozadje:   Shramba.beri('ozadje', OZADJE_PRIVZETO),
   semafor:  null,                                 // 'rdeca'|'rumena'|'zelena'|null
   platno:   Shramba.beri('platno', []),
@@ -201,6 +202,7 @@ function shraniStanje() {
   Shramba.pisi('odsotniImena',
     Stanje.seznam.filter(u => Stanje.odsotni.has(u.id)).map(u => u.ime));
   Shramba.pisi('velikost', Stanje.velikost);
+  Shramba.pisi('stSkupin', Stanje.stSkupin);
   Shramba.pisi('ozadje', Stanje.ozadje);
   Shramba.pisi('platno', Stanje.platno.map(p => ({ ...p, el: undefined })));
 }

@@ -62,8 +62,10 @@ const Skupine = {
     if (a.length < 2) { obvesti('Potrebujem vsaj 2 prisotna učenca.'); return; }
 
     const mesano = this.mesaj(a.map(u => u.ime));
-    const velikost = Math.max(2, Math.min(Stanje.velikost, mesano.length));
-    const stSkupin = Math.max(1, Math.round(mesano.length / velikost));
+    // Izbrano je bodisi število skupin bodisi velikost skupine.
+    const stSkupin = Stanje.stSkupin
+      ? Math.min(Stanje.stSkupin, mesano.length)
+      : Math.max(1, Math.round(mesano.length / Math.max(2, Math.min(Stanje.velikost, mesano.length))));
 
     let skupine = Array.from({ length: stSkupin }, () => []);
     mesano.forEach((ime, i) => skupine[i % stSkupin].push(ime));

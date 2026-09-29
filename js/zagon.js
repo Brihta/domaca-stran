@@ -48,7 +48,8 @@ function izrisiPrisotnost() {
 }
 
 function izrisiVelikosti() {
-  $$('#velikosti .zeton').forEach(z => z.classList.toggle('on', +z.dataset.v === Stanje.velikost));
+  $$('#velikosti .zeton').forEach(z => z.classList.toggle('on', !Stanje.stSkupin && +z.dataset.v === Stanje.velikost));
+  $$('#stevila-skupin .zeton').forEach(z => z.classList.toggle('on', +z.dataset.n === Stanje.stSkupin));
 }
 
 function izrisiOzadja() {
@@ -108,7 +109,10 @@ function poveziPlosco() {
   });
 
   $$('#velikosti .zeton').forEach(z => z.addEventListener('click', () => {
-    Stanje.velikost = +z.dataset.v; shraniStanje(); izrisiVelikosti();
+    Stanje.velikost = +z.dataset.v; Stanje.stSkupin = null; shraniStanje(); izrisiVelikosti();
+  }));
+  $$('#stevila-skupin .zeton').forEach(z => z.addEventListener('click', () => {
+    Stanje.stSkupin = +z.dataset.n; shraniStanje(); izrisiVelikosti();
   }));
 
   $('#tema').addEventListener('change', e => {
