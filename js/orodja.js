@@ -1,121 +1,8 @@
 /* =====================================================================
    Razredni zaslon — večja orodja
-   Faza 3: urnik · Faza 4: anketa · Faza 5: miselni vzorec
+   Anketa · miselni vzorec
    ===================================================================== */
 'use strict';
-
-/* ==================================================================== *
- * URNIK
- * Ure niso prazna mreža — izhajajo iz šolskega zvonca OŠ Šempeter.
- * ==================================================================== */
-const DNEVI_POUK = [
-  { k: 'pon', ime: 'Ponedeljek', kratko: 'PON', dan: 1 },
-  { k: 'tor', ime: 'Torek',      kratko: 'TOR', dan: 2 },
-  { k: 'sre', ime: 'Sreda',      kratko: 'SRE', dan: 3 },
-  { k: 'cet', ime: 'Četrtek',    kratko: 'ČET', dan: 4 },
-  { k: 'pet', ime: 'Petek',      kratko: 'PET', dan: 5 },
-];
-
-/* Slovenske kratice predmetov v OŠ. */
-const PREDMETI = [
-  '', 'SLJ', 'MAT', 'TJA', 'TJN', 'LUM', 'GUM', 'SPO', 'DRU', 'NAR', 'NIT',
-  'GOS', 'TIT', 'ZGO', 'GEO', 'BIO', 'KEM', 'FIZ', 'ŠPO', 'DKE',
-  'RU', 'OPB', 'ISP', 'DOD', 'DOP', 'RaP',
-];
-
-/* Barva na predmet — da se urnik bere na pogled, ne po črkah. */
-const BARVE_PREDMETOV = {
-  SLJ:'#E23B26', MAT:'#2266FF', TJA:'#7A4FBF', TJN:'#9C4FBF',
-  LUM:'#E09900', GUM:'#C2185B', SPO:'#0FA3A3', DRU:'#5D8A1F',
-  NAR:'#55A51C', NIT:'#3E9B1F', GOS:'#B8860B', TIT:'#6B7280',
-  ZGO:'#8B5A2B', GEO:'#0E7C7B', BIO:'#2E8B4A', KEM:'#D4700A',
-  FIZ:'#1D6FA5', ŠPO:'#D92D20', DKE:'#7C5CBF', RU:'#767C8C',
-  OPB:'#767C8C', ISP:'#4A5FC1', DOD:'#2E9CC9', DOP:'#2E9CC9', RaP:'#C2185B',
-};
-
-const Urnik = {
-  /** { pon: { '1. ura': 'MAT', ... }, ... } */
-  podatki: Shramba.beri('urnik', {}),
-
-  /** Ure iz zvonca brez odmorov — urnik ima toliko vrstic, kot je ur. */
-  ure() { return ZVONEC.filter(([ime]) => !jeOdmor(ime)); },
-
-  vpis(dan, ura) { return (this.podatki[dan] || {})[ura] || ''; },
-
-  nastavi(dan, ura, predmet) {
-    if (!this.podatki[dan]) this.podatki[dan] = {};
-    if (predmet) this.podatki[dan][ura] = predmet;
-    else delete this.podatki[dan][ura];
-    Shramba.pisi('urnik', this.podatki);
-    this.oznaciTrenutno();
-  },
-
-  /** Kateri stolpec in vrstica sta zdaj — da se učenci znajdejo. */
-  trenutno(zdaj = new Date()) {
-    const dan = DNEVI_POUK.find(d => d.dan === zdaj.getDay());
-    if (!dan) return { dan: null, ura: null };
-    const s = stanjeZvonca(zdaj);
-    const ura = this.ure().some(([ime]) => ime === s.num) ? s.num : null;
-    return { dan: dan.k, ura };
-  },
-
-  izris() {
-    const ovoj = $('#urnik-mreza');
-    const ure = this.ure();
-
-    const glava = '<div class="u-kot"></div>' +
-      DNEVI_POUK.map(d => `<div class="u-dan">${d.kratko}</div>`).join('');
-
-    const vrstice = ure.map(([ime, od, doo]) => {
-      const celice = DNEVI_POUK.map(d => {
-        const v = this.vpis(d.k, ime);
-        const barva = BARVE_PREDMETOV[v] || 'transparent';
-        return `<div class="u-celica" data-dan="${d.k}" data-ura="${ubezi(ime)}">
-          <select class="u-izbira" aria-label="${ubezi(d.ime)}, ${ubezi(ime)}"
-                  style="--pb:${barva}">${
-            PREDMETI.map(p =>
-              `<option value="${p}"${p === v ? ' selected' : ''}>${p || '—'}</option>`).join('')
-          }</select>
-        </div>`;
-      }).join('');
-      return `<div class="u-ura"><b>${ubezi(ime)}</b><span>${od.replace(':', '.')}–${doo.replace(':', '.')}</span></div>${celice}`;
-    }).join('');
-
-    ovoj.innerHTML = glava + vrstice;
-    ovoj.style.gridTemplateColumns = `minmax(92px,auto) repeat(${DNEVI_POUK.length},1fr)`;
-
-    ovoj.querySelectorAll('.u-izbira').forEach(s => {
-      s.addEventListener('change', e => {
-        const c = e.target.closest('.u-celica');
-        e.target.style.setProperty('--pb', BARVE_PREDMETOV[e.target.value] || 'transparent');
-        this.nastavi(c.dataset.dan, c.dataset.ura, e.target.value);
-      });
-    });
-
-    this.oznaciTrenutno();
-  },
-
-  oznaciTrenutno() {
-    const { dan, ura } = this.trenutno();
-    $$('#urnik-mreza .u-celica').forEach(c =>
-      c.classList.toggle('zdaj', !!dan && c.dataset.dan === dan && c.dataset.ura === ura));
-    $$('#urnik-mreza .u-dan').forEach((el, i) =>
-      el.classList.toggle('zdaj', DNEVI_POUK[i].k === dan));
-
-    const { dan: d2, ura: u2 } = this.trenutno();
-    const vpis = d2 && u2 ? this.vpis(d2, u2) : '';
-    $('#urnik-znacka').textContent = vpis
-      ? `Zdaj: ${u2} · ${vpis}`
-      : (u2 ? `Zdaj: ${u2}` : 'Trenutno ni pouka');
-  },
-
-  pocisti() {
-    this.podatki = {};
-    Shramba.pisi('urnik', {});
-    this.izris();
-    obvesti('Urnik počiščen.');
-  },
-};
 
 /* ==================================================================== *
  * ANKETA (ročna)
@@ -130,6 +17,7 @@ Platno.registriraj('anketa', {
   izris(telo, zapis) {
     const p = zapis.podatki;
     if (!p.vprasanje) p.vprasanje = 'Kako vam je šlo?';
+    p.pisava = p.pisava || 1;                      // povečava pisave, da se vidi od daleč
     if (!p.moznosti) p.moznosti = [
       { ime: 'Lahko',  st: 0 },
       { ime: 'V redu', st: 0 },
@@ -144,8 +32,17 @@ Platno.registriraj('anketa', {
         <button class="mini a-dodaj" aria-label="Dodaj odgovor">+</button>
         <button class="mini a-manj" aria-label="Odstrani zadnji odgovor">−</button>
         <span style="flex:1"></span>
+        <button class="mini a-pisava" data-d="-1" title="Manjša pisava" aria-label="Manjša pisava"><small>A</small>−</button>
+        <button class="mini a-pisava" data-d="1"  title="Večja pisava"  aria-label="Večja pisava">A+</button>
         <button class="mini a-nic" aria-label="Ponastavi štetje">0</button>
       </div>`;
+
+    const pisava = () => telo.style.setProperty('--ap', p.pisava);
+    pisava();
+    telo.querySelectorAll('.a-pisava').forEach(b => b.addEventListener('click', () => {
+      p.pisava = Math.round(Math.min(3, Math.max(0.8, p.pisava + b.dataset.d * 0.2)) * 10) / 10;
+      pisava(); shraniStanje();
+    }));
 
     const vpr = telo.querySelector('.anketa-vprasanje');
     vpr.textContent = p.vprasanje;

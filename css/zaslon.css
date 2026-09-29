@@ -617,42 +617,9 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   .pov-vzivo { display:none; }
 }
 
-/* ===================== URNIK ===================== */
-.urnik-ovoj { flex:1; overflow:auto; }
-.urnik-mreza { display:grid; gap:5px; min-width:640px; }
-
-.u-kot { }
-.u-dan {
-  font-size:12px; font-weight:800; color:var(--muted); text-align:center;
-  padding:8px 4px; border-radius:9px; letter-spacing:.06em;
-}
-.u-dan.zdaj { background:var(--brand-blue); color:#fff; }
-
-.u-ura {
-  display:flex; flex-direction:column; justify-content:center; padding:6px 10px;
-  background:var(--kartica-2); border-radius:9px;
-}
-.u-ura b { font-size:12.5px; font-weight:800; color:var(--text); }
-.u-ura span { font-size:10.5px; color:var(--muted); font-weight:600; margin-top:1px; }
-
-.u-celica { position:relative; }
-.u-izbira {
-  width:100%; height:100%; min-height:42px;
-  font-family:inherit; font-size:13.5px; font-weight:800; text-align:center;
-  color:var(--text); background:#fff; cursor:pointer;
-  border:1px solid var(--rob-md); border-left:4px solid var(--pb, transparent);
-  border-radius:9px; padding:8px 4px; outline:none;
-  -webkit-appearance:none; appearance:none;
-}
-.u-izbira:focus { border-color:var(--brand-blue); box-shadow:0 0 0 3px rgba(34,102,255,.14); }
-.u-celica.zdaj .u-izbira {
-  background:rgba(34,102,255,.10); border-color:var(--brand-blue);
-  box-shadow:0 0 0 2px rgba(34,102,255,.3);
-}
-
 /* ===================== ANKETA ===================== */
 .anketa-vprasanje {
-  font-size:15px; font-weight:800; color:var(--text); outline:none;
+  font-size:calc(15px * var(--ap, 1)); font-weight:800; color:var(--text); outline:none;
   margin-bottom:12px; line-height:1.3; flex-shrink:0; word-break:break-word;
 }
 .anketa-vprasanje:empty::before { content:attr(data-prazno); color:var(--muted); font-weight:600; }
@@ -664,13 +631,13 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 }
 .anketa-vrstica:hover { background:var(--kartica-2); }
 .anketa-ime {
-  font-size:12.5px; font-weight:700; color:var(--text); width:76px;
+  font-size:calc(12.5px * var(--ap, 1)); font-weight:700; color:var(--text); width:calc(76px * var(--ap, 1));
   flex-shrink:0; word-break:break-word; outline:none; cursor:text;
 }
-.anketa-stolpec { flex:1; height:24px; background:var(--kartica-2); border-radius:7px; overflow:hidden; }
+.anketa-stolpec { flex:1; height:calc(24px * var(--ap, 1)); background:var(--kartica-2); border-radius:7px; overflow:hidden; }
 .anketa-polnilo { height:100%; border-radius:7px; transition:width .3s ease; min-width:2px; }
 .anketa-st {
-  font-size:14px; font-weight:800; color:var(--text); width:26px;
+  font-size:calc(14px * var(--ap, 1)); font-weight:800; color:var(--text); width:calc(26px * var(--ap, 1));
   text-align:right; font-variant-numeric:tabular-nums; flex-shrink:0;
 }
 .anketa-manj {
@@ -680,6 +647,8 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 }
 .anketa-manj:hover { border-color:var(--brand-red); color:var(--brand-red); }
 .anketa-noga { display:flex; gap:6px; align-items:center; margin-top:10px; flex-shrink:0; }
+.a-pisava { width:auto; padding:0 9px; }
+.a-pisava small { font-size:10px; }
 
 /* ===================== MISELNI VZOREC ===================== */
 .miselni-polje {

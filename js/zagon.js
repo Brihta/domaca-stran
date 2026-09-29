@@ -170,8 +170,6 @@ function poveziSkupine() {
 }
 
 function poveziOrodja() {
-  // urnik
-  $('#urnik-pocisti').addEventListener('click', () => Urnik.pocisti());
 
   // pustolovščina
   $('#q-ponastavi').addEventListener('click', () => Pustolovscina.ponastaviVse());
@@ -266,7 +264,6 @@ function zagon() {
 
   Semafor.izris();
   Skupine.izris();
-  Urnik.izris();
   Miselni.izris();
   Pustolovscina.preseli();
   Pustolovscina.izris();
@@ -291,7 +288,7 @@ function zagon() {
     Prevzem.odprti.forEach(ime => Prevzem._uporabiGeo(Prevzem.el(ime), Prevzem.geo[ime])));
 
   osveziGlavo();
-  setInterval(() => { osveziGlavo(); Urnik.oznaciTrenutno(); }, 15000);
+  setInterval(osveziGlavo, 15000);
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
