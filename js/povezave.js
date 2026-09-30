@@ -175,7 +175,8 @@ const Povezave = (() => {
   function odpri() {
     $('#povezave').classList.add('odprt');
     $('#pov-zastor').classList.add('odprt');
-    $('#pov-url').focus();
+    // na dotik ne skočimo v polje — sicer se odpre tipkovnica in zakrije seznam
+    if (!matchMedia('(pointer:coarse)').matches) $('#pov-url').focus();
     vZivo();
   }
 

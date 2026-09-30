@@ -539,6 +539,8 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 
 /* ===================== DOTIK / OZKI ZASLONI ===================== */
 @media (pointer:coarse) {
+  /* iPhone poveča stran, ko se postaviš v polje s pisavo pod 16 px */
+  input, select, textarea { font-size:16px !important; }
   .znacka-ime { padding:9px 13px; font-size:13.5px; }
   .mini { width:38px; height:38px; }
 }
