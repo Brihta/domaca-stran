@@ -259,6 +259,31 @@ function poveziTipke() {
 }
 
 /* ------------------------------------------------------------------ *
+ * POSODOBITEV — tap na logotip naloži najnovejšo različico strani.
+ * Počisti predpomnilnik aplikacije in datoteke strani prenese na novo
+ * (GitHub Pages jih sicer pusti v brskalniku do 10 minut). Podatki v
+ * localStorage (okna, besedila, razred) ostanejo.
+ * ------------------------------------------------------------------ */
+async function posodobiStran() {
+  const logo = $('#osvezi');
+  if (logo.classList.contains('osvezujem')) return;
+  logo.classList.add('osvezujem');
+  obvesti('Posodabljam stran …');
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      await reg?.update();
+    }
+    if ('caches' in window) await Promise.all((await caches.keys()).map(k => caches.delete(k)));
+    const datoteke = [location.href.split('#')[0],
+      ...$$('script[src]').map(s => s.src), ...$$('link[rel="stylesheet"]').map(l => l.href), 'sw.js']
+      .filter(u => new URL(u, location.href).origin === location.origin);
+    await Promise.all(datoteke.map(u => fetch(u, { cache: 'reload' }).catch(() => {})));
+  } catch (_) {}
+  location.reload();
+}
+
+/* ------------------------------------------------------------------ *
  * ZAGON
  * ------------------------------------------------------------------ */
 function zagon() {
@@ -294,6 +319,8 @@ function zagon() {
   Zreb.povezi();
   poveziOrodja();
   poveziTipke();
+  $('#osvezi').addEventListener('click', posodobiStran);
+  $('#osvezi').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); posodobiStran(); } });
   Povezave.povezi();
 
   // postavitev z zadnjega obiska: pripomočki in odprta okna
