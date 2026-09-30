@@ -144,6 +144,23 @@ function poveziDok() {
   }));
   $$('.orodje[data-dodaj]').forEach(b => b.addEventListener('click', () => Platno.dodaj(b.dataset.dodaj)));
   $('.orodje[data-plosca]').addEventListener('click', () => Plosca.odpri());
+  // Telefon: spodaj le najpogostejša orodja, ⋯ odpre mrežo vseh.
+  // (Dok, ki se drsi vodoravno, se na iPhonu tepe s potegom za menjavo aplikacij.)
+  const dok = $('.dok'), vec = $('#dok-vec');
+  const razpri = da => {
+    dok.classList.toggle('razprt', da);
+    vec.dataset.ime = da ? 'Zapri' : 'Vsa orodja';
+    vec.querySelector('svg').outerHTML = ikona(da ? 'zapri' : 'vec');
+  };
+  vec.addEventListener('click', () => razpri(!dok.classList.contains('razprt')));
+  dok.addEventListener('click', e => {
+    if (dok.classList.contains('razprt') && e.target.closest('.orodje') && e.target !== vec && !vec.contains(e.target)) razpri(false);
+  });
+  document.addEventListener('pointerdown', e => {
+    if (dok.classList.contains('razprt') && !dok.contains(e.target)) razpri(false);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') razpri(false); });
+
   $('#pospravi').addEventListener('click', () => {
     if (!Prevzem.odprti.length && !Stanje.platno.length) { obvesti('Ni odprtih orodij.'); return; }
     if (!confirm('Zaprem vsa orodja? Besedila, slike in ankete na platnu bodo odstranjeni.')) return;

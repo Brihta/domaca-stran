@@ -441,8 +441,21 @@ const Okna = {
   obmocje() {
     const p = $('#platno'), cs = getComputedStyle(document.documentElement);
     const v = ime => parseFloat(cs.getPropertyValue(ime)) || 0;
-    const l = v('--rob-levo'), d = v('--rob-desno'), z = v('--rob-zgoraj'), s = v('--rob-spodaj');
+    const varno = this.varniRob();
+    const l = v('--rob-levo'), d = v('--rob-desno');
+    const z = v('--rob-zgoraj') + varno.z, s = v('--rob-spodaj') + varno.s;
     return { x: l, y: z, w: p.clientWidth - l - d, h: p.clientHeight - z - s };
+  },
+
+  /** Varni rob iPhona (ura in baterija zgoraj, pas za menjavo aplikacij spodaj). */
+  varniRob() {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+    document.body.appendChild(d);
+    const cs = getComputedStyle(d);
+    const r = { z: parseFloat(cs.paddingTop) || 0, s: parseFloat(cs.paddingBottom) || 0 };
+    d.remove();
+    return r;
   },
 
   /** Po spremembi velikosti zaslona (ali na telefonu) okno potegnemo nazaj v delovni prostor. */

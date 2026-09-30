@@ -87,7 +87,9 @@ body {
 .glava {
   position:absolute; top:0; left:0; right:0; z-index:12;
   display:flex; align-items:flex-start; gap:12px;
-  padding:16px 18px; pointer-events:none; flex-wrap:wrap;
+  /* env(): na iPhonu glava ne gre pod uro in baterijo */
+  padding:calc(16px + env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 16px max(18px, env(safe-area-inset-left));
+  pointer-events:none; flex-wrap:wrap;
 }
 .glava > * { pointer-events:auto; }
 
@@ -130,8 +132,9 @@ body {
   background:rgba(255,255,255,.14); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   border-radius:999px; box-shadow:0 6px 24px rgba(8,10,30,.18);
 }
-.dok-levo   { left:14px;  top:50%; transform:translateY(-50%); flex-direction:column; }
-.dok-desno  { right:14px; top:50%; transform:translateY(-50%); flex-direction:column; }
+.dok-vec { display:none; }
+.dok-levo   { left:max(14px, env(safe-area-inset-left)); top:50%; transform:translateY(-50%); flex-direction:column; }
+.dok-desno  { right:max(14px, env(safe-area-inset-right)); top:50%; transform:translateY(-50%); flex-direction:column; }
 .dok-spodaj { bottom:14px; left:50%; transform:translateX(-50%); }
 
 .orodje {
@@ -141,6 +144,7 @@ body {
   transition:transform .16s, box-shadow .16s;
 }
 .orodje svg { width:24px; height:24px; }
+a.orodje { text-decoration:none; }
 .orodje:hover { transform:scale(1.09); box-shadow:var(--senca-mv); }
 .orodje:active { transform:scale(.94); }
 /* odprto orodje: modra pika pod ikono */
@@ -248,7 +252,8 @@ body {
 }
 /* Čez ves prostor: zapolni prostor med glavo in doki — glava in orodja ostanejo vidna. */
 .prevzem.cel-zaslon {
-  top:var(--rob-zgoraj); right:var(--rob-desno); bottom:var(--rob-spodaj); left:var(--rob-levo);
+  top:calc(var(--rob-zgoraj) + env(safe-area-inset-top)); right:var(--rob-desno);
+  bottom:calc(var(--rob-spodaj) + env(safe-area-inset-bottom)); left:var(--rob-levo);
   width:auto; height:auto;
 }
 .prevzem.pomigaj { animation:pomigaj .45s ease; }
@@ -537,10 +542,12 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   .sola-pod { font-size:13px; font-weight:800; color:var(--text); margin:0; white-space:nowrap; }
 }
 
-/* Telefon: glava v eni vrsti, pozdrav pod njo, vsa orodja v drsnem doku spodaj. */
+/* Telefon: glava v eni vrsti, pozdrav pod njo; spodaj le najpogostejša orodja
+   in ⋯ za mrežo vseh. Dok se ne drsi — vodoravni poteg ob dnu je na iPhonu
+   menjava aplikacij — in stoji nad varnim robom. */
 @media (max-width:600px) {
-  :root { --rob-zgoraj:104px; --rob-levo:0px; --rob-desno:0px; --rob-spodaj:74px; }
-  .glava { display:grid; grid-template-columns:minmax(0,auto) 1fr auto; gap:8px 8px; padding:10px 12px; align-items:center; }
+  :root { --rob-zgoraj:104px; --rob-levo:0px; --rob-desno:0px; --rob-spodaj:78px; }
+  .glava { display:grid; grid-template-columns:minmax(0,auto) 1fr auto; gap:8px 8px; padding:calc(10px + env(safe-area-inset-top)) 12px 10px; align-items:center; }
   .sola { padding:5px 12px 5px 5px; gap:8px; min-width:0; }
   .sola > div { min-width:0; }
   .sola-pod { overflow:hidden; text-overflow:ellipsis; }
@@ -554,13 +561,40 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 
   .dok {
     position:fixed; left:0; right:0; bottom:0; z-index:30;
-    display:flex; gap:9px; overflow-x:auto; -webkit-overflow-scrolling:touch;
-    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    display:flex; justify-content:space-evenly; align-items:center;
+    padding:10px 12px calc(12px + env(safe-area-inset-bottom));
     background:rgba(14,12,36,.6); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
   }
   .dok-skupina { display:contents; }
-  .orodje { flex-shrink:0; width:48px; height:48px; }
+  .orodje { flex-shrink:0; width:52px; height:52px; }
   .orodje::after { display:none; }
+  .dok .orodje:not([data-telefon]) { display:none; }
+  .dok [data-telefon="1"] { order:1; }
+  .dok [data-telefon="2"] { order:2; }
+  .dok [data-telefon="3"] { order:3; }
+  .dok .orodje.dok-vec { display:flex; order:4; }
+
+  /* razprto: mreža vseh orodij z imeni */
+  .dok.razprt {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:10px 8px;
+    max-height:78vh; overflow-y:auto;
+    padding:18px 14px calc(16px + env(safe-area-inset-bottom));
+    background:var(--kartica); border-radius:24px 24px 0 0;
+    box-shadow:0 0 0 100vmax rgba(8,10,30,.5);
+  }
+  .dok.razprt .orodje {
+    display:flex; order:0; width:auto; height:auto; min-height:82px;
+    flex-direction:column; gap:6px; padding:12px 2px 10px;
+    border-radius:16px; background:var(--kartica-2); box-shadow:none;
+  }
+  .dok.razprt .orodje:hover { transform:none; }
+  .dok.razprt .orodje::after {
+    display:block; position:static; transform:none; opacity:1;
+    background:none; color:var(--text); box-shadow:none; padding:0 2px;
+    font-size:11.5px; line-height:1.15; white-space:normal; text-align:center;
+  }
+  .dok.razprt .dok-vec { order:99; }
+  .dok.razprt .orodje.on::before { bottom:auto; top:6px; left:auto; right:8px; transform:none; }
 }
 
 /* ===================== POVEZAVE ===================== */
