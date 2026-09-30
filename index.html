@@ -350,13 +350,15 @@
   </div>
   <div class="plosca-telo">
     <div class="pov-seznam" id="pov-seznam"></div>
-    <p class="namig skrit" id="pov-prazno">Še ni povezav. Dodaj jo spodaj — takoj se pokaže na vseh napravah.</p>
+    <p class="namig skrit" id="pov-prazno">Še ni povezav. Dodaj povezavo ali datoteko (📎) spodaj — takoj se pokaže na vseh napravah.</p>
   </div>
   <div class="plosca-noga pov-noga">
     <div class="pov-vnosi">
       <input class="vnos" type="url" id="pov-url" placeholder="https://…" autocomplete="off">
       <input class="vnos" type="text" id="pov-opis" placeholder="Opis (npr. Froggy gets dressed)" autocomplete="off">
     </div>
+    <button class="gumb gumb-s pov-dodaj pov-priloga" id="pov-priloga" title="Dodaj datoteko: PDF, Word, Excel, JPG ali PNG — lahko jo tudi povlečeš sem" aria-label="Dodaj datoteko"></button>
+    <input type="file" id="pov-datoteka" hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
     <button class="gumb gumb-p pov-dodaj" id="pov-dodaj" aria-label="Dodaj povezavo"></button>
   </div>
 </aside>

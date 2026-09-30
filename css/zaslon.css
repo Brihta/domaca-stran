@@ -612,6 +612,15 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .pov-dodaj { width:46px; height:46px; padding:0; justify-content:center; flex-shrink:0; }
 .pov-dodaj svg { width:19px; height:19px; }
 .pov-dodaj:disabled { opacity:.5; cursor:default; }
+.pov-priloga.nalagam svg { animation:utrip .9s ease-in-out infinite; }
+.pov-ikona {
+  width:34px; height:34px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(34,102,255,.1); color:var(--brand-blue-dk);
+}
+.pov-ikona svg { width:18px; height:18px; }
+/* datoteko spusti v ploščo */
+.povezave.spusti { box-shadow:0 22px 60px rgba(8,10,30,.42), inset 0 0 0 3px var(--brand-blue); }
 
 @media (max-width:600px) {
   .pov-vzivo { display:none; }
