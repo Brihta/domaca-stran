@@ -161,6 +161,20 @@ function poveziDok() {
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') razpri(false); });
 
+  // Evio ne dovoli prikaza znotraj druge strani (X-Frame-Options: SAMEORIGIN),
+  // zato se na računalniku odpre v majhnem ločenem oknu ob strani, ki ga lahko
+  // premikaš in mu spreminjaš velikost. Vedno isto okno ("evio"). Na telefonu
+  // oken ni — tam ostane navaden zavihek.
+  $('#evio').addEventListener('click', e => {
+    if (matchMedia('(max-width:600px), (pointer:coarse) and (hover:none)').matches) return;
+    const w = Math.min(1100, Math.round(screen.availWidth * 0.55));
+    const h = Math.round(screen.availHeight * 0.85);
+    const levo = (screen.availLeft || 0) + screen.availWidth - w - 20;
+    const zgoraj = (screen.availTop || 0) + Math.round((screen.availHeight - h) / 2);
+    const okno = window.open(e.currentTarget.href, 'evio', `popup,width=${w},height=${h},left=${levo},top=${zgoraj}`);
+    if (okno) { e.preventDefault(); okno.focus(); }
+  });
+
   $('#pospravi').addEventListener('click', () => {
     if (!Prevzem.odprti.length && !Stanje.platno.length) { obvesti('Ni odprtih orodij.'); return; }
     if (!confirm('Zaprem vsa orodja? Besedila, slike in ankete na platnu bodo odstranjeni.')) return;
