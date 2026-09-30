@@ -626,6 +626,32 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 }
 
 .pov-seznam { display:flex; flex-direction:column; gap:7px; }
+
+/* mape */
+.pov-mape { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.pov-mapa {
+  display:inline-flex; align-items:center; gap:6px; font-family:inherit; cursor:pointer;
+  font-size:13px; font-weight:700; padding:7px 12px; border-radius:999px;
+  background:#fff; border:1px solid var(--rob-md); color:var(--text2);
+}
+.pov-mapa b { font-size:11px; font-weight:800; color:var(--muted); }
+.pov-mapa.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
+.pov-mapa.on b { color:rgba(255,255,255,.8); }
+.pov-nova-mapa { border-style:dashed; color:var(--brand-blue-dk); }
+.pov-mapa-brisi {
+  width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:14px; line-height:1; background:rgba(20,30,60,.08); margin-right:-4px;
+}
+.pov-mapa-brisi:hover { background:var(--brand-red); color:#fff; }
+.pov-naslov {
+  font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.07em;
+  margin:8px 2px 0;
+}
+.pov-naslov:first-child { margin-top:0; }
+.pov-premakni { width:auto; max-width:110px; padding:5px 8px; font-size:12px; border-radius:9px; flex-shrink:0; }
+.pov-seznam.urejam .pov-postavka { cursor:default; }
+.pov-cilj { display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.pov-cilj .izbirnik { width:auto; flex:1; padding:6px 10px; font-size:13px; text-transform:none; letter-spacing:0; }
 .pov-postavka {
   position:relative; display:flex; align-items:center; gap:10px;
   padding:12px 14px; border-radius:14px; background:var(--kartica-2);

@@ -11,6 +11,8 @@ const Povezave = (() => {
   const BAZA = 'https://brihta-455eb-default-rtdb.europe-west1.firebasedatabase.app';
   const DB = `${BAZA}/brihta_feed`;
   const DATOTEKE = `${BAZA}/brihta_datoteke`;
+  const MAPE = `${BAZA}/brihta_mape`;          // skupni seznam map, enak na vseh napravah
+  const RAZNO = 'Razno';                        // vedno obstaja; sem gre vse brez mape
   const NAJVEC_MB = 8;
   /** Dovoljene vrste. PDF in slike se odprejo v zavihku, Word in Excel se prenesejo. */
   const VRSTE = {
@@ -29,6 +31,10 @@ const Povezave = (() => {
   const TA_STRAN = 'https://brihta.github.io/domaca-stran/';
 
   let postavke = [];
+  let mape = ['Sv. pop', 'Rač', RAZNO];
+  let izbranaMapa = Shramba.beri('povMapa', 'vse');   // filter, zapomni si ga vsaka naprava
+  /** Postavka brez mape ali v izbrisani mapi spada v Razno. */
+  const mapaOd = p => mape.includes(p.mapa) ? p.mapa : RAZNO;
   let urejam = false;
   let tok = null;       // EventSource, odprt le, ko je plošča odprta
 
@@ -36,36 +42,82 @@ const Povezave = (() => {
     ? Object.entries(podatki).map(([k, v]) => ({ _key: k, ...v })).sort((a, b) => a.ts - b.ts)
     : [];
 
+  function postavkaHtml(p) {
+    // med urejanjem postavka ni povezava — da klik na izbiro mape ne odpre strani
+    const oznaka = urejam ? 'div' : 'a';
+    const premakni = urejam
+      ? `<select class="izbirnik pov-premakni" data-kljuc="${ubezi(p._key)}" aria-label="Premakni v mapo">
+           ${mape.map(m => `<option${m === mapaOd(p) ? ' selected' : ''}>${ubezi(m)}</option>`).join('')}</select>` : '';
+    const brisi = `<button class="pov-brisi" data-kljuc="${ubezi(p._key)}" aria-label="Izbriši">${ikona('zapri')}</button>`;
+    if (p.datoteka) return `
+      <${oznaka} class="pov-postavka pov-datoteka" ${urejam ? '' : 'href="#"'} data-datoteka="${ubezi(p.datoteka)}"
+         data-ime="${ubezi(p.ime || 'datoteka')}" data-tip="${ubezi(p.tip || '')}">
+        <span class="pov-ikona">${ikona('sponka')}</span>
+        <span class="pov-besedilo">
+          <span class="pov-opis">${ubezi(p.desc || p.ime || '')}</span>
+          <span class="pov-url">${ubezi(opisDatoteke(p))}</span>
+        </span>
+        <span class="pov-puscica">›</span>${premakni}${brisi}
+      </${oznaka}>`;
+    let gostitelj = p.url;
+    try { gostitelj = new URL(p.url).hostname.replace(/^www\./, ''); } catch (_) {}
+    return `
+      <${oznaka} class="pov-postavka" ${urejam ? '' : `href="${ubezi(p.url)}" target="_blank" rel="noopener noreferrer"`}>
+        <span class="pov-besedilo">
+          <span class="pov-opis">${ubezi(p.desc || '')}</span>
+          <span class="pov-url">${ubezi(gostitelj)}</span>
+        </span>
+        <span class="pov-puscica">›</span>${premakni}${brisi}
+      </${oznaka}>`;
+  }
+
   function izris() {
+    if (izbranaMapa !== 'vse' && !mape.includes(izbranaMapa)) izbranaMapa = 'vse';
     const seznam = $('#pov-seznam');
     seznam.classList.toggle('urejam', urejam);
     $('#pov-pika').classList.toggle('skrit', !postavke.length);
-    $('#pov-prazno').classList.toggle('skrit', postavke.length > 0);
 
-    seznam.innerHTML = [...postavke].reverse().map(p => {
-      if (p.datoteka) return `
-        <a class="pov-postavka pov-datoteka" href="#" data-datoteka="${ubezi(p.datoteka)}"
-           data-ime="${ubezi(p.ime || 'datoteka')}" data-tip="${ubezi(p.tip || '')}">
-          <span class="pov-ikona">${ikona('sponka')}</span>
-          <span class="pov-besedilo">
-            <span class="pov-opis">${ubezi(p.desc || p.ime || '')}</span>
-            <span class="pov-url">${ubezi(opisDatoteke(p))}</span>
-          </span>
-          <span class="pov-puscica">›</span>
-          <button class="pov-brisi" data-kljuc="${ubezi(p._key)}" aria-label="Izbriši">${ikona('zapri')}</button>
-        </a>`;
-      let gostitelj = p.url;
-      try { gostitelj = new URL(p.url).hostname.replace(/^www\./, ''); } catch (_) {}
-      return `
-        <a class="pov-postavka" href="${ubezi(p.url)}" target="_blank" rel="noopener noreferrer">
-          <span class="pov-besedilo">
-            <span class="pov-opis">${ubezi(p.desc || '')}</span>
-            <span class="pov-url">${ubezi(gostitelj)}</span>
-          </span>
-          <span class="pov-puscica">›</span>
-          <button class="pov-brisi" data-kljuc="${ubezi(p._key)}" aria-label="Izbriši">${ikona('zapri')}</button>
-        </a>`;
-    }).join('');
+    // gumbi map s številom postavk; med urejanjem še × in + Mapa
+    const koliko = m => postavke.filter(p => mapaOd(p) === m).length;
+    $('#pov-mape').innerHTML =
+      `<button class="pov-mapa${izbranaMapa === 'vse' ? ' on' : ''}" data-mapa="vse">Vse <b>${postavke.length}</b></button>` +
+      mape.map(m => `
+        <button class="pov-mapa${izbranaMapa === m ? ' on' : ''}" data-mapa="${ubezi(m)}">${ubezi(m)} <b>${koliko(m)}</b>${
+          urejam && m !== RAZNO ? `<span class="pov-mapa-brisi" data-brisi-mapo="${ubezi(m)}" aria-label="Izbriši mapo">×</span>` : ''}</button>`).join('') +
+      (urejam ? '<button class="pov-mapa pov-nova-mapa" id="pov-nova-mapa">+ Mapa</button>' : '');
+
+    // mapa, v katero gre nova povezava: odprta mapa, sicer Razno
+    const cilj = $('#pov-cilj');
+    cilj.innerHTML = mape.map(m => `<option>${ubezi(m)}</option>`).join('');
+    cilj.value = izbranaMapa !== 'vse' ? izbranaMapa : RAZNO;
+
+    const novejsePrej = [...postavke].reverse();
+    if (izbranaMapa === 'vse') {
+      seznam.innerHTML = mape.map(m => {
+        const v = novejsePrej.filter(p => mapaOd(p) === m);
+        return v.length ? `<h4 class="pov-naslov">${ubezi(m)}</h4>` + v.map(postavkaHtml).join('') : '';
+      }).join('');
+    } else {
+      seznam.innerHTML = novejsePrej.filter(p => mapaOd(p) === izbranaMapa).map(postavkaHtml).join('');
+    }
+    const prazno = $('#pov-prazno');
+    prazno.classList.toggle('skrit', !!seznam.innerHTML.trim());
+    prazno.textContent = postavke.length
+      ? 'V tej mapi še ni ničesar. Dodaj povezavo ali datoteko (📎) spodaj.'
+      : 'Še ni povezav. Dodaj povezavo ali datoteko (📎) spodaj — takoj se pokaže na vseh napravah.';
+  }
+
+  async function naloziMape() {
+    try {
+      const m = await (await fetch(`${MAPE}.json`, { cache: 'no-store' })).json();
+      if (Array.isArray(m) && m.length) mape = m.includes(RAZNO) ? m : [...m, RAZNO];
+      izris();
+    } catch (_) {}
+  }
+  async function shraniMape() {
+    try {
+      await fetch(`${MAPE}.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(mape) });
+    } catch (_) { obvesti('Map ni bilo mogoče shraniti.'); }
   }
 
   function opisDatoteke(p) {
@@ -126,7 +178,7 @@ const Povezave = (() => {
       const opis = $('#pov-opis').value.trim() || dat.name.replace(/\.[^.]+$/, '');
       const o2 = await fetch(`${DB}.json`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: TA_STRAN, desc: opis, ts: Date.now(),
+        body: JSON.stringify({ url: TA_STRAN, desc: opis, ts: Date.now(), mapa: $('#pov-cilj').value,
                                datoteka: kljuc, ime: dat.name, tip: VRSTE[koncnica(dat.name)].tip, velikost: dat.size }),
       });
       if (!o2.ok) throw new Error(o2.status);
@@ -177,6 +229,7 @@ const Povezave = (() => {
     $('#pov-zastor').classList.add('odprt');
     // na dotik ne skočimo v polje — sicer se odpre tipkovnica in zakrije seznam
     if (!matchMedia('(pointer:coarse)').matches) $('#pov-url').focus();
+    naloziMape();
     vZivo();
   }
 
@@ -201,7 +254,7 @@ const Povezave = (() => {
       const odziv = await fetch(`${DB}.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, desc, ts: Date.now() }),
+        body: JSON.stringify({ url, desc, ts: Date.now(), mapa: $('#pov-cilj').value }),
       });
       if (!odziv.ok) throw new Error(odziv.status);
       $('#pov-url').value = '';
@@ -247,7 +300,7 @@ const Povezave = (() => {
       const brisi = e.target.closest('.pov-brisi');
       if (!brisi) {
         const dat = e.target.closest('.pov-datoteka');
-        if (dat) { e.preventDefault(); odpriDatoteko(dat); }
+        if (dat && !urejam) { e.preventDefault(); odpriDatoteko(dat); }
         return;
       }
       e.preventDefault(); e.stopPropagation();
@@ -259,6 +312,46 @@ const Povezave = (() => {
       } catch (_) { obvesti('Brisanje ni uspelo.'); }
     });
 
+    // premik postavke v drugo mapo
+    $('#pov-seznam').addEventListener('change', async e => {
+      const s = e.target.closest('.pov-premakni');
+      if (!s) return;
+      try {
+        await fetch(`${DB}/${s.dataset.kljuc}.json`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mapa: s.value }),
+        });
+      } catch (_) { obvesti('Premik ni uspel.'); }
+    });
+
+    // mape: izbira, brisanje, nova
+    $('#pov-mape').addEventListener('click', async e => {
+      const brisiMapo = e.target.closest('[data-brisi-mapo]');
+      if (brisiMapo) {
+        const m = brisiMapo.dataset.brisiMapo;
+        if (!confirm(`Izbrišem mapo „${m}"? Njena vsebina gre v „${RAZNO}".`)) return;
+        mape = mape.filter(x => x !== m);
+        if (izbranaMapa === m) izbranaMapa = 'vse';
+        izris(); await shraniMape();
+        return;
+      }
+      if (e.target.closest('#pov-nova-mapa')) {
+        const ime = (prompt('Ime nove mape (npr. Sv. pop, Rač, SLJ):') || '').trim();
+        if (!ime) return;
+        if (mape.includes(ime)) { obvesti('Ta mapa že obstaja.'); return; }
+        mape.splice(mape.indexOf(RAZNO), 0, ime);   // Razno ostane zadnja
+        izbranaMapa = ime;
+        Shramba.pisi('povMapa', izbranaMapa);
+        izris(); await shraniMape();
+        return;
+      }
+      const g = e.target.closest('[data-mapa]');
+      if (!g) return;
+      izbranaMapa = g.dataset.mapa;
+      Shramba.pisi('povMapa', izbranaMapa);
+      izris();
+    });
+
+    naloziMape();
     naloziEnkrat();   // da pika na gumbu pove, ali so povezave
   }
 
