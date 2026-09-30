@@ -246,6 +246,8 @@ a.orodje { text-decoration:none; }
 /* --- slika --- */
 .pw-slika { flex:1; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .pw-slika img { max-width:100%; max-height:100%; object-fit:contain; border-radius:12px; }
+.pw-slika-prazno { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center; text-align:center; }
+.pw-slika-prazno .namig { flex-basis:100%; }
 
 /* ===================== PREVZEM ===================== */
 .prevzem {

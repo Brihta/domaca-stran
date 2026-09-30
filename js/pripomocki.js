@@ -213,6 +213,30 @@ Platno.registriraj('slika', {
       img.src = URL.createObjectURL(blob);
       img.alt = 'Slika na platnu';
       polje.innerHTML = ''; polje.appendChild(img);
+      return img;
+    };
+
+    /** Nova vsebina okna (iz datoteke ali odložišča); stara slika gre iz shrambe.
+        prilagodi: okno dobi obliko slike — za posnetke zaslona, npr. urnik. */
+    zapis.nastaviSliko = async (blob, prilagodi = false) => {
+      if (blob.size > 8 * 1024 * 1024) { obvesti('Slika je prevelika (največ 8 MB).'); return; }
+      if (p.slikaId) Slike.brisi(p.slikaId);
+      p.slikaId = novId();
+      await Slike.shrani(p.slikaId, blob);
+      shraniStanje();
+      const img = pokazi(blob);
+      if (!prilagodi) return;
+      await img.decode().catch(() => {});
+      const o = Okna.obmocje();
+      const razmerje = img.naturalWidth / Math.max(1, img.naturalHeight);
+      let w = Math.min(img.naturalWidth + 24, o.w * 0.9), h = w / razmerje + 50;
+      if (h > o.h * 0.9) { h = o.h * 0.9; w = (h - 50) * razmerje; }
+      // povečano okno na sredino delovnega prostora (med doki, pod glavo)
+      Object.assign(zapis, { w: Math.round(w), h: Math.round(h),
+        x: Math.round(o.x + (o.w - w) / 2), y: Math.round(o.y + (o.h - h) / 2) });
+      Okna.vObmocje(zapis, 180, 120);
+      Object.assign(zapis.el.style, { left: zapis.x + 'px', top: zapis.y + 'px', width: zapis.w + 'px', height: zapis.h + 'px' });
+      shraniStanje();
     };
 
     if (p.slikaId) {
@@ -220,17 +244,27 @@ Platno.registriraj('slika', {
         `<p class="namig">Slike ni več v shrambi.</p>`);
     } else {
       polje.innerHTML = `
-        <label class="gumb gumb-s" style="cursor:pointer;">
-          ${ikona('slika')} Izberi sliko
-          <input type="file" accept="image/*" hidden>
-        </label>`;
-      polje.querySelector('input').addEventListener('change', async e => {
-        const dat = e.target.files[0];
-        if (!dat) return;
-        if (dat.size > 8 * 1024 * 1024) { obvesti('Slika je prevelika (največ 8 MB).'); return; }
-        p.slikaId = novId();
-        await Slike.shrani(p.slikaId, dat);
-        shraniStanje(); pokazi(dat);
+        <div class="pw-slika-prazno">
+          <label class="gumb gumb-s" style="cursor:pointer;">
+            ${ikona('slika')} Izberi sliko
+            <input type="file" accept="image/*" hidden>
+          </label>
+          <button class="gumb gumb-s pw-prilepi">Prilepi</button>
+          <p class="namig">ali posnetek zaslona prilepi s ⌘V / Ctrl+V</p>
+        </div>`;
+      polje.querySelector('input').addEventListener('change', e => {
+        if (e.target.files[0]) zapis.nastaviSliko(e.target.files[0]);
+      });
+      polje.querySelector('.pw-prilepi').addEventListener('click', async () => {
+        try {
+          for (const kos of await navigator.clipboard.read()) {
+            const tip = kos.types.find(t => t.startsWith('image/'));
+            if (tip) { zapis.nastaviSliko(await kos.getType(tip), true); return; }
+          }
+          obvesti('V odložišču ni slike — najprej naredi posnetek zaslona.');
+        } catch (_) {
+          obvesti('Brskalnik ne dovoli branja odložišča — pritisni ⌘V / Ctrl+V.');
+        }
       });
     }
   },

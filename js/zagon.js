@@ -262,6 +262,21 @@ function poveziPremikIzbirnika() {
   rocaj.addEventListener('pointercancel', konec);
 }
 
+/** ⌘V / Ctrl+V s sliko v odložišču: v izbrano okno Slika (zamenja staro)
+    ali v novo okno, ki se prilagodi obliki slike. */
+function poveziLepljenje() {
+  document.addEventListener('paste', async e => {
+    if (e.target.closest?.('input, textarea, [contenteditable]')) return;
+    const dat = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith('image/'));
+    if (!dat) return;
+    e.preventDefault();
+    const izbrana = Stanje.platno.find(p => p.tip === 'slika' && p.el?.classList.contains('izbran'));
+    const cilj = izbrana || Platno.dodaj('slika');
+    await cilj.nastaviSliko(dat, !izbrana);
+    obvesti(izbrana ? 'Slika zamenjana.' : 'Slika prilepljena.');
+  });
+}
+
 function poveziTipke() {
   document.addEventListener('keydown', e => {
     if (e.target.matches('input, textarea, [contenteditable]')) return;
@@ -333,6 +348,7 @@ function zagon() {
   Zreb.povezi();
   poveziOrodja();
   poveziTipke();
+  poveziLepljenje();
   $('#osvezi').addEventListener('click', posodobiStran);
   $('#osvezi').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); posodobiStran(); } });
   Povezave.povezi();
