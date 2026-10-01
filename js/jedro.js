@@ -25,6 +25,8 @@ const IKONE = {
   vec:      '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   nastavi:  '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
   zapri:    '<path d="M18 6 6 18M6 6l12 12"/>',
+  celzaslon:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  okno:     '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
   igraj:    '<path d="M7 4v16l13-8z"/>',
   premor:   '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
   ponastavi:'<path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/>',
@@ -369,6 +371,7 @@ const Platno = {
       <div class="pw-glava">
         <span class="pw-naslov">${ubezi(opis.naslov)}</span>
         <div class="pw-gumbi">
+          ${opis.celZaslon ? `<button class="pw-gumb cel" aria-label="Čez cel zaslon" title="Čez cel zaslon">${ikona('celzaslon')}</button>` : ''}
           <button class="pw-gumb zapri" aria-label="Zapri ${ubezi(opis.naslov)}">${ikona('zapri')}</button>
         </div>
       </div>
@@ -380,6 +383,7 @@ const Platno = {
     opis.izris(el.querySelector('.pw-telo'), zapis);
 
     el.querySelector('.zapri').addEventListener('click', () => this.odstrani(zapis.id));
+    el.querySelector('.pw-gumb.cel')?.addEventListener('click', () => this.preklopiCelZaslon(el));
     el.addEventListener('pointerdown', () => Okna.vOspredje(el));
     this._omogociVlecenje(el, zapis);
     this._omogociVelikost(el, zapis);
@@ -387,12 +391,50 @@ const Platno = {
   },
 
   _omogociVlecenje(el, zapis) {
-    Vleci.premik(el.querySelector('.pw-glava'), el, zapis, () => shraniStanje(), '.pw-gumb');
+    Vleci.premik(el.querySelector('.pw-glava'), el, zapis, () => shraniStanje(), '.pw-gumb',
+                 () => !el.classList.contains('cel-zaslon'));
   },
 
   _omogociVelikost(el, zapis) {
     Vleci.velikost(el.querySelector('.pw-rocaj'), el, zapis, () => shraniStanje(),
-                   180, 120, () => this.tipi[zapis.tip].obVelikosti?.(zapis));
+                   180, 120, () => this.tipi[zapis.tip].obVelikosti?.(zapis),
+                   () => !el.classList.contains('cel-zaslon'));
+  },
+
+  /** Okno čez cel zaslon (brez brskalnika, glave in dokov), da ga vidi ves razred.
+      Kjer brskalnik tega ne zna (iPhone), okno vsaj prekrije celo stran. */
+  preklopiCelZaslon(el) {
+    const zahtevaj = el.requestFullscreen || el.webkitRequestFullscreen;
+    const izhod = document.exitFullscreen || document.webkitExitFullscreen;
+    const trenutni = document.fullscreenElement || document.webkitFullscreenElement;
+    if (el.classList.contains('cel-zaslon')) {
+      if (trenutni === el) izhod.call(document);
+      else this._oznaciCelZaslon(el, false);
+      return;
+    }
+    this._oznaciCelZaslon(el, true);
+    if (zahtevaj) {
+      Promise.resolve(zahtevaj.call(el)).catch(() => {});
+      const obIzhodu = () => {
+        if ((document.fullscreenElement || document.webkitFullscreenElement) === el) return;
+        this._oznaciCelZaslon(el, false);
+        document.removeEventListener('fullscreenchange', obIzhodu);
+        document.removeEventListener('webkitfullscreenchange', obIzhodu);
+      };
+      document.addEventListener('fullscreenchange', obIzhodu);
+      document.addEventListener('webkitfullscreenchange', obIzhodu);
+    }
+  },
+
+  _oznaciCelZaslon(el, cel) {
+    el.classList.toggle('cel-zaslon', cel);
+    // platno je svoj sloj pod glavo in doki — med celim zaslonom gre nad njih
+    document.body.classList.toggle('pripomocek-cel', !!$('.pw.cel-zaslon'));
+    const b = el.querySelector('.pw-gumb.cel');
+    if (!b) return;
+    b.innerHTML = ikona(cel ? 'okno' : 'celzaslon');
+    b.title = cel ? 'Nazaj v okno (Esc)' : 'Čez cel zaslon';
+    b.setAttribute('aria-label', b.title);
   },
 
   odstrani(id) {

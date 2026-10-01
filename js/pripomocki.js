@@ -203,6 +203,7 @@ Platno.registriraj('kocka', {
 Platno.registriraj('slika', {
   naslov: 'Slika',
   velikost: [340, 260],
+  celZaslon: true,
   izris(telo, zapis) {
     const p = zapis.podatki;
     telo.innerHTML = `<div class="pw-slika"></div>`;

@@ -202,6 +202,17 @@ a.orodje { text-decoration:none; }
 .pw:hover .pw-gumb, .pw.izbran .pw-gumb { opacity:1; }
 .pw-gumb:hover { background:var(--brand-red); color:#fff; }
 .pw-gumb svg { width:13px; height:13px; }
+.pw-gumb.cel:hover { background:var(--brand-blue); }
+/* čez cel zaslon: brskalnik ga postavi čez vse; brez podpore (iPhone) prekrije stran */
+.pw.cel-zaslon {
+  position:fixed !important; inset:0 !important; width:100% !important; height:100% !important;
+  border-radius:0; z-index:1000 !important; background:#fff;
+}
+.pw.cel-zaslon .pw-gumb { opacity:1; }
+.pw.cel-zaslon .pw-rocaj { display:none; }
+.pw.cel-zaslon .pw-glava { cursor:default; }
+.pw::backdrop { background:#fff; }
+body.pripomocek-cel #platno { z-index:999; }
 
 .pw-telo { flex:1; overflow:auto; padding:34px 18px 18px; display:flex; flex-direction:column; }
 .pw-rocaj {
@@ -739,7 +750,8 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .bm-izbor .bm-n { width:25px; }
 .bm-izbor .vnos { width:130px; padding:7px 10px; font-size:13.5px; border-radius:10px; }
 .bm-izbor .bm-brisi:hover { background:var(--brand-red); border-color:var(--brand-red); color:#fff; }
-.bm-razveljavi { position:absolute; right:22px; bottom:20px; z-index:4; background:rgba(255,255,255,.9); }
+.bm-plavajoce { position:absolute; right:22px; bottom:20px; z-index:4; display:flex; gap:5px; }
+.bm-plavajoce .mini { background:rgba(255,255,255,.92); }
 .bm-izbor .namig { font-size:12px; flex-shrink:1; overflow:hidden; text-overflow:ellipsis; }
 .bm-napis { font-size:10.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:0 2px; }
 .bm-loc { width:1px; height:22px; background:var(--rob-md); margin:0 3px; }

@@ -18,6 +18,7 @@ const VISINA_TRAKU = 64;      // enot
 const NAJMANJ_DEL = 8;        // najožji del v enotah
 const LEPLJENJE_PX = 12;      // kako blizu mora biti rob, da se prilepi
 const PRAG_PREMIKA = 5;       // px, preden klik postane vlečenje
+const POVECAVA = [0.6, 3];    // najmanjša in največja povečava
 
 /** Na svetli barvi temno besedilo, na temni belo. */
 function jeSvetla(hex) {
@@ -67,6 +68,7 @@ function pretvoriStariModel(p) {
 Platno.registriraj('trakci', {
   naslov: 'Trakci',
   velikost: [880, 500],
+  celZaslon: true,
 
   izris(telo, zapis) {
     const p = zapis.podatki;
@@ -83,7 +85,11 @@ Platno.registriraj('trakci', {
     telo.innerHTML = `
       <div class="bm-izbor"></div>
       <div class="bm-platno"><div class="bm-svet" tabindex="-1"></div></div>
-      <button class="mini bm-razveljavi" title="Razveljavi (Ctrl+Z)" aria-label="Razveljavi">${ikona('ponastavi')}</button>`;
+      <div class="bm-plavajoce">
+        <button class="mini" data-povecava="-1" title="Pomanjšaj" aria-label="Pomanjšaj">${ikona('minus')}</button>
+        <button class="mini" data-povecava="1" title="Povečaj" aria-label="Povečaj">${ikona('plus')}</button>
+        <button class="mini bm-razveljavi" title="Razveljavi (Ctrl+Z)" aria-label="Razveljavi">${ikona('ponastavi')}</button>
+      </div>`;
 
     const $t = q => telo.querySelector(q);
     const platno = $t('.bm-platno');
@@ -119,7 +125,7 @@ Platno.registriraj('trakci', {
     /* ---------------- izris ---------------- */
 
     function risi() {
-      s = Math.max(0.25, platno.clientWidth / SIRINA_PLATNA);
+      s = Math.max(0.25, platno.clientWidth / SIRINA_PLATNA) * (p.povecava || 1);
       const H = VISINA_TRAKU * s;
       const pisavaOk = Math.max(11, 19 * s);
       const ravnina = Math.round(pisavaOk * 1.35 + 20);   // višina ene vrste oklepajev
@@ -530,6 +536,8 @@ Platno.registriraj('trakci', {
     telo.addEventListener('keydown', e => {
       if (e.target.matches('input')) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); razveljaviZadnje(); }
+      else if (e.key === '+' || e.key === '=') povecaj(1.2);
+      else if (e.key === '-') povecaj(1 / 1.2);
       else if (e.key === 'Escape') izberi(null);
       else if ((e.key === 'Delete' || e.key === 'Backspace') && izbor) {
         e.preventDefault();
@@ -540,6 +548,27 @@ Platno.registriraj('trakci', {
     });
 
     $t('.bm-razveljavi').addEventListener('click', razveljaviZadnje);
+
+    /** Povečava ostane središčena — kar je bilo na sredini platna, ostane tam. */
+    function povecaj(faktor) {
+      const prej = p.povecava || 1;
+      const nova = Math.min(POVECAVA[1], Math.max(POVECAVA[0], Math.round(prej * faktor * 100) / 100));
+      if (nova === prej) return;
+      const k = nova / prej;
+      const cx = platno.scrollLeft + platno.clientWidth / 2, cy = platno.scrollTop + platno.clientHeight / 2;
+      p.povecava = nova;
+      shrani(); risi();
+      platno.scrollLeft = cx * k - platno.clientWidth / 2;
+      platno.scrollTop = cy * k - platno.clientHeight / 2;
+    }
+    telo.querySelectorAll('[data-povecava]').forEach(b =>
+      b.addEventListener('click', () => povecaj(b.dataset.povecava > 0 ? 1.2 : 1 / 1.2)));
+    // Ctrl + kolešček ali uščip na sledilni ploščici
+    platno.addEventListener('wheel', e => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      povecaj(Math.exp(-e.deltaY / 200));
+    }, { passive: false });
 
     // merilo se prilagodi širini okna
     let zadnjaSirina = 0;
