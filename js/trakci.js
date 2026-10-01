@@ -1,20 +1,23 @@
 /* =====================================================================
    Razredni zaslon — Trakci (tračni modeli, singapurska metoda)
-   Trakovi iz delov, oklepaji z oznakami nad in pod deli, več trakov
-   drug pod drugim in stolpec za račun.
-
-   Vse se ureja neposredno na modelu:
-   · meje med deli vlečeš (in se prilepijo na meje drugih trakov),
-   · čez več delov povlečeš, da jih izbereš skupaj,
-   · trak premakneš za ročico ⋮.
-   Širine so v enotah — vsi trakovi imajo isto merilo, zato se deli
-   različnih trakov lahko natanko poravnajo.
+   Prosto platno, vse se ureja neposredno na modelu:
+   · povleci po praznem platnu, da narišeš nov trak,
+   · trak primeš za katerikoli del in ga prosto premakneš
+     (prilepi se tik pod, nad ali ob druge trakove, brez razmika),
+   · meje med deli in konca traku vlečeš za širino,
+   · izbran trak ali del razdeliš na enake dele z enim klikom,
+   · oznake na delih, ime traku in oklepaji z oznako nad ali pod deli.
+   Koordinate so v enotah platna (širina = 1000), zato se model ob
+   spremembi velikosti okna le sorazmerno poveča ali zmanjša.
    ===================================================================== */
 'use strict';
 
-const BARVE_TRAKOV = ['#F9A65A', '#F47C7C', '#29B6E0', '#9B7BD0', '#7CC576', '#F7D154', '#F48FB1', '#FFFFFF'];
-const NAJMANJ_DEL = 0.2;      // najožji del v enotah
-const LEPLJENJE_PX = 14;      // kako blizu mora biti meja, da se prilepi
+const BARVE_TRAKOV = ['#29B6E0', '#F9A65A', '#F47C7C', '#9B7BD0', '#7CC576', '#F7D154', '#F48FB1', '#FFFFFF'];
+const SIRINA_PLATNA = 1000;   // enot čez celo širino
+const VISINA_TRAKU = 64;      // enot
+const NAJMANJ_DEL = 8;        // najožji del v enotah
+const LEPLJENJE_PX = 12;      // kako blizu mora biti rob, da se prilepi
+const PRAG_PREMIKA = 5;       // px, preden klik postane vlečenje
 
 /** Na svetli barvi temno besedilo, na temni belo. */
 function jeSvetla(hex) {
@@ -25,67 +28,10 @@ function jeSvetla(hex) {
 /** "1/3 ostanka" -> ulomek s števcem nad imenovalcem. */
 const oznakaHtml = s => ubezi(s).replace(/(\d+)\s*\/\s*(\d+)/g, '<span class="ulomek"><b>$1</b><i>$2</i></span>');
 
-const zaokrozi = x => Math.round(x * 1000) / 1000;
+const zaokrozi = x => Math.round(x * 100) / 100;
 const del = (w, oznaka = '', barva = BARVE_TRAKOV[0]) => ({ w, oznaka, barva });
-const oklepaj = (od, doo, oznaka, stran = 'zgoraj', slog = 'oklepaj') => ({ od, do: doo, oznaka, stran, slog });
-const trak = (deli, oklepaji = [], ime = '', zamik = 0) => ({ ime, zamik, deli, oklepaji });
-
-const PREDLOGE_TRAKOV = {
-  delcelota: {
-    ime: 'Del + del = celota',
-    // celota je svoj pravokotnik nad deli, enako dolg kot vsi deli skupaj
-    model: () => ({
-      trakovi: [trak([del(5, 'Celota', '#29B6E0')]), trak([del(3, 'Del', '#F9A65A'), del(2, 'Del', '#F47C7C')])],
-      racun: '',
-    }),
-  },
-  primerjava: {
-    ime: 'Primerjava',
-    model: () => ({
-      trakovi: [
-        trak([del(5, '20', '#29B6E0')], [], 'Ana'),
-        trak([del(2, '8', '#9B7BD0'), del(3, '?', '#FFFFFF')], [oklepaj(1, 1, 'razlika', 'spodaj')], 'Bor'),
-      ],
-      racun: '20 − 8 = 12',
-    }),
-  },
-  enaki: {
-    ime: 'Enaki deli',
-    model: () => ({
-      trakovi: [trak(Array.from({ length: 4 }, () => del(1, '5', '#7CC576')), [oklepaj(0, 3, '?', 'zgoraj')])],
-      racun: '4 · 5 = 20',
-    }),
-  },
-  ostanek: {
-    ime: 'Ulomek ostanka',
-    // Kmet je prvi dan prodal 1/3 krompirja in še 2 kg, drugi dan 1/2 ostanka in še 3 kg,
-    // tretji dan zadnjih 15 kg. Kot v singapurskih modelih ni v merilu, a tretjine
-    // (19 enot) in polovici ostanka (17 enot) sta natančni.
-    model: () => ({
-      trakovi: [
-        trak([del(19, '1/3', '#F9A65A'), del(4, '2 kg', '#F47C7C'), del(15, '', '#29B6E0'), del(19, '', '#29B6E0')],
-             [oklepaj(0, 3, '? kg', 'zgoraj'), oklepaj(0, 1, '1. dan', 'spodaj'), oklepaj(2, 3, 'ostanek', 'spodaj')]),
-        trak([del(17, '1/2', '#F9A65A'), del(4, '3 kg', '#F47C7C'), del(13, '15 kg', '#7CC576')],
-             [oklepaj(0, 1, '2. dan', 'spodaj'), oklepaj(2, 2, '3. dan', 'spodaj')], '', 23),
-      ],
-      racun: '15 + 3 = 18\n18 · 2 = 36\n36 + 2 = 38\n38 : 2 = 19\n19 · 3 = 57 kg',
-      pokaziRacun: true,
-    }),
-  },
-  prejpotem: {
-    ime: 'Prej in potem',
-    model: () => ({
-      trakovi: [
-        trak([del(15, '15', '#F48FB1'), del(15, '15', '#F48FB1'), del(15, '15', '#F48FB1')],
-             [oklepaj(0, 2, '45', 'zgoraj'), oklepaj(0, 0, 'ostanek', 'spodaj'), oklepaj(1, 2, 'sestra', 'spodaj')], 'Prej'),
-        trak(Array.from({ length: 5 }, () => del(3, '3', '#F48FB1')),
-             [oklepaj(0, 2, 'pojedel', 'spodaj'), oklepaj(3, 4, 'ostalo', 'spodaj')], 'Potem'),
-      ],
-      racun: '6 : 2 = 3\n5 · 3 = 15\n15 · 3 = 45',
-      pokaziRacun: true,
-    }),
-  },
-};
+const oklepaj = (od, doo, oznaka, stran = 'zgoraj') => ({ od, do: doo, oznaka, stran });
+const dolzina = t => t.deli.reduce((s, d) => s + d.w, 0);
 
 /** Zavit oklepaj (konici spodaj, vrh zgoraj) ali puščica ↔, širok W. */
 function potOklepaja(W, slog) {
@@ -97,158 +43,170 @@ function potOklepaja(W, slog) {
   return `M1 ${h}Q1 ${s} ${1 + r} ${s}L${m - r} ${s}Q${m} ${s} ${m} 1Q${m} ${s} ${m + r} ${s}L${W - 1 - r} ${s}Q${W - 1} ${s} ${W - 1} ${h}`;
 }
 
+/** Modeli iz prejšnje različice (trakovi v vrstah, širine v enotah) -> prosto platno. */
+function pretvoriStariModel(p) {
+  const stari = p.trakovi || [];
+  const konec = Math.max(1, ...stari.map(t => (t.zamik || 0) + dolzina(t)));
+  const k = 740 / konec;
+  let y = 30;
+  p.trakovi = stari.map(t => {
+    const ima = stran => (t.oklepaji || []).some(o => o.stran === stran);
+    if (ima('zgoraj')) y += 50;
+    const nov = {
+      x: zaokrozi(180 + (t.zamik || 0) * k), y, ime: t.ime || '',
+      deli: t.deli.map(d => del(zaokrozi(d.w * k), d.oznaka, d.barva)),
+      oklepaji: (t.oklepaji || []).map(o => ({ ...o })),
+    };
+    y += VISINA_TRAKU + (ima('spodaj') ? 50 : 0);
+    return nov;
+  });
+  ['racun', 'pokaziRacun', 'urejam', 'pisava'].forEach(k => delete p[k]);
+  p.v = 2;
+}
+
 Platno.registriraj('trakci', {
   naslov: 'Trakci',
-  velikost: [760, 440],
+  velikost: [880, 500],
 
   izris(telo, zapis) {
     const p = zapis.podatki;
-    if (!p.trakovi) Object.assign(p, PREDLOGE_TRAKOV.delcelota.model());
-    p.pisava = p.pisava || 1;
-    if (p.urejam === undefined) p.urejam = true;
+    if (p.v !== 2) { if (p.trakovi) pretvoriStariModel(p); else { p.trakovi = []; p.v = 2; } }
 
     let izbor = null;      // {tip:'del', v, od, do} | {tip:'trak', v} | {tip:'oklepaj', v, o}
-    let vlecenje = null;   // {tip:'meja'|'trak'|'izbira', …}
-    let merilo = 1;        // px na enoto ob zadnjem izrisu
-    let vodilo = null;     // kje (v enotah) je črta poravnave med vlečenjem
+    let vlecenje = null;
+    let s = 1;             // px na enoto ob zadnjem izrisu
+    let vodila = [];       // [{x}|{y}] v enotah — črte poravnave med vlečenjem
+    let duh = null;        // trak, ki ga ravno rišeš: {x, y, w}
+    const zgodovina = [];
 
     telo.classList.add('bm');
     telo.innerHTML = `
-      <div class="bm-orodja">
-        <div class="bm-vrstica">
-          <button class="gumb gumb-s bm-dodaj-trak">+ Trak</button>
-          <select class="izbirnik bm-predloga" aria-label="Predloga">
-            <option value="">Predloga …</option>
-            ${Object.entries(PREDLOGE_TRAKOV).map(([k, v]) => `<option value="${k}">${ubezi(v.ime)}</option>`).join('')}
-          </select>
-          <button class="mini bm-racun-gumb" title="Stolpec za račun" aria-label="Stolpec za račun">=</button>
-          <span style="flex:1"></span>
-          <button class="mini a-pisava" data-d="-1" title="Manjša pisava"><small>A</small>−</button>
-          <button class="mini a-pisava" data-d="1" title="Večja pisava">A+</button>
-          <button class="gumb gumb-p bm-koncano">Končano</button>
-        </div>
-        <div class="bm-vrstica bm-izbor"></div>
-      </div>
-      <button class="gumb gumb-s bm-uredi">Uredi</button>
-      <div class="bm-vsebina">
-        <div class="bm-model"></div>
-        <div class="bm-racun" contenteditable="true" spellcheck="false" data-prazno="Račun …"></div>
-      </div>`;
+      <div class="bm-izbor"></div>
+      <div class="bm-platno"><div class="bm-svet" tabindex="-1"></div></div>
+      <button class="mini bm-razveljavi" title="Razveljavi (Ctrl+Z)" aria-label="Razveljavi">${ikona('ponastavi')}</button>`;
 
-    const $t = s => telo.querySelector(s);
-    const model = $t('.bm-model');
-    const racun = $t('.bm-racun');
-    racun.textContent = p.racun || '';
-    racun.addEventListener('input', () => { p.racun = racun.innerText; shraniStanje(); });
-
+    const $t = q => telo.querySelector(q);
+    const platno = $t('.bm-platno');
+    const svet = $t('.bm-svet');
     const shrani = () => shraniStanje();
-    const vsota = (t, od = 0, doo = t.deli.length - 1) => t.deli.slice(od, doo + 1).reduce((s, d) => s + d.w, 0);
-    const naslednjaBarva = t => BARVE_TRAKOV[(BARVE_TRAKOV.indexOf(t.deli.at(-1)?.barva) + 1) % BARVE_TRAKOV.length];
-
-    /** Meje vseh drugih trakov (v enotah) — na te se lepijo meje in začetki. */
-    const tujeMeje = vi => {
-      const m = new Set([0]);
-      p.trakovi.forEach((t, i) => {
-        if (i === vi) return;
-        let x = t.zamik; m.add(zaokrozi(x));
-        t.deli.forEach(d => { x += d.w; m.add(zaokrozi(x)); });
-      });
-      return [...m];
+    const zapomni = () => {
+      zgodovina.push(JSON.stringify(p.trakovi));
+      if (zgodovina.length > 80) zgodovina.shift();
     };
-    const prilepi = (vi, poz) => {
+
+    /* ---------------- lepljenje ---------------- */
+
+    /** Vse meje drugih trakov (v enotah) — nanje se lepijo robovi. */
+    const mejeX = razen => {
+      const m = [];
+      p.trakovi.forEach((t, i) => {
+        if (i === razen) return;
+        let x = t.x; m.push(x);
+        t.deli.forEach(d => { x += d.w; m.push(x); });
+      });
+      return m;
+    };
+    /** Vrh traku se prilepi: v isto vrsto, tik pod ali tik nad drug trak. */
+    const vrhoviY = razen => p.trakovi.flatMap((t, i) => i === razen ? [] : [t.y, t.y + VISINA_TRAKU, t.y - VISINA_TRAKU]);
+    const najblizje = (kandidati, vr) => {
       let naj = null;
-      for (const c of tujeMeje(vi)) if (Math.abs(c - poz) * merilo < LEPLJENJE_PX && (naj === null || Math.abs(c - poz) < Math.abs(naj - poz))) naj = c;
+      for (const c of kandidati) {
+        if (Math.abs(c - vr) * s < LEPLJENJE_PX && (naj === null || Math.abs(c - vr) < Math.abs(naj - vr))) naj = c;
+      }
       return naj;
     };
 
-    /* ---------------- izris modela ---------------- */
+    /* ---------------- izris ---------------- */
 
-    let zadnjaSirina = 0;
     function risi() {
-      telo.classList.toggle('urejam', p.urejam);
-      telo.classList.toggle('prikaz', !p.urejam);
-      telo.style.setProperty('--bs', p.pisava);
-      racun.classList.toggle('skrit', !p.pokaziRacun);
-      $t('.bm-racun-gumb').classList.toggle('on', !!p.pokaziRacun);
+      s = Math.max(0.25, platno.clientWidth / SIRINA_PLATNA);
+      const H = VISINA_TRAKU * s;
+      const pisavaOk = Math.max(11, 19 * s);
+      const ravnina = Math.round(pisavaOk * 1.35 + 20);   // višina ene vrste oklepajev
+      let html = '';
+      let desno = 0, spodaj = 0;
 
-      const imaImena = p.trakovi.some(t => t.ime);
-      const imeW = imaImena ? Math.round(86 * p.pisava) : 0;
-      const rocajW = p.urejam ? 22 : 0;
-      const konec = Math.max(1, ...p.trakovi.map(t => t.zamik + vsota(t)));
-      zadnjaSirina = model.clientWidth;
-      // med vlečenjem merilo zamrznemo, sicer bi model poskakoval
-      const u = vlecenje?.u ?? Math.max(2, (model.clientWidth - 6 - 38 - rocajW - imeW) / konec);
-      merilo = u;
-      const visinaRavni = Math.round(44 * p.pisava);
-      const stolpci = `${rocajW}px ${imeW}px 1fr`;
-
-      model.innerHTML = p.trakovi.map((t, vi) => {
-        const meje = [t.zamik];
+      p.trakovi.forEach((t, vi) => {
+        const meje = [t.x];
         t.deli.forEach(d => meje.push(meje.at(-1) + d.w));
-
-        const oklepaji = stran => {
-          const seznam = t.oklepaji.map((o, oi) => ({ ...o, oi })).filter(o => o.stran === stran)
-            .sort((a, b) => (a.do - a.od) - (b.do - b.od));
-          if (!seznam.length) return '';
-          // krajši oklepaji bližje traku; oznake, ki bi se prekrivale, gredo v novo vrsto
-          const ravni = [];
-          const html = seznam.map(o => {
-            const od = Math.max(0, Math.min(o.od, t.deli.length - 1));
-            const doo = Math.max(od, Math.min(o.do, t.deli.length - 1));
-            const x1 = meje[od] * u, x2 = meje[doo + 1] * u;
-            const pol = Math.max(x2 - x1, o.oznaka.length * 9 * p.pisava + 14) / 2;
-            const a1 = (x1 + x2) / 2 - pol, a2 = (x1 + x2) / 2 + pol;
-            let L = 0;
-            while ((ravni[L] || []).some(([a, b]) => a1 < b - 1 && a2 > a + 1)) L++;
-            (ravni[L] = ravni[L] || []).push([a1, a2]);
-            const W = Math.max(8, x2 - x1);
-            const izbran = izbor?.tip === 'oklepaj' && izbor.v === vi && izbor.o === o.oi;
-            const svg = `<svg width="${W}" height="14" viewBox="0 0 ${W} 14" aria-hidden="true">
-                           <path d="${potOklepaja(W, o.slog)}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
-            const oznaka = `<span class="bm-ok-oznaka">${oznakaHtml(o.oznaka)}</span>`;
-            return `<div class="bm-oklepaj${izbran ? ' izbran' : ''}" data-v="${vi}" data-o="${o.oi}"
-                         style="left:${x1}px;width:${W}px;${stran === 'zgoraj' ? 'bottom' : 'top'}:${L * visinaRavni}px">
-                      ${stran === 'zgoraj' ? oznaka + svg : svg + oznaka}</div>`;
-          }).join('');
-          return `<div class="bm-oklepaji ${stran}" style="height:${ravni.length * visinaRavni}px">${html}</div>`;
-        };
-
+        const izbranTrak = izbor?.v === vi && izbor.tip === 'trak';
         const vIzboru = di => izbor?.tip === 'del' && izbor.v === vi && di >= izbor.od && di <= izbor.do;
+        desno = Math.max(desno, meje.at(-1));
+        let globinaSpodaj = 0;
+
         // v ozkem delu se pisava zmanjša, da oznaka ostane cela
-        const osnova = 17 * p.pisava;
-        const pisavaDela = (d) => {
+        const osnova = Math.max(11, 24 * s);
+        const pisavaDela = d => {
           const znaki = d.oznaka.replace(/(\d+)\s*\/\s*(\d+)/g, (_, a, b) => a.length > b.length ? a : b).length;
-          return znaki ? Math.max(9, Math.min(osnova, (d.w * u - 8) / (0.62 * znaki))) : osnova;
+          return znaki ? Math.max(9, Math.min(osnova, (d.w * s - 8) / (0.62 * znaki))) : osnova;
         };
         const deli = t.deli.map((d, di) =>
           `<div class="bm-del${vIzboru(di) ? ' izbran' : ''}" data-v="${vi}" data-d="${di}"
-                style="width:${d.w * u}px;font-size:${pisavaDela(d).toFixed(1)}px;background:${d.barva};color:${jeSvetla(d.barva) ? '#23262F' : '#fff'}">
+                style="width:${d.w * s}px;font-size:${pisavaDela(d).toFixed(1)}px;background:${d.barva};color:${jeSvetla(d.barva) ? '#23262F' : '#fff'}">
              <span>${oznakaHtml(d.oznaka)}</span></div>`).join('');
-        // ročice za vlečenje mej: med deli in na koncu traku
-        let x = 0;
-        const rocaji = t.deli.map((d, di) => {
-          x += d.w * u;
-          return `<div class="bm-meja${di === t.deli.length - 1 ? ' konec' : ''}" data-v="${vi}" data-i="${di}" style="left:${x}px"
-                       title="Povleci za širino"></div>`;
-        }).join('');
+        // ročice za vlečenje: levi rob (-1), meje med deli in desni rob
+        const rocaji = meje.map((m, i) =>
+          `<div class="bm-meja${i === 0 || i === meje.length - 1 ? ' rob' : ''}" data-v="${vi}" data-i="${i - 1}"
+                style="left:${(m - t.x) * s}px" title="Povleci za širino"></div>`).join('');
 
-        const izbranTrak = izbor?.tip === 'trak' && izbor.v === vi;
-        return `<div class="bm-vrsta${izbranTrak ? ' izbran' : ''}" style="grid-template-columns:${stolpci}">
-                  <button class="bm-rocaj-traku" data-v="${vi}" title="Klikni za urejanje traku, povleci za premik" aria-label="Trak ${vi + 1}">⋮</button>
-                  <div class="bm-ime" data-v="${vi}">${ubezi(t.ime)}</div>
-                  ${oklepaji('zgoraj')}
-                  <div class="bm-trak" style="margin-left:${t.zamik * u}px">
-                    ${deli}${rocaji}
-                    <button class="bm-plus" data-v="${vi}" title="Dodaj del" aria-label="Dodaj del">+</button>
-                  </div>
-                  ${oklepaji('spodaj')}
-                </div>`;
-      }).join('');
+        html += `<div class="bm-trak${izbranTrak ? ' izbran' : ''}" style="left:${t.x * s}px;top:${t.y * s}px;height:${H}px">
+                   ${deli}${rocaji}</div>`;
+        if (t.ime) {
+          html += `<div class="bm-ime" data-v="${vi}" style="left:${t.x * s - 170}px;top:${t.y * s}px;height:${H}px;font-size:${Math.max(11, 18 * s)}px">
+                     <span>${ubezi(t.ime)}</span></div>`;
+        }
 
-      if (vodilo !== null) {
-        model.insertAdjacentHTML('beforeend',
-          `<div class="bm-vodilo" style="left:${6 + rocajW + imeW + vodilo * u}px"></div>`);
+        // oklepaji: krajši bližje traku; ki bi se prekrivali, gredo v novo vrsto
+        ['zgoraj', 'spodaj'].forEach(stran => {
+          const ravni = [];
+          t.oklepaji.map((o, oi) => ({ ...o, oi })).filter(o => o.stran === stran)
+            .sort((a, b) => (a.do - a.od) - (b.do - b.od))
+            .forEach(o => {
+              const od = Math.max(0, Math.min(o.od, t.deli.length - 1));
+              const doo = Math.max(od, Math.min(o.do, t.deli.length - 1));
+              const x1 = meje[od] * s, x2 = meje[doo + 1] * s;
+              const pol = Math.max(x2 - x1, o.oznaka.length * pisavaOk * 0.6 + 14) / 2;
+              const a1 = (x1 + x2) / 2 - pol, a2 = (x1 + x2) / 2 + pol;
+              let L = 0;
+              while ((ravni[L] || []).some(([a, b]) => a1 < b - 1 && a2 > a + 1)) L++;
+              (ravni[L] = ravni[L] || []).push([a1, a2]);
+              const W = Math.max(8, x2 - x1);
+              const izbran = izbor?.tip === 'oklepaj' && izbor.v === vi && izbor.o === o.oi;
+              const top = stran === 'zgoraj' ? t.y * s - (L + 1) * ravnina : t.y * s + H + L * ravnina;
+              if (stran === 'spodaj') globinaSpodaj = Math.max(globinaSpodaj, (L + 1) * ravnina);
+              const svg = `<svg width="${W}" height="14" viewBox="0 0 ${W} 14" aria-hidden="true">
+                             <path d="${potOklepaja(W, o.slog)}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+              const oznaka = `<span class="bm-ok-oznaka" style="font-size:${pisavaOk}px">${oznakaHtml(o.oznaka)}</span>`;
+              const robova = izbran
+                ? `<i class="bm-ok-rob" data-konec="od" style="left:-7px"></i><i class="bm-ok-rob" data-konec="do" style="left:${W - 7}px"></i>`
+                : '';
+              html += `<div class="bm-oklepaj ${stran}${izbran ? ' izbran' : ''}" data-v="${vi}" data-o="${o.oi}"
+                            style="left:${x1}px;width:${W}px;top:${top}px;height:${ravnina}px">
+                         ${stran === 'zgoraj' ? oznaka + svg : svg + oznaka}${robova}</div>`;
+            });
+        });
+        spodaj = Math.max(spodaj, t.y * s + H + globinaSpodaj);
+      });
+
+      if (duh) {
+        html += `<div class="bm-duh" style="left:${duh.x * s}px;top:${duh.y * s}px;width:${duh.w * s}px;height:${H}px"></div>`;
+        desno = Math.max(desno, duh.x + duh.w);
       }
+      vodila.forEach(g => {
+        html += g.x !== undefined
+          ? `<div class="bm-vodilo navpicno" style="left:${g.x * s}px"></div>`
+          : `<div class="bm-vodilo vodoravno" style="top:${g.y * s}px"></div>`;
+      });
+      if (!p.trakovi.length && !duh) {
+        html += '<div class="bm-prazno">Povleci po platnu, da narišeš trak</div>';
+      }
+
+      svet.innerHTML = html;
+      // med vlečenjem se svet ne krči, sicer bi platno poskakovalo
+      const w = Math.max(platno.clientWidth, desno * s + 40);
+      const h = Math.max(platno.clientHeight, spodaj + 40);
+      if (!vlecenje || w > svet.offsetWidth) svet.style.width = w + 'px';
+      if (!vlecenje || h > svet.offsetHeight) svet.style.height = h + 'px';
     }
 
     /* ---------------- orodna vrstica za izbrano ---------------- */
@@ -256,57 +214,60 @@ Platno.registriraj('trakci', {
     const gumb = (akcija, besedilo, naslov = '', razred = 'mini') =>
       `<button class="${razred}" data-a="${akcija}"${naslov ? ` title="${naslov}" aria-label="${naslov}"` : ''}>${besedilo}</button>`;
     const loc = '<span class="bm-loc"></span>';
+    const barve = trenutna => BARVE_TRAKOV.map(b =>
+      `<button class="bm-barva${b === trenutna ? ' on' : ''}" data-barva="${b}" style="background:${b}" aria-label="Barva"></button>`).join('');
+    const razdeli = `<span class="bm-napis">Razdeli</span>
+      ${[2, 3, 4, 5, 6, 7, 8].map(n => `<button class="mini bm-n" data-razdeli="${n}" title="Razdeli na ${n} enakih delov">${n}</button>`).join('')}`;
+    const brisi = naslov => `<button class="mini bm-brisi" data-a="brisi" title="${naslov}" aria-label="${naslov}">${ikona('pospravi')}</button>`;
 
     function orodja() {
       const v = $t('.bm-izbor');
       if (!izbor) {
-        v.innerHTML = '<span class="namig">Klikni del ali povleci čez več delov · meje med deli povleci za širino · ⋮ povleci za premik traku</span>';
+        v.innerHTML = `<span class="namig">Povleci po praznem — nov trak · primi trak — premakni · povleci mejo — širina · klik — del, 2. klik — cel trak</span>
+          ${p.trakovi.length ? `<span style="flex:1"></span>${gumb('pocisti', 'Počisti', 'Izbriši vse trakove', 'gumb gumb-t bm-brisi')}` : ''}`;
         return;
       }
       const t = p.trakovi[izbor.v];
-      if (izbor.tip === 'del') {
+      if (izbor.tip === 'trak') {
+        const enaBarva = t.deli.every(d => d.barva === t.deli[0].barva);
+        v.innerHTML = `
+          <input class="vnos bm-oznaka" value="${ubezi(t.ime)}" placeholder="Ime traku …">
+          ${barve(enaBarva ? t.deli[0].barva : null)}
+          ${loc}${razdeli}
+          ${loc}${gumb('kopiraj', 'Podvoji', 'Kopija tik pod trakom', 'gumb gumb-s')}
+          ${brisi('Izbriši trak')}`;
+      } else if (izbor.tip === 'del') {
         const en = izbor.od === izbor.do, d = t.deli[izbor.od];
-        const enakaBarva = t.deli.slice(izbor.od, izbor.do + 1).every(x => x.barva === d.barva);
+        const izbrani = t.deli.slice(izbor.od, izbor.do + 1);
         v.innerHTML = `
           ${en ? `<input class="vnos bm-oznaka" value="${ubezi(d.oznaka)}" placeholder="Oznaka: 15, ?, 1/3 …">`
-               : `<span class="bm-stevec">${izbor.do - izbor.od + 1} deli</span>`}
-          ${BARVE_TRAKOV.map(b => `<button class="bm-barva${enakaBarva && b === d.barva ? ' on' : ''}" data-barva="${b}" style="background:${b}" aria-label="Barva"></button>`).join('')}
-          ${loc}
-          ${en ? `<span class="bm-napis">Razdeli</span>${[2, 3, 4, 5].map(n => gumb('razdeli' + n, n, `Razdeli na ${n} enake dele`)).join('')}`
-               : gumb('zdruzi', 'Združi', 'Združi v en del', 'gumb gumb-s')}
-          ${loc}
-          ${gumb('oklepajZgoraj', 'Oklepaj ↑', 'Oklepaj nad izbranim', 'gumb gumb-s')}
-          ${gumb('oklepajSpodaj', 'Oklepaj ↓', 'Oklepaj pod izbranim', 'gumb gumb-s')}
-          ${gumb('trakPod', 'Trak pod ↓', 'Nov trak, enako dolg kot izbrano, tik pod njim', 'gumb gumb-s')}
-          ${gumb('brisiDele', 'Izbriši', 'Izbriši izbrane dele', 'gumb gumb-t bm-brisi')}`;
-      } else if (izbor.tip === 'trak') {
-        v.innerHTML = `
-          <input class="vnos bm-oznaka" value="${ubezi(t.ime)}" placeholder="Ime traku (npr. Prej)">
-          ${loc}${gumb('gor', '↑', 'Trak višje')}${gumb('dol', '↓', 'Trak nižje')}
-          ${loc}${gumb('kopiraj', 'Podvoji', 'Podvoji trak', 'gumb gumb-s')}
-          ${gumb('brisiTrak', 'Izbriši trak', '', 'gumb gumb-t bm-brisi')}
-          <span class="namig">⋮ povleci levo ali desno za premik</span>`;
+               : `<span class="bm-stevec">${izbrani.length} deli</span>`}
+          ${barve(izbrani.every(x => x.barva === d.barva) ? d.barva : null)}
+          ${loc}${en ? razdeli : gumb('zdruzi', 'Združi', 'Združi v en del', 'gumb gumb-s')}
+          ${loc}${gumb('oklepajZgoraj', '⏞ Nad', 'Oklepaj z oznako nad izbranim', 'gumb gumb-s')}
+          ${gumb('oklepajSpodaj', '⏟ Pod', 'Oklepaj z oznako pod izbranim', 'gumb gumb-s')}
+          ${loc}${brisi(en ? 'Izbriši del' : 'Izbriši dele')}`;
       } else {
         const o = t.oklepaji[izbor.o];
         v.innerHTML = `
           <input class="vnos bm-oznaka" value="${ubezi(o.oznaka)}" placeholder="Oznaka: 45, ?, 1. dan …">
-          ${loc}<span class="bm-napis">Od</span>${gumb('odLevo', '◀', 'Začetek levo')}${gumb('odDesno', '▶', 'Začetek desno')}
-          <span class="bm-napis">do</span>${gumb('doLevo', '◀', 'Konec levo')}${gumb('doDesno', '▶', 'Konec desno')}
-          ${loc}${gumb('stran', o.stran === 'zgoraj' ? 'Pod trak ↓' : 'Nad trak ↑', 'Premakni na drugo stran', 'gumb gumb-s')}
-          ${gumb('slog', o.slog === 'puscica' ? 'Oklepaj' : 'Puščica ↔', 'Zamenjaj obliko', 'gumb gumb-s')}
-          ${gumb('brisiOklepaj', 'Izbriši', 'Izbriši oklepaj', 'gumb gumb-t bm-brisi')}`;
+          ${gumb('stran', o.stran === 'zgoraj' ? 'Pod trak ↓' : 'Nad trak ↑', 'Premakni na drugo stran', 'gumb gumb-s')}
+          ${brisi('Izbriši oklepaj')}
+          <span class="namig">Pike na koncih povleci za dolžino</span>`;
       }
 
       const vnos = v.querySelector('.bm-oznaka');
       if (!vnos) return;
+      let zapomnjeno = false;
       vnos.addEventListener('input', () => {
+        if (!zapomnjeno) { zapomni(); zapomnjeno = true; }
         if (izbor.tip === 'del') t.deli[izbor.od].oznaka = vnos.value;
         else if (izbor.tip === 'trak') t.ime = vnos.value;
         else t.oklepaji[izbor.o].oznaka = vnos.value;
         shrani(); risi();
       });
       vnos.addEventListener('keydown', e => {
-        if (e.key === 'Enter') vnos.blur();
+        if (e.key === 'Enter' || e.key === 'Escape') { vnos.blur(); svet.focus({ preventScroll: true }); }
         // Tab: naslednji del — oznake vpišeš po vrsti, brez miške
         if (e.key === 'Tab' && izbor.tip === 'del') {
           e.preventDefault();
@@ -322,16 +283,16 @@ Platno.registriraj('trakci', {
     const izberi = (novo, fokus = true) => {
       izbor = novo;
       risi(); orodja();
-      if (fokus && izbor) { const i = $t('.bm-oznaka'); i?.focus(); i?.select(); }
+      if (fokus && izbor) { const i = $t('.bm-oznaka'); i?.focus({ preventScroll: true }); i?.select(); }
     };
 
     /* ---------------- dejanja ---------------- */
 
     /* Ob vstavljanju, brisanju ali združevanju delov oklepaji ostanejo nad pravimi deli. */
-    /** k novih delov za delom i; razsiri: oklepaj, ki se konča pri i, zajame tudi nove (razdelitev). */
-    const vstaviOklepaje = (t, i, k, razsiri) => t.oklepaji.forEach(o => {
+    /** k novih delov za delom i; oklepaj, ki se konča pri i, zajame tudi nove (razdelitev). */
+    const vstaviOklepaje = (t, i, k) => t.oklepaji.forEach(o => {
       if (o.od > i) o.od += k;
-      if (o.do > i || (razsiri && o.do === i)) o.do += k;
+      if (o.do >= i) o.do += k;
     });
     const odstraniOklepaje = (t, i) => {
       t.oklepaji = t.oklepaji.filter(o => !(o.od === i && o.do === i));
@@ -344,11 +305,26 @@ Platno.registriraj('trakci', {
     const izbraniTrak = () => p.trakovi[izbor.v];
     const izbranOklepaj = () => izbraniTrak().oklepaji[izbor.o];
 
+    /** Del di razdeli na n enakih; njegova oznaka (npr. "? kg") ostane kot oklepaj nad celoto. */
+    function razdeliDel(t, di, n) {
+      const d = t.deli[di];
+      t.deli.splice(di, 1, ...Array.from({ length: n }, () => del(d.w / n, '', d.barva)));
+      vstaviOklepaje(t, di, n - 1);
+      if (d.oznaka.trim()) t.oklepaji.push(oklepaj(di, di + n - 1, d.oznaka, 'zgoraj'));
+    }
+
     const dejanja = {
+      razdeli: n => {
+        const t = izbraniTrak();
+        if (izbor.tip === 'del') { razdeliDel(t, izbor.od, n); izbor = { ...izbor, do: izbor.od + n - 1 }; return; }
+        // cel trak: najprej en sam del (oznake in oklepaji ostanejo le, če je bil en del)
+        if (t.deli.length > 1) { t.deli = [del(dolzina(t), '', t.deli[0].barva)]; t.oklepaji = []; }
+        razdeliDel(t, 0, n);
+      },
       zdruzi: () => {
         const t = izbraniTrak();
         for (let k = izbor.do; k > izbor.od; k--) {
-          t.deli[k - 1].w = zaokrozi(t.deli[k - 1].w + t.deli[k].w);
+          t.deli[k - 1].w += t.deli[k].w;
           if (!t.deli[k - 1].oznaka) t.deli[k - 1].oznaka = t.deli[k].oznaka;
           t.deli.splice(k, 1);
           zlijOklepaje(t, k);
@@ -357,181 +333,219 @@ Platno.registriraj('trakci', {
       },
       oklepajZgoraj: () => { const t = izbraniTrak(); t.oklepaji.push(oklepaj(izbor.od, izbor.do, '?', 'zgoraj')); izbor = { tip: 'oklepaj', v: izbor.v, o: t.oklepaji.length - 1 }; },
       oklepajSpodaj: () => { const t = izbraniTrak(); t.oklepaji.push(oklepaj(izbor.od, izbor.do, '?', 'spodaj')); izbor = { tip: 'oklepaj', v: izbor.v, o: t.oklepaji.length - 1 }; },
-      trakPod: () => {
-        const t = izbraniTrak();
-        const nov = trak([del(zaokrozi(vsota(t, izbor.od, izbor.do)), '', naslednjaBarva(t))], [], '',
-                         zaokrozi(t.zamik + vsota(t, 0, izbor.od - 1)));
-        p.trakovi.splice(izbor.v + 1, 0, nov);
-        izbor = { tip: 'del', v: izbor.v + 1, od: 0, do: 0 };
-      },
+      brisi: () => dejanja[{ del: 'brisiDele', trak: 'brisiTrak', oklepaj: 'brisiOklepaj' }[izbor.tip]](),
       brisiDele: () => {
         const t = izbraniTrak();
-        if (izbor.do - izbor.od + 1 >= t.deli.length) {
-          if (p.trakovi.length === 1) { obvesti('Model potrebuje vsaj en trak.'); return false; }
-          p.trakovi.splice(izbor.v, 1); izbor = null; return;
-        }
+        if (izbor.do - izbor.od + 1 >= t.deli.length) { p.trakovi.splice(izbor.v, 1); izbor = null; return; }
         for (let k = izbor.do; k >= izbor.od; k--) { t.deli.splice(k, 1); odstraniOklepaje(t, k); }
         izbor = null;
       },
-
-      gor: () => {
-        if (izbor.v === 0) return false;
-        [p.trakovi[izbor.v - 1], p.trakovi[izbor.v]] = [p.trakovi[izbor.v], p.trakovi[izbor.v - 1]];
-        izbor = { ...izbor, v: izbor.v - 1 };
+      kopiraj: () => {
+        const t = izbraniTrak();
+        p.trakovi.push({ ...JSON.parse(JSON.stringify(t)), y: t.y + VISINA_TRAKU });
+        izbor = { tip: 'trak', v: p.trakovi.length - 1 };
       },
-      dol: () => {
-        if (izbor.v === p.trakovi.length - 1) return false;
-        [p.trakovi[izbor.v + 1], p.trakovi[izbor.v]] = [p.trakovi[izbor.v], p.trakovi[izbor.v + 1]];
-        izbor = { ...izbor, v: izbor.v + 1 };
-      },
-      kopiraj: () => { p.trakovi.splice(izbor.v + 1, 0, JSON.parse(JSON.stringify(izbraniTrak()))); izbor = { tip: 'trak', v: izbor.v + 1 }; },
-      brisiTrak: () => {
-        if (p.trakovi.length === 1) { obvesti('Model potrebuje vsaj en trak.'); return false; }
-        p.trakovi.splice(izbor.v, 1); izbor = null;
-      },
-
-      odLevo:  () => { const o = izbranOklepaj(); if (o.od > 0) o.od--; },
-      odDesno: () => { const o = izbranOklepaj(); if (o.od < o.do) o.od++; },
-      doLevo:  () => { const o = izbranOklepaj(); if (o.do > o.od) o.do--; },
-      doDesno: () => { const o = izbranOklepaj(); if (o.do < izbraniTrak().deli.length - 1) o.do++; },
-      stran:   () => { const o = izbranOklepaj(); o.stran = o.stran === 'zgoraj' ? 'spodaj' : 'zgoraj'; },
-      slog:    () => { const o = izbranOklepaj(); o.slog = o.slog === 'puscica' ? 'oklepaj' : 'puscica'; },
+      brisiTrak: () => { p.trakovi.splice(izbor.v, 1); izbor = null; },
+      stran: () => { const o = izbranOklepaj(); o.stran = o.stran === 'zgoraj' ? 'spodaj' : 'zgoraj'; },
       brisiOklepaj: () => { izbraniTrak().oklepaji.splice(izbor.o, 1); izbor = null; },
+      pocisti: () => { p.trakovi = []; izbor = null; },
     };
-    [2, 3, 4, 5].forEach(n => {
-      dejanja['razdeli' + n] = () => {
-        const t = izbraniTrak(), d = t.deli[izbor.od];
-        t.deli.splice(izbor.od, 1, ...Array.from({ length: n }, () => del(zaokrozi(d.w / n), '', d.barva)));
-        vstaviOklepaje(t, izbor.od, n - 1, true);
-        // oznaka celote ("? kg") ostane kot oklepaj nad novimi deli
-        if (d.oznaka.trim()) t.oklepaji.push(oklepaj(izbor.od, izbor.od + n - 1, d.oznaka, 'zgoraj'));
-      };
+
+    function razveljaviZadnje() {
+      if (!zgodovina.length) { obvesti('Ni česa razveljaviti.'); return; }
+      p.trakovi = JSON.parse(zgodovina.pop());
+      shrani(); izberi(null);
+    }
+
+    $t('.bm-izbor').addEventListener('click', e => {
+      const b = e.target.closest('[data-a], [data-barva], [data-razdeli]');
+      if (!b) return;
+      if (!izbor && b.dataset.a !== 'pocisti') return;
+      zapomni();
+      if (b.dataset.barva) {
+        const t = izbraniTrak();
+        (izbor.tip === 'trak' ? t.deli : t.deli.slice(izbor.od, izbor.do + 1)).forEach(d => d.barva = b.dataset.barva);
+      } else if (b.dataset.razdeli) {
+        dejanja.razdeli(+b.dataset.razdeli);
+      } else {
+        dejanja[b.dataset.a]();
+      }
+      // po novem oklepaju ali združitvi takoj vpišeš oznako
+      shrani(); izberi(izbor, ['oklepajZgoraj', 'oklepajSpodaj', 'zdruzi'].includes(b.dataset.a));
     });
 
-    /* ---------------- vlečenje in izbira na modelu ---------------- */
+    /* ---------------- vlečenje in izbira na platnu ---------------- */
 
-    model.addEventListener('pointerdown', e => {
-      if (!p.urejam || e.button > 0 || e.target.closest('.bm-plus')) return;
+    /** Položaj kazalca v enotah platna. */
+    const vEnotah = e => {
+      const r = svet.getBoundingClientRect();
+      return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s };
+    };
+
+    svet.addEventListener('pointerdown', e => {
+      if (e.button > 0) return;
+      svet.focus({ preventScroll: true });
+      const tocka = vEnotah(e);
       const meja = e.target.closest('.bm-meja');
-      const rocaj = e.target.closest('.bm-rocaj-traku');
+      const rob = e.target.closest('.bm-ok-rob');
       const d = e.target.closest('.bm-del');
+      const ok = e.target.closest('.bm-oklepaj');
+      const ime = e.target.closest('.bm-ime');
+      const zac = { cx: e.clientX, cy: e.clientY, premaknjen: false };
 
       if (meja) {
         const vi = +meja.dataset.v, i = +meja.dataset.i, t = p.trakovi[vi];
-        vlecenje = { tip: 'meja', v: vi, i, x0: e.clientX, u: merilo, wL: t.deli[i].w, wR: t.deli[i + 1]?.w };
-      } else if (rocaj) {
-        const vi = +rocaj.dataset.v;
-        vlecenje = { tip: 'trak', v: vi, x0: e.clientX, u: merilo, z0: p.trakovi[vi].zamik, premik: false };
+        vlecenje = { ...zac, tip: 'meja', v: vi, i, x0: t.x, deli0: t.deli.map(x => x.w) };
+      } else if (rob) {
+        vlecenje = { ...zac, tip: 'rob', v: izbor.v, o: izbor.o, konec: rob.dataset.konec };
       } else if (d) {
-        const vi = +d.dataset.v, di = +d.dataset.d;
-        vlecenje = { tip: 'izbira', v: vi, zac: di };
-        izbor = { tip: 'del', v: vi, od: di, do: di };
-        risi();
-      } else {
-        const o = e.target.closest('.bm-oklepaj'), ime = e.target.closest('.bm-ime');
-        if (o) izberi({ tip: 'oklepaj', v: +o.dataset.v, o: +o.dataset.o });
-        else if (ime) izberi({ tip: 'trak', v: +ime.dataset.v });
-        else izberi(null);
+        const vi = +d.dataset.v, t = p.trakovi[vi];
+        vlecenje = { ...zac, tip: 'premik', v: vi, di: +d.dataset.d, x0: t.x, y0: t.y, shift: e.shiftKey };
+      } else if (ok) {
+        izberi({ tip: 'oklepaj', v: +ok.dataset.v, o: +ok.dataset.o });
         return;
+      } else if (ime) {
+        vlecenje = { ...zac, tip: 'premik', v: +ime.dataset.v, di: null, x0: p.trakovi[+ime.dataset.v].x, y0: p.trakovi[+ime.dataset.v].y };
+      } else {
+        vlecenje = { ...zac, tip: 'risanje', x0: tocka.x, y0: tocka.y };
       }
       e.preventDefault();
-      try { model.setPointerCapture(e.pointerId); } catch (_) {}
+      try { svet.setPointerCapture(e.pointerId); } catch (_) {}
     });
 
-    model.addEventListener('pointermove', e => {
-      if (!vlecenje) return;
-      const t = p.trakovi[vlecenje.v];
-
-      if (vlecenje.tip === 'meja') {
-        const { i, wL, wR, u } = vlecenje;
-        const notranja = wR !== undefined;
-        const zac = t.zamik + vsota(t, 0, i - 1);
-        const omeji = w => notranja ? Math.min(Math.max(NAJMANJ_DEL, w), wL + wR - NAJMANJ_DEL) : Math.max(NAJMANJ_DEL, w);
-        let w = omeji(wL + (e.clientX - vlecenje.x0) / u);
-        const c = prilepi(vlecenje.v, zac + w);
-        vodilo = null;
-        if (c !== null && omeji(c - zac) === c - zac) { w = c - zac; vodilo = c; }
-        t.deli[i].w = zaokrozi(w);
-        if (notranja) t.deli[i + 1].w = zaokrozi(wL + wR - w);
-        risi();
-      } else if (vlecenje.tip === 'trak') {
-        const dx = e.clientX - vlecenje.x0;
-        if (Math.abs(dx) > 4) vlecenje.premik = true;
-        if (!vlecenje.premik) return;
-        let z = Math.max(0, vlecenje.z0 + dx / vlecenje.u);
-        // prilepi začetek ali konec traku na meje drugih trakov
-        const dolzina = vsota(t);
-        const cz = prilepi(vlecenje.v, z), ck = prilepi(vlecenje.v, z + dolzina);
-        vodilo = null;
-        if (cz !== null) { z = cz; vodilo = cz; }
-        else if (ck !== null && ck - dolzina >= 0) { z = ck - dolzina; vodilo = ck; }
-        t.zamik = zaokrozi(z);
-        risi();
-      } else {
-        const el = document.elementFromPoint(e.clientX, e.clientY)?.closest('.bm-del');
-        if (!el || +el.dataset.v !== vlecenje.v) return;
-        const di = +el.dataset.d;
-        const od = Math.min(vlecenje.zac, di), doo = Math.max(vlecenje.zac, di);
-        if (od !== izbor.od || doo !== izbor.do) { izbor = { ...izbor, od, do: doo }; risi(); }
+    svet.addEventListener('pointermove', e => {
+      const v = vlecenje;
+      if (!v) return;
+      if (!v.premaknjen) {
+        if (Math.hypot(e.clientX - v.cx, e.clientY - v.cy) < PRAG_PREMIKA) return;
+        v.premaknjen = true;
+        if (v.tip !== 'risanje') zapomni();
       }
+      const dx = (e.clientX - v.cx) / s, dy = (e.clientY - v.cy) / s;
+      const t = p.trakovi[v.v];
+      vodila = [];
+
+      if (v.tip === 'premik') {
+        const L = dolzina(t);
+        let x = Math.max(0, v.x0 + dx), y = Math.max(0, v.y0 + dy);
+        const meje = mejeX(v.v);
+        const cz = najblizje(meje, x), ck = najblizje(meje, x + L);
+        if (cz !== null) { x = cz; vodila.push({ x: cz }); }
+        else if (ck !== null && ck - L >= 0) { x = ck - L; vodila.push({ x: ck }); }
+        const cy = najblizje(vrhoviY(v.v), y);
+        if (cy !== null && cy >= 0) { y = cy; vodila.push({ y: cy }, { y: cy + VISINA_TRAKU }); }
+        t.x = zaokrozi(x); t.y = zaokrozi(y);
+      } else if (v.tip === 'meja') {
+        const { i, deli0, x0 } = v, n = deli0.length;
+        const meje = mejeX(v.v);
+        if (i === -1) {
+          // levi rob: premakne se začetek, prvi del se raztegne ali skrči
+          let x = Math.min(Math.max(0, x0 + dx), x0 + deli0[0] - NAJMANJ_DEL);
+          const c = najblizje(meje, x);
+          if (c !== null && c >= 0 && c <= x0 + deli0[0] - NAJMANJ_DEL) { x = c; vodila.push({ x: c }); }
+          t.x = zaokrozi(x); t.deli[0].w = zaokrozi(deli0[0] + x0 - x);
+        } else {
+          const notranja = i < n - 1;
+          const zac = x0 + deli0.slice(0, i).reduce((a, b) => a + b, 0);
+          const omeji = w => notranja ? Math.min(Math.max(NAJMANJ_DEL, w), deli0[i] + deli0[i + 1] - NAJMANJ_DEL) : Math.max(NAJMANJ_DEL, w);
+          let w = omeji(deli0[i] + dx);
+          const c = najblizje(meje, zac + w);
+          if (c !== null && omeji(c - zac) === c - zac) { w = c - zac; vodila.push({ x: c }); }
+          t.deli[i].w = zaokrozi(w);
+          if (notranja) t.deli[i + 1].w = zaokrozi(deli0[i] + deli0[i + 1] - w);
+        }
+      } else if (v.tip === 'rob') {
+        // konec oklepaja skoči na najbližjo mejo med deli
+        const o = t.oklepaji[v.o], x = vEnotah(e).x;
+        const meje = [t.x];
+        t.deli.forEach(d => meje.push(meje.at(-1) + d.w));
+        const najblizjiIndeks = (od, doo) => {
+          let naj = od;
+          for (let k = od; k <= doo; k++) if (Math.abs(meje[k] - x) < Math.abs(meje[naj] - x)) naj = k;
+          return naj;
+        };
+        if (v.konec === 'od') o.od = najblizjiIndeks(0, o.do);
+        else o.do = najblizjiIndeks(o.od + 1, t.deli.length) - 1;
+      } else if (v.tip === 'risanje') {
+        const x1 = vEnotah(e).x;
+        let a = Math.max(0, Math.min(v.x0, x1)), b = Math.max(v.x0, x1);
+        const meje = mejeX(-1);
+        const ca = najblizje(meje, a), cb = najblizje(meje, b);
+        if (ca !== null) { a = ca; vodila.push({ x: ca }); }
+        if (cb !== null) { b = cb; vodila.push({ x: cb }); }
+        let y = Math.max(0, v.y0 - VISINA_TRAKU / 2);
+        const cy = najblizje(vrhoviY(-1), y);
+        if (cy !== null && cy >= 0) { y = cy; vodila.push({ y: cy }, { y: cy + VISINA_TRAKU }); }
+        duh = { x: a, y, w: Math.max(0, b - a) };
+      }
+      risi();
     });
 
     const koncajVlecenje = e => {
-      if (!vlecenje) return;
       const v = vlecenje;
-      vlecenje = null; vodilo = null;
-      try { model.releasePointerCapture(e.pointerId); } catch (_) {}
-      if (v.tip === 'trak' && !v.premik) { izberi({ tip: 'trak', v: v.v }); return; }
-      if (v.tip === 'izbira') { izberi(izbor, izbor.od === izbor.do); return; }
-      shrani(); risi();
+      if (!v) return;
+      vlecenje = null; vodila = [];
+      try { svet.releasePointerCapture(e.pointerId); } catch (_) {}
+
+      if (v.tip === 'risanje') {
+        const nov = duh;
+        duh = null;
+        if (v.premaknjen && nov && nov.w * s >= 16) {
+          zapomni();
+          p.trakovi.push({ x: zaokrozi(nov.x), y: zaokrozi(nov.y), ime: '',
+                           deli: [del(zaokrozi(nov.w), '', BARVE_TRAKOV[p.trakovi.length % (BARVE_TRAKOV.length - 1)])], oklepaji: [] });
+          shrani();
+          // nov trak je izbran, da ga takoj razdeliš
+          izberi({ tip: 'trak', v: p.trakovi.length - 1 }, false);
+        } else {
+          izberi(null);
+        }
+        return;
+      }
+      if (v.premaknjen) { shrani(); risi(); return; }
+
+      // klik brez premika
+      if (v.tip === 'premik') {
+        const vi = v.v, di = v.di;
+        if (di === null) izberi({ tip: 'trak', v: vi });
+        else if (v.shift && izbor?.tip === 'del' && izbor.v === vi) {
+          izberi({ tip: 'del', v: vi, od: Math.min(izbor.od, di), do: Math.max(izbor.do, di) }, false);
+        } else if (izbor?.tip === 'del' && izbor.v === vi && izbor.od === di && izbor.do === di) {
+          izberi({ tip: 'trak', v: vi }, false);          // drugi klik na isti del izbere cel trak
+        } else {
+          izberi({ tip: 'del', v: vi, od: di, do: di });
+        }
+      } else {
+        risi();
+      }
     };
-    model.addEventListener('pointerup', koncajVlecenje);
-    model.addEventListener('pointercancel', koncajVlecenje);
+    svet.addEventListener('pointerup', koncajVlecenje);
+    svet.addEventListener('pointercancel', koncajVlecenje);
 
-    model.addEventListener('click', e => {
-      const plus = e.target.closest('.bm-plus');
-      if (!plus || !p.urejam) return;
-      const vi = +plus.dataset.v, t = p.trakovi[vi];
-      t.deli.push(del(t.deli.at(-1)?.w || 1, '', naslednjaBarva(t)));
-      shrani(); izberi({ tip: 'del', v: vi, od: t.deli.length - 1, do: t.deli.length - 1 });
+    svet.addEventListener('dblclick', e => {
+      const d = e.target.closest('.bm-del');
+      if (d) izberi({ tip: 'del', v: +d.dataset.v, od: +d.dataset.d, do: +d.dataset.d });
     });
 
-    /* ---------------- orodna vrstica ---------------- */
-
-    $t('.bm-izbor').addEventListener('click', e => {
-      const b = e.target.closest('[data-a], [data-barva]');
-      if (!b || !izbor) return;
-      if (b.dataset.barva) {
-        izbraniTrak().deli.slice(izbor.od, izbor.do + 1).forEach(d => d.barva = b.dataset.barva);
-      } else if (dejanja[b.dataset.a]?.() === false) return;
-      // po novem traku, oklepaju ali združitvi takoj vpišeš oznako
-      shrani(); izberi(izbor, ['trakPod', 'oklepajZgoraj', 'oklepajSpodaj', 'zdruzi'].includes(b.dataset.a));
+    telo.addEventListener('keydown', e => {
+      if (e.target.matches('input')) return;
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); razveljaviZadnje(); }
+      else if (e.key === 'Escape') izberi(null);
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && izbor) {
+        e.preventDefault();
+        zapomni();
+        dejanja.brisi();
+        shrani(); izberi(null);
+      }
     });
 
-    $t('.bm-dodaj-trak').addEventListener('click', () => {
-      const konec = Math.max(1, ...p.trakovi.map(t => t.zamik + vsota(t)));
-      p.trakovi.push(trak([del(zaokrozi(konec), '', '#29B6E0')]));
-      shrani(); izberi({ tip: 'del', v: p.trakovi.length - 1, od: 0, do: 0 });
-    });
-    $t('.bm-predloga').addEventListener('change', e => {
-      const k = e.target.value;
-      e.target.value = '';
-      if (!k) return;
-      const nov = PREDLOGE_TRAKOV[k].model();
-      p.trakovi = nov.trakovi; p.racun = nov.racun; p.pokaziRacun = !!nov.pokaziRacun;
-      racun.textContent = p.racun;
-      shrani(); izberi(null);
-    });
-    $t('.bm-racun-gumb').addEventListener('click', () => { p.pokaziRacun = !p.pokaziRacun; shrani(); risi(); });
-    telo.querySelectorAll('.a-pisava').forEach(b => b.addEventListener('click', () => {
-      p.pisava = Math.round(Math.min(2.6, Math.max(0.7, p.pisava + b.dataset.d * 0.15)) * 100) / 100;
-      shrani(); risi();
-    }));
-    $t('.bm-koncano').addEventListener('click', () => { p.urejam = false; shrani(); izberi(null); });
-    $t('.bm-uredi').addEventListener('click', () => { p.urejam = true; shrani(); izberi(null); });
+    $t('.bm-razveljavi').addEventListener('click', razveljaviZadnje);
 
     // merilo se prilagodi širini okna
-    new ResizeObserver(() => { if (!vlecenje && model.clientWidth !== zadnjaSirina) risi(); }).observe(model);
+    let zadnjaSirina = 0;
+    new ResizeObserver(() => {
+      if (!vlecenje && platno.clientWidth !== zadnjaSirina) { zadnjaSirina = platno.clientWidth; risi(); }
+    }).observe(platno);
     risi(); orodja();
   },
 });
