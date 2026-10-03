@@ -266,7 +266,14 @@ function poveziPremikIzbirnika() {
     ali v novo okno, ki se prilagodi obliki slike. */
 function poveziLepljenje() {
   document.addEventListener('paste', async e => {
-    if (e.target.closest?.('input, textarea, [contenteditable]')) return;
+    // V urejljivo besedilo samo golo besedilo — prilepljen HTML prinese svojo
+    // pisavo in okvir, ki se potem ne odzivata na − / +.
+    if (e.target.closest?.('[contenteditable]')) {
+      e.preventDefault();
+      document.execCommand('insertText', false, e.clipboardData?.getData('text/plain') || '');
+      return;
+    }
+    if (e.target.closest?.('input, textarea')) return;
     const dat = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith('image/'));
     if (!dat) return;
     e.preventDefault();
