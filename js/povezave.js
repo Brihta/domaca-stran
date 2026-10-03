@@ -4,6 +4,7 @@
    Isti Firebase kot stara stran brihta.github.io/sola — seznam je skupen.
    Datoteke (PDF, slike …) so shranjene posebej, v seznamu je le njihov opis,
    da se seznam naloži takoj; vsebina se prenese šele ob kliku.
+   Pošlješ lahko tudi samo besedilo — ob kliku se kopira v odložišče.
    ===================================================================== */
 'use strict';
 
@@ -36,6 +37,7 @@ const Povezave = (() => {
   /** Postavka brez mape ali v izbrisani mapi spada v Razno. */
   const mapaOd = p => mape.includes(p.mapa) ? p.mapa : RAZNO;
   let urejam = false;
+  let samoBesedilo = false;   // način vnosa: povezava ali golo besedilo
   let tok = null;       // EventSource, odprt le, ko je plošča odprta
 
   const vSeznam = podatki => podatki
@@ -49,6 +51,12 @@ const Povezave = (() => {
       ? `<select class="izbirnik pov-premakni" data-kljuc="${ubezi(p._key)}" aria-label="Premakni v mapo">
            ${mape.map(m => `<option${m === mapaOd(p) ? ' selected' : ''}>${ubezi(m)}</option>`).join('')}</select>` : '';
     const brisi = `<button class="pov-brisi" data-kljuc="${ubezi(p._key)}" aria-label="Izbriši">${ikona('zapri')}</button>`;
+    if (p.besedilo != null) return `
+      <div class="pov-postavka pov-zapis" data-besedilo="${ubezi(p._key)}" ${urejam ? '' : 'title="Klikni za kopiranje"'}>
+        <span class="pov-ikona">${ikona('besedilo')}</span>
+        <span class="pov-besedilo"><span class="pov-besedilo-vsebina">${ubezi(p.besedilo)}</span></span>
+        <span class="pov-puscica">${ikona('kopiraj')}</span>${premakni}${brisi}
+      </div>`;
     if (p.datoteka) return `
       <${oznaka} class="pov-postavka pov-datoteka" ${urejam ? '' : 'href="#"'} data-datoteka="${ubezi(p.datoteka)}"
          data-ime="${ubezi(p.ime || 'datoteka')}" data-tip="${ubezi(p.tip || '')}">
@@ -103,8 +111,8 @@ const Povezave = (() => {
     const prazno = $('#pov-prazno');
     prazno.classList.toggle('skrit', !!seznam.innerHTML.trim());
     prazno.textContent = postavke.length
-      ? 'V tej mapi še ni ničesar. Dodaj povezavo ali datoteko (📎) spodaj.'
-      : 'Še ni povezav. Dodaj povezavo ali datoteko (📎) spodaj — takoj se pokaže na vseh napravah.';
+      ? 'V tej mapi še ni ničesar. Dodaj povezavo, besedilo (Aa) ali datoteko (📎) spodaj.'
+      : 'Še ni povezav. Dodaj povezavo, besedilo (Aa) ali datoteko (📎) spodaj — takoj se pokaže na vseh napravah.';
   }
 
   async function naloziMape() {
@@ -228,7 +236,7 @@ const Povezave = (() => {
     $('#povezave').classList.add('odprt');
     $('#pov-zastor').classList.add('odprt');
     // na dotik ne skočimo v polje — sicer se odpre tipkovnica in zakrije seznam
-    if (!matchMedia('(pointer:coarse)').matches) $('#pov-url').focus();
+    if (!matchMedia('(pointer:coarse)').matches) $(samoBesedilo ? '#pov-tekst' : '#pov-url').focus();
     naloziMape();
     vZivo();
   }
@@ -242,7 +250,55 @@ const Povezave = (() => {
     izris();
   }
 
+  function nastaviNacin(besedilo) {
+    samoBesedilo = besedilo;
+    $('.pov-vnosi').classList.toggle('tekst', besedilo);
+    const g = $('#pov-nacin');
+    g.classList.toggle('on', besedilo);
+    g.setAttribute('aria-pressed', besedilo);
+    g.title = besedilo ? 'Nazaj na povezavo' : 'Pošlji samo besedilo';
+    $('#pov-dodaj').setAttribute('aria-label', besedilo ? 'Pošlji besedilo' : 'Dodaj povezavo');
+    $(besedilo ? '#pov-tekst' : '#pov-url').focus();
+  }
+
+  async function dodajBesedilo() {
+    const besedilo = $('#pov-tekst').value.trim();
+    if (!besedilo) { obvesti('Vpiši besedilo.'); return; }
+    const gumb = $('#pov-dodaj');
+    gumb.disabled = true;
+    try {
+      // url in desc ostaneta, da stara stran (/sola) zapis pokaže kot povezavo sem
+      const odziv = await fetch(`${DB}.json`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: TA_STRAN, desc: besedilo.split('\n')[0].slice(0, 80), besedilo,
+                               ts: Date.now(), mapa: $('#pov-cilj').value }),
+      });
+      if (!odziv.ok) throw new Error(odziv.status);
+      $('#pov-tekst').value = '';
+      obvesti('Besedilo poslano.');
+    } catch (_) {
+      obvesti('Besedila ni bilo mogoče poslati.');
+    }
+    gumb.disabled = false;
+  }
+
+  async function kopiraj(el) {
+    const p = postavke.find(x => x._key === el.dataset.besedilo);
+    if (!p) return;
+    try {
+      await navigator.clipboard.writeText(p.besedilo);
+      obvesti('Besedilo kopirano.');
+    } catch (_) {
+      // brez dovoljenja za odložišče besedilo vsaj označimo
+      const r = document.createRange();
+      r.selectNodeContents(el.querySelector('.pov-besedilo-vsebina'));
+      const izbor = getSelection(); izbor.removeAllRanges(); izbor.addRange(r);
+      obvesti('Besedilo je označeno — kopiraj ga s Ctrl+C.');
+    }
+  }
+
   async function dodaj() {
+    if (samoBesedilo) return dodajBesedilo();
     let url = $('#pov-url').value.trim();
     const desc = $('#pov-opis').value.trim();
     if (!url || !desc) { obvesti('Vpiši povezavo in opis.'); return; }
@@ -270,6 +326,11 @@ const Povezave = (() => {
     $('#pov-gumb').insertAdjacentHTML('beforeend', '<span class="pov-pika skrit" id="pov-pika"></span>');
     $('#pov-dodaj').innerHTML = ikona('poslji');
     $('#pov-priloga').innerHTML = ikona('sponka');
+    $('#pov-nacin').innerHTML = ikona('besedilo');
+    $('#pov-nacin').addEventListener('click', () => nastaviNacin(!samoBesedilo));
+    $('#pov-tekst').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); dodaj(); }
+    });
     $('#pov-priloga').addEventListener('click', () => $('#pov-datoteka').click());
     $('#pov-datoteka').addEventListener('change', e => naloziDatoteko(e.target.files[0]));
 
@@ -301,6 +362,9 @@ const Povezave = (() => {
       if (!brisi) {
         const dat = e.target.closest('.pov-datoteka');
         if (dat && !urejam) { e.preventDefault(); odpriDatoteko(dat); }
+        const zapis = e.target.closest('.pov-zapis');
+        // izbiro mape ali označevanje dela besedila pustimo pri miru
+        if (zapis && !urejam && !getSelection().toString()) kopiraj(zapis);
         return;
       }
       e.preventDefault(); e.stopPropagation();

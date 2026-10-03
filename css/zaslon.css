@@ -691,6 +691,14 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .pov-dodaj { width:46px; height:46px; padding:0; justify-content:center; flex-shrink:0; }
 .pov-dodaj svg { width:19px; height:19px; }
 .pov-dodaj:disabled { opacity:.5; cursor:default; }
+.pov-dodaj.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
+.pov-tekst { display:none; resize:vertical; min-height:74px; font-family:inherit; line-height:1.4; }
+.pov-vnosi.tekst #pov-url, .pov-vnosi.tekst #pov-opis { display:none; }
+.pov-vnosi.tekst .pov-tekst { display:block; }
+.pov-besedilo-vsebina { font-size:14px; font-weight:600; white-space:pre-wrap; word-break:break-word; }
+.pov-zapis { cursor:pointer; align-items:flex-start; }
+.pov-zapis .pov-puscica { align-self:center; }
+.pov-zapis .pov-puscica svg { width:16px; height:16px; }
 .pov-priloga.nalagam svg { animation:utrip .9s ease-in-out infinite; }
 .pov-ikona {
   width:34px; height:34px; border-radius:10px; flex-shrink:0;
@@ -1084,6 +1092,14 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .q-slavje-ime   { font-size:clamp(24px,4vw,44px); font-weight:800; margin-top:16px; letter-spacing:-.02em; }
 .q-slavje-naziv { font-size:clamp(17px,2.4vw,27px); font-weight:800; color:#FFD666; margin-top:4px; }
 .q-slavje-pot   { font-size:clamp(12px,1.4vw,15px); font-weight:600; opacity:.72; margin-top:7px; }
+
+/* Ogled junaka (klik na sliko): ista scena kot slavje, a slika čim večja. */
+.q-slika { cursor:zoom-in; }
+.q-slavje.ogled { cursor:zoom-out; }
+.q-slavje.ogled .q-slavje-box { animation-duration:.4s; }
+.q-slavje.ogled .q-slavje-nivo { margin-bottom:10px; }
+.q-slavje.ogled .q-slavje-slika { height:min(74vh, 92vw); max-width:94vw; }
+.q-slavje.ogled .q-slavje-ime { margin-top:12px; }
 
 @media (prefers-reduced-motion:reduce) {
   .q-slika-ovoj.napreduj .q-slika,

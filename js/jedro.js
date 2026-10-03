@@ -15,6 +15,7 @@ const IKONE = {
   casovnik: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/><path d="M9 2h6"/>',
   kocka:    '<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/>',
   besedilo: '<path d="M4 6V4h16v2"/><path d="M12 4v16"/><path d="M9 20h6"/>',
+  kopiraj:  '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
   zreb:     '<path d="M3 12a9 9 0 1 0 9-9"/><path d="M12 3v9l6 4"/>',
   slika:    '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/>',
   ozadje:   '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 14l4-4 4 4"/><path d="M14 12l3-3 4 4"/>',
