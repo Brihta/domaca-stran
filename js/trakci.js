@@ -258,10 +258,11 @@ Platno.registriraj('trakci', {
 
       svet.innerHTML = html;
       // med vlečenjem se svet ne krči, sicer bi platno poskakovalo
-      const w = Math.max(platno.clientWidth, desno * s + 40);
-      const h = Math.max(platno.clientHeight, spodaj + 40);
-      if (!vlecenje || w > svet.offsetWidth) svet.style.width = w + 'px';
-      if (!vlecenje || h > svet.offsetHeight) svet.style.height = h + 'px';
+      // velikost sveta je odvisna le od vsebine (najmanj celo platno določi CSS),
+      // da drsnik ne vpliva nazaj na izris
+      const w = desno * s + 40, h = spodaj + 40;
+      if (!vlecenje || w > parseFloat(svet.style.width || 0)) svet.style.width = w + 'px';
+      if (!vlecenje || h > parseFloat(svet.style.height || 0)) svet.style.height = h + 'px';
     }
 
     /* ---------------- orodna vrstica za izbrano ---------------- */
@@ -741,9 +742,15 @@ Platno.registriraj('trakci', {
     }, { passive: false });
 
     // merilo se prilagodi širini okna
-    let zadnjaSirina = 0;
+    // Varovalo, če brskalnik ne pozna scrollbar-gutter: širina, ki samo skače
+    // nazaj na predprejšnjo (drsnik se pojavi in izgine), ne sproži novega izrisa.
+    let zadnjaSirina = 0, predzadnja = 0;
     new ResizeObserver(() => {
-      if (!vlecenje && platno.clientWidth !== zadnjaSirina) { zadnjaSirina = platno.clientWidth; risi(); }
+      const w = platno.clientWidth;
+      if (vlecenje || w === zadnjaSirina) return;
+      if (w === predzadnja && Math.abs(w - zadnjaSirina) <= 20) return;
+      predzadnja = zadnjaSirina; zadnjaSirina = w;
+      risi();
     }).observe(platno);
     risi(); orodja();
   },

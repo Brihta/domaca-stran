@@ -771,8 +771,10 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 .bm-stevec { font-size:13px; font-weight:800; color:var(--brand-blue-dk); padding:0 6px; }
 
 /* prosto platno: prazno = risanje novega traku */
-.bm-platno { flex:1; min-height:0; overflow:auto; border-radius:12px; }
-.bm-svet { position:relative; cursor:crosshair; touch-action:none; user-select:none; outline:none; }
+/* prostor za drsnik je vedno rezerviran — sicer drsnik, ki se pojavi in izgine,
+   spreminja širino, s tem merilo in višino modela, in model zamigeta */
+.bm-platno { flex:1; min-height:0; overflow:auto; border-radius:12px; scrollbar-gutter:stable; }
+.bm-svet { position:relative; min-width:100%; min-height:100%; cursor:crosshair; touch-action:none; user-select:none; outline:none; }
 /* premik vsega (presledek ali ✥): štiri puščice — drugače kot dlan za en trak ali del */
 .bm-svet.roka, .bm-svet.roka *, .bm-svet.vlecem, .bm-svet.vlecem * { cursor:move !important; }
 .bm-plavajoce .mini.on { background:var(--brand-blue-dk); color:#fff; }
