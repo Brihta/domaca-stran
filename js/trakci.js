@@ -4,6 +4,7 @@
    · povleci po praznem platnu, da narišeš nov trak,
    · trak primeš za katerikoli del in ga prosto premakneš
      (prilepi se tik pod, nad ali ob druge trakove, brez razmika),
+   · izbran del (ali več delov) primeš in ga odneseš iz traku kot svoj kos,
    · meje med deli in konca traku vlečeš za širino,
    · izbran trak ali del razdeliš na enake dele z enim klikom,
    · oznake na delih, ime traku in oklepaji z oznako nad ali pod deli.
@@ -229,7 +230,7 @@ Platno.registriraj('trakci', {
     function orodja() {
       const v = $t('.bm-izbor');
       if (!izbor) {
-        v.innerHTML = `<span class="namig">Povleci po praznem — nov trak · primi trak — premakni · povleci mejo — širina · klik — del, 2. klik — cel trak</span>
+        v.innerHTML = `<span class="namig">Povleci po praznem — nov trak · primi trak — premakni · izbran del povleci ven · povleci mejo — širina · klik — del, 2. klik — cel trak</span>
           ${p.trakovi.length ? `<span style="flex:1"></span>${gumb('pocisti', 'Počisti', 'Izbriši vse trakove', 'gumb gumb-t bm-brisi')}` : ''}`;
         return;
       }
@@ -319,6 +320,27 @@ Platno.registriraj('trakci', {
       if (d.oznaka.trim()) t.oklepaji.push(oklepaj(di, di + n - 1, d.oznaka, 'zgoraj'));
     }
 
+    /** Dele od..do vzame iz traku vi kot samostojen kos na istem mestu; kar ostane
+        desno, postane svoj trak, da se nič ne premakne. Vrne indeks kosa. */
+    function odtrgaj(vi, od, doo) {
+      const t = p.trakovi[vi];
+      const x = i => t.x + t.deli.slice(0, i).reduce((a, d) => a + d.w, 0);
+      // oklepaji gredo s tistim kosom, ki ga v celoti pokrivajo; ki segajo čez rez, odpadejo
+      const okl = (a, b) => t.oklepaji.filter(o => o.od >= a && o.do <= b).map(o => ({ ...o, od: o.od - a, do: o.do - a }));
+      const n = t.deli.length;
+      const kos = { x: x(od), y: t.y, ime: '', deli: t.deli.slice(od, doo + 1), oklepaji: okl(od, doo) };
+      const desni = doo < n - 1 ? { x: x(doo + 1), y: t.y, ime: '', deli: t.deli.slice(doo + 1), oklepaji: okl(doo + 1, n - 1) } : null;
+      if (od > 0) {
+        t.oklepaji = okl(0, od - 1);
+        t.deli = t.deli.slice(0, od);
+        if (desni) p.trakovi.push(desni);
+      } else {
+        Object.assign(t, { ...desni, ime: t.ime });   // levo ni ničesar: ostanek desno obdrži ime
+      }
+      p.trakovi.push(kos);
+      return p.trakovi.length - 1;
+    }
+
     const dejanja = {
       razdeli: n => {
         const t = izbraniTrak();
@@ -405,8 +427,11 @@ Platno.registriraj('trakci', {
       } else if (rob) {
         vlecenje = { ...zac, tip: 'rob', v: izbor.v, o: izbor.o, konec: rob.dataset.konec };
       } else if (d) {
-        const vi = +d.dataset.v, t = p.trakovi[vi];
-        vlecenje = { ...zac, tip: 'premik', v: vi, di: +d.dataset.d, x0: t.x, y0: t.y, shift: e.shiftKey };
+        const vi = +d.dataset.v, t = p.trakovi[vi], di = +d.dataset.d;
+        // izbran del (ne cel trak) primeš in odneseš iz traku
+        const odtrgajIzbor = izbor?.tip === 'del' && izbor.v === vi && di >= izbor.od && di <= izbor.do
+          && izbor.do - izbor.od + 1 < t.deli.length;
+        vlecenje = { ...zac, tip: 'premik', v: vi, di, x0: t.x, y0: t.y, shift: e.shiftKey, odtrgaj: odtrgajIzbor };
       } else if (ok) {
         izberi({ tip: 'oklepaj', v: +ok.dataset.v, o: +ok.dataset.o });
         return;
@@ -426,6 +451,12 @@ Platno.registriraj('trakci', {
         if (Math.hypot(e.clientX - v.cx, e.clientY - v.cy) < PRAG_PREMIKA) return;
         v.premaknjen = true;
         if (v.tip !== 'risanje') zapomni();
+        if (v.odtrgaj) {
+          v.v = odtrgaj(v.v, izbor.od, izbor.do);
+          v.x0 = p.trakovi[v.v].x; v.y0 = p.trakovi[v.v].y;
+          izbor = { tip: 'del', v: v.v, od: 0, do: izbor.do - izbor.od };
+          orodja();
+        }
       }
       const dx = (e.clientX - v.cx) / s, dy = (e.clientY - v.cy) / s;
       const t = p.trakovi[v.v];
