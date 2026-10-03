@@ -224,9 +224,10 @@ const Pustolovscina = {
   ponastaviVse() {
     const r = Stanje.razred;
     if (!r) return;
-    Object.values(this.podatki[r] || {}).forEach(z => z.tocke = 1);
+    if (!confirm(`Ponastavim pustolovščino za ${r}? Vsi učenci izgubijo junake in točke.`)) return;
+    delete this.podatki[r];
     this.shrani(); this.izris();
-    obvesti('Točke celega razreda ponastavljene.');
+    obvesti('Pustolovščina ponastavljena — junaki in točke izbrisani.');
   },
 
   /* ---------------- slavje ob napredovanju ---------------- */
