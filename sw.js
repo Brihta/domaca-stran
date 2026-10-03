@@ -1,4 +1,4 @@
-const CACHE = 'zaslon-v76';
+const CACHE = 'zaslon-v77';
 
 /** Lupina aplikacije. */
 const ASSETS = [

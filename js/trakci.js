@@ -640,8 +640,9 @@ Platno.registriraj('trakci', {
           p.trakovi.push({ x: zaokrozi(nov.x), y: zaokrozi(nov.y), ime: '',
                            deli: [del(zaokrozi(nov.w), '', BARVE_TRAKOV[p.trakovi.length % (BARVE_TRAKOV.length - 1)])], oklepaji: [] });
           shrani();
-          // nov trak je izbran, da ga takoj razdeliš
-          izberi({ tip: 'trak', v: p.trakovi.length - 1 }, false);
+          // nov trak je izbran in polje za oznako čaka: takoj natipkaš, kaj piše notri
+          // (razdelitev je na voljo tudi tu — oznaka gre potem v oklepaj nad deli)
+          izberi({ tip: 'del', v: p.trakovi.length - 1, od: 0, do: 0 });
         } else {
           izberi(null);
         }
