@@ -790,6 +790,7 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
   font-weight:800; white-space:nowrap;
 }
 .bm-del:active { cursor:grabbing; }
+.bm-svet.kopija .bm-del, .bm-svet.kopija .bm-ime { cursor:copy; }
 .bm-del span { padding:0 3px; overflow:hidden; text-overflow:ellipsis; display:inline-flex; align-items:center; gap:4px; }
 .bm-del.izbran { position:relative; z-index:1; outline:3px solid var(--brand-blue); outline-offset:-1px; }
 .bm-ime {
@@ -830,6 +831,7 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 }
 .bm-oklepaj > * { pointer-events:auto; }
 .bm-oklepaj.spodaj { justify-content:flex-start; }
+.bm-oklepaj.desno { flex-direction:row; align-items:center; justify-content:flex-start; gap:4px; }
 .bm-oklepaj svg { display:block; overflow:visible; flex-shrink:0; }
 .bm-oklepaj.spodaj svg { transform:scaleY(-1); }
 .bm-ok-oznaka {
@@ -845,6 +847,8 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 }
 .bm-oklepaj.zgoraj .bm-ok-rob { bottom:0; }
 .bm-oklepaj.spodaj .bm-ok-rob { top:0; }
+.bm-oklepaj.desno .bm-ok-rob { left:0; }
+.bm-izbor .gumb.on { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
 
 /* ===================== MISELNI VZOREC ===================== */
 .miselni-polje {
