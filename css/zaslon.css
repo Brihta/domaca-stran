@@ -765,6 +765,9 @@ details.vec .znotraj { padding:5px 0 4px; display:flex; flex-direction:column; g
 /* prosto platno: prazno = risanje novega traku */
 .bm-platno { flex:1; min-height:0; overflow:auto; border-radius:12px; }
 .bm-svet { position:relative; cursor:crosshair; touch-action:none; user-select:none; outline:none; }
+.bm-svet.roka, .bm-svet.roka * { cursor:grab !important; }
+.bm-svet.vlecem, .bm-svet.vlecem * { cursor:grabbing !important; }
+.bm-plavajoce .mini.on { background:var(--brand-blue-dk); color:#fff; }
 .bm-prazno {
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   color:var(--muted); font-size:15px; font-weight:700; pointer-events:none;

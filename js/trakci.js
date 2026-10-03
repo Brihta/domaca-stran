@@ -6,6 +6,8 @@
      (prilepi se tik pod, nad ali ob druge trakove, brez razmika),
    · izbran del (ali več delov) primeš in ga odneseš iz traku kot svoj kos,
    · meje med deli in konca traku vlečeš za širino,
+   · ves model premakneš naenkrat (gumb ✥, presledek ali srednji gumb miške)
+     ali ga z ⊕ postaviš na sredino platna,
    · izbran trak ali del razdeliš na enake dele z enim klikom,
    · oznake na delih, ime traku in oklepaji z oznako nad ali pod deli.
    Koordinate so v enotah platna (širina = 1000), zato se model ob
@@ -80,6 +82,8 @@ Platno.registriraj('trakci', {
     let s = 1;             // px na enoto ob zadnjem izrisu
     let vodila = [];       // [{x}|{y}] v enotah — črte poravnave med vlečenjem
     let duh = null;        // trak, ki ga ravno rišeš: {x, y, w}
+    let premikVse = false; // gumb ✥: vsako vlečenje premakne ves model
+    let presledek = false; // drži presledek: enako, le začasno
     const zgodovina = [];
 
     telo.classList.add('bm');
@@ -87,6 +91,8 @@ Platno.registriraj('trakci', {
       <div class="bm-izbor"></div>
       <div class="bm-platno"><div class="bm-svet" tabindex="-1"></div></div>
       <div class="bm-plavajoce">
+        <button class="mini bm-vse" title="Premakni vse trakove (ali drži presledek)" aria-label="Premakni vse" aria-pressed="false">${ikona('premik')}</button>
+        <button class="mini bm-sredina" title="Postavi na sredino" aria-label="Postavi na sredino">${ikona('sredina')}</button>
         <button class="mini" data-povecava="-1" title="Pomanjšaj" aria-label="Pomanjšaj">${ikona('minus')}</button>
         <button class="mini" data-povecava="1" title="Povečaj" aria-label="Povečaj">${ikona('plus')}</button>
         <button class="mini bm-razveljavi" title="Razveljavi (Ctrl+Z)" aria-label="Razveljavi">${ikona('ponastavi')}</button>
@@ -230,7 +236,7 @@ Platno.registriraj('trakci', {
     function orodja() {
       const v = $t('.bm-izbor');
       if (!izbor) {
-        v.innerHTML = `<span class="namig">Povleci po praznem — nov trak · primi trak — premakni · izbran del povleci ven · povleci mejo — širina · klik — del, 2. klik — cel trak</span>
+        v.innerHTML = `<span class="namig">Povleci po praznem — nov trak · primi trak — premakni · izbran del povleci ven · ✥ ali presledek — premakni vse · povleci mejo — širina · klik — del, 2. klik — cel trak</span>
           ${p.trakovi.length ? `<span style="flex:1"></span>${gumb('pocisti', 'Počisti', 'Izbriši vse trakove', 'gumb gumb-t bm-brisi')}` : ''}`;
         return;
       }
@@ -411,9 +417,17 @@ Platno.registriraj('trakci', {
     };
 
     svet.addEventListener('pointerdown', e => {
-      if (e.button > 0) return;
+      if (e.button > 1) return;
       svet.focus({ preventScroll: true });
       const tocka = vEnotah(e);
+      if (premikVse || presledek || e.button === 1) {
+        if (!p.trakovi.length) return;
+        vlecenje = { cx: e.clientX, cy: e.clientY, premaknjen: false, tip: 'vse', zacetki: p.trakovi.map(t => [t.x, t.y]) };
+        svet.classList.add('vlecem');
+        e.preventDefault();
+        try { svet.setPointerCapture(e.pointerId); } catch (_) {}
+        return;
+      }
       const meja = e.target.closest('.bm-meja');
       const rob = e.target.closest('.bm-ok-rob');
       const d = e.target.closest('.bm-del');
@@ -462,7 +476,12 @@ Platno.registriraj('trakci', {
       const t = p.trakovi[v.v];
       vodila = [];
 
-      if (v.tip === 'premik') {
+      if (v.tip === 'vse') {
+        // nihče ne sme čez levi ali zgornji rob
+        const mx = Math.max(dx, -Math.min(...v.zacetki.map(z => z[0])));
+        const my = Math.max(dy, -Math.min(...v.zacetki.map(z => z[1])));
+        p.trakovi.forEach((tr, i) => { tr.x = zaokrozi(v.zacetki[i][0] + mx); tr.y = zaokrozi(v.zacetki[i][1] + my); });
+      } else if (v.tip === 'premik') {
         const L = dolzina(t);
         let x = Math.max(0, v.x0 + dx), y = Math.max(0, v.y0 + dy);
         const meje = mejeX(v.v);
@@ -522,6 +541,7 @@ Platno.registriraj('trakci', {
       const v = vlecenje;
       if (!v) return;
       vlecenje = null; vodila = [];
+      svet.classList.remove('vlecem');
       try { svet.releasePointerCapture(e.pointerId); } catch (_) {}
 
       if (v.tip === 'risanje') {
@@ -570,6 +590,7 @@ Platno.registriraj('trakci', {
       else if (e.key === '+' || e.key === '=') povecaj(1.2);
       else if (e.key === '-') povecaj(1 / 1.2);
       else if (e.key === 'Escape') izberi(null);
+      else if (e.key === ' ' && !e.target.closest('button')) { e.preventDefault(); if (!presledek) { presledek = true; svet.classList.add('roka'); } }
       else if ((e.key === 'Delete' || e.key === 'Backspace') && izbor) {
         e.preventDefault();
         zapomni();
@@ -578,7 +599,36 @@ Platno.registriraj('trakci', {
       }
     });
 
+    telo.addEventListener('keyup', e => {
+      if (e.key === ' ') { presledek = false; svet.classList.toggle('roka', premikVse); }
+    });
+
     $t('.bm-razveljavi').addEventListener('click', razveljaviZadnje);
+
+    const gumbVse = $t('.bm-vse');
+    gumbVse.addEventListener('click', () => {
+      premikVse = !premikVse;
+      gumbVse.classList.toggle('on', premikVse);
+      gumbVse.setAttribute('aria-pressed', premikVse);
+      svet.classList.toggle('roka', premikVse);
+      obvesti(premikVse ? 'Vleci kjerkoli — premakneš vse trakove.' : 'Premikanje vseh izklopljeno.');
+    });
+
+    /** Ves model (z imeni in oklepaji) na sredino vidnega dela platna. */
+    $t('.bm-sredina').addEventListener('click', () => {
+      const deli = [...svet.querySelectorAll('.bm-trak, .bm-ime, .bm-oklepaj')];
+      if (!deli.length) return;
+      const r0 = svet.getBoundingClientRect();
+      const rob = deli.map(el => el.getBoundingClientRect());
+      const L = Math.min(...rob.map(r => r.left)) - r0.left, D = Math.max(...rob.map(r => r.right)) - r0.left;
+      const Z = Math.min(...rob.map(r => r.top)) - r0.top, S = Math.max(...rob.map(r => r.bottom)) - r0.top;
+      const dx = (Math.max(20, (platno.clientWidth - (D - L)) / 2) - L) / s;
+      const dy = (Math.max(20, (platno.clientHeight - (S - Z)) / 2) - Z) / s;
+      zapomni();
+      p.trakovi.forEach(t => { t.x = zaokrozi(Math.max(0, t.x + dx)); t.y = zaokrozi(Math.max(0, t.y + dy)); });
+      shrani(); risi();
+      platno.scrollTo(0, 0);
+    });
 
     /** Povečava ostane središčena — kar je bilo na sredini platna, ostane tam. */
     function povecaj(faktor) {
