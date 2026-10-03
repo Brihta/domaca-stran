@@ -231,8 +231,25 @@ const Pustolovscina = {
 
   /* ---------------- slavje ob napredovanju ---------------- */
   praznuj(ime, pot, nivo) {
+    this._pokaziVeliko(ime, pot, nivo, false);
+    this.zazveni();
+
+    clearTimeout(this._slavjeCas);
+    this._slavjeCas = setTimeout(() => $('#q-slavje').classList.remove('vidno'), 4200);
+  },
+
+  /** Klik na sliko: junak čez cel zaslon, da si ga učenec dobro ogleda. Zapre se s klikom ali Esc. */
+  ogled(ime) {
+    const z = this.zapis(ime);
+    if (!z.pot) return;
+    clearTimeout(this._slavjeCas);
+    this._pokaziVeliko(ime, z.pot, nivoIzTock(z.tocke), true);
+  },
+
+  _pokaziVeliko(ime, pot, nivo, ogled) {
     const o = $('#q-slavje');
     const p = POTI[pot];
+    o.classList.toggle('ogled', ogled);
     o.innerHTML = `
       <div class="q-slavje-box" style="--pb:${p.barva}">
         <div class="q-slavje-nivo">Nivo ${nivo}</div>
@@ -242,10 +259,6 @@ const Pustolovscina = {
         <div class="q-slavje-pot">${ubezi(p.ime)}</div>
       </div>`;
     o.classList.add('vidno');
-    this.zazveni();
-
-    clearTimeout(this._slavjeCas);
-    this._slavjeCas = setTimeout(() => o.classList.remove('vidno'), 4200);
     o.onclick = () => o.classList.remove('vidno');
   },
 
@@ -376,6 +389,8 @@ const Pustolovscina = {
       b.addEventListener('click', () => this.dodaj(b.dataset.ime, +b.dataset.tocke)));
     $$('#q-mreza [data-izberi]').forEach(b =>
       b.addEventListener('click', () => this.odpriIzbiro(b.dataset.izberi)));
+    $$('#q-mreza .q-slika').forEach(img =>
+      img.addEventListener('click', () => this.ogled(img.closest('.q-kartica').dataset.ime)));
   },
 
   /** Seznam tistih brez junaka — edina pot do dodelitve, odkar so prazne kartice skrite. */

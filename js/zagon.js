@@ -288,7 +288,8 @@ function poveziTipke() {
   document.addEventListener('keydown', e => {
     if (e.target.matches('input, textarea, [contenteditable]')) return;
     if (e.key === 'Escape') {
-      if ($('#plosca').classList.contains('odprt')) Plosca.zapri();
+      if ($('#q-slavje').classList.contains('vidno')) $('#q-slavje').classList.remove('vidno');
+      else if ($('#plosca').classList.contains('odprt')) Plosca.zapri();
       else if (Prevzem.zgornje()) Prevzem.zapri(Prevzem.zgornje());
     }
   });
