@@ -24,6 +24,7 @@ const Zreb = {
   cakajoci: null,                                // indeks izbranega, ki še utripa
   utrip: null,
   avdio: null,
+  predstavitev: false,                           // kolo čez cel zaslon
 
   shrani() {
     Shramba.pisi('zrebImena', this.imena);
@@ -190,6 +191,32 @@ const Zreb = {
     this.utrip = requestAnimationFrame(zanka);
   },
 
+  /* ---------------- cel zaslon ---------------- */
+
+  /** Kolo čez cel zaslon (brez brskalnika in opravilne vrstice), da ga vidi ves razred.
+      Kjer brskalnik tega ne zna, okno vsaj prekrije celo stran. */
+  preklopiPredstavitev(vklop = !this.predstavitev) {
+    if (vklop === this.predstavitev) return;
+    const el = $('#prevzem-zreb');
+    const trenutni = document.fullscreenElement || document.webkitFullscreenElement;
+    this.predstavitev = vklop;
+    el.classList.toggle('predstavitev', vklop);
+    if (vklop) {
+      const zahtevaj = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (zahtevaj) Promise.resolve(zahtevaj.call(el)).catch(() => {});
+      $('#zreb-gumb').focus({ preventScroll: true });
+    } else if (trenutni === el) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    }
+    requestAnimationFrame(() => this.izrisKolesa());
+  },
+
+  /** Brskalnik je zapustil cel zaslon (Esc, F11 …): tudi kolo gre nazaj v okno. */
+  _obIzhoduIzCelega() {
+    const trenutni = document.fullscreenElement || document.webkitFullscreenElement;
+    if (this.predstavitev && trenutni !== $('#prevzem-zreb')) this.preklopiPredstavitev(false);
+  },
+
   /* ---------------- zvok ---------------- */
 
   _tik(hitrost) {
@@ -289,7 +316,7 @@ const Zreb = {
     c.shadowColor = 'rgba(0,0,0,.35)'; c.shadowBlur = 5; c.shadowOffsetY = 1;
     // velikost pisave glede na kolo, število rezin in dolžino imena
     const visinaRezine = 2 * r * 0.62 * Math.sin(rezina / 2);
-    let pisava = Math.min(r * 0.085, visinaRezine * 0.62, 34);
+    let pisava = Math.min(r * 0.085, visinaRezine * 0.62, 64);
     const sirina = r * 0.66;
     c.font = `700 ${pisava}px "Open Sans", sans-serif`;
     const w = c.measureText(ime).width;
@@ -357,6 +384,16 @@ const Zreb = {
     $('#zreb-seznam-gumb').addEventListener('click', () => {
       this.seznam = !this.seznam; Shramba.pisi('zrebSeznam', this.seznam); this.izris();
     });
+    $('#zreb-predstavi').addEventListener('click', () => this.preklopiPredstavitev(true));
+    $('#zreb-izhod').addEventListener('click', () => this.preklopiPredstavitev(false));
+    document.addEventListener('fullscreenchange', () => this._obIzhoduIzCelega());
+    document.addEventListener('webkitfullscreenchange', () => this._obIzhoduIzCelega());
+    // Na celem zaslonu kolo zavrtiš tudi s tapom nanj ali s preslednico (daljinec, tipkovnica).
+    $('#zreb-kolo').addEventListener('click', () => { if (this.predstavitev) this.zavrti(); });
+    document.addEventListener('keydown', e => {
+      if (!this.predstavitev || e.target.matches('input, textarea, [contenteditable]')) return;
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); this.zavrti(); }
+    });
     $$('.zr-zavihek').forEach(z => z.addEventListener('click', () => {
       $$('.zr-zavihek').forEach(x => x.classList.toggle('on', x === z));
       $$('[data-plosca-zreb]').forEach(p => p.classList.toggle('skrit', p.dataset.ploscaZreb !== z.dataset.zavihek));
@@ -375,7 +412,8 @@ function ognjemet() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ovoj = document.createElement('div');
   ovoj.className = 'ognjemet';
-  document.body.appendChild(ovoj);
+  // na celem zaslonu je viden samo celozaslonski element
+  (document.fullscreenElement || document.webkitFullscreenElement || document.body).appendChild(ovoj);
   const barve = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffa07a', '#f7dc6f', '#bb8fce', '#85c1e2'];
 
   for (let k = 0; k < 15; k++) {
